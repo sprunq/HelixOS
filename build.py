@@ -15,12 +15,6 @@ def clean_dir(dir : str):
         shutil.rmtree(dir)
     os.makedirs(dir)
 
-def get_qemu() -> str:
-   if platform.system() == 'Windows':
-        return "qemu-system-i386w"
-   else:
-        return "qemu"
-
 def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
     sjc_jar_absolute = os.path.abspath(sjc_jar_path_arg)
     if not os.path.exists(sjc_jar_absolute):
@@ -44,7 +38,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         print("Detected errors during compilation. Aborting build..")
         exit()
     
-    subprocess.run([get_qemu(), "-m", "32", "-boot", "a", "-fda", "BOOT_FLP.IMG"])
+    subprocess.run(["qemu-system-i386", "-m", "32", "-boot", "a", "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy"])
 
     # Cleanup
     os.chdir(START_DIR)
