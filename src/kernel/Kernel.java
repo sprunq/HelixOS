@@ -9,6 +9,7 @@ public class Kernel {
 
     @SuppressWarnings("unused")
     public static void main() {
+
         clearScreen();
 
         byte col = 0;
@@ -16,14 +17,19 @@ public class Kernel {
         while (true) {
             for (int i = 0; i < 2000; i++) {
                 int index = (i + round) % 2000;
-                vidMem.cells[index].color = VidColor.background(col);
+                vidMem.cells[index].color = VidColor.setBackground(vidMem.cells[index].color , col);
                 if (i % (2000 / 16) == 0) {
                     col = (byte) ((col + 1) % 8);
+                }
+                if (index % 3 == 0){
+                    vidMem.cells[i].color = VidColor.setBrightnessBg(vidMem.cells[i].color , true);
+                } else {
+                    vidMem.cells[i].color = VidColor.setBrightnessBg(vidMem.cells[i].color , false);
                 }
             }
             round += 1;
 
-            for (int i = 0; i < 2000000; i++) {
+            for (int i = 0; i < 5000000; i++) {
             }
         }
     }
@@ -41,7 +47,7 @@ public class Kernel {
         vidMem.cells[vidPos].character = (byte) c;
 
         byte color = vidMem.cells[vidPos].color;
-        vidMem.cells[vidPos].color = VidColor.updateForeground(color, VidColor.GREY);
+        vidMem.cells[vidPos].color = VidColor.setForeground(color, VidColor.GREY);
         vidPos += 1;
     }
 
