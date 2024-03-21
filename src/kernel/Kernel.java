@@ -3,13 +3,12 @@ package kernel;
 import kernel.video.VidColor;
 import kernel.video.VidMem;
 
+@SuppressWarnings("unused")
 public class Kernel {
     private static final VidMem vidMem = (VidMem) MAGIC.cast2Struct(0xB8000);
     private static int vidPos;
 
-    @SuppressWarnings("unused")
     public static void main() {
-
         clearScreen();
 
         byte col = 0;
@@ -17,14 +16,14 @@ public class Kernel {
         while (true) {
             for (int i = 0; i < 2000; i++) {
                 int index = (i + round) % 2000;
-                vidMem.cells[index].color = VidColor.setBackground(vidMem.cells[index].color , col);
+                vidMem.cells[index].color = VidColor.setBg(vidMem.cells[index].color , col);
                 if (i % (2000 / 16) == 0) {
                     col = (byte) ((col + 1) % 8);
                 }
                 if (index % 3 == 0){
-                    vidMem.cells[i].color = VidColor.setBrightnessBg(vidMem.cells[i].color , true);
+                    vidMem.cells[i].color = VidColor.setBrightBg(vidMem.cells[i].color , true);
                 } else {
-                    vidMem.cells[i].color = VidColor.setBrightnessBg(vidMem.cells[i].color , false);
+                    vidMem.cells[i].color = VidColor.setBrightBg(vidMem.cells[i].color , false);
                 }
             }
             round += 1;
@@ -47,14 +46,14 @@ public class Kernel {
         vidMem.cells[vidPos].character = (byte) c;
 
         byte color = vidMem.cells[vidPos].color;
-        vidMem.cells[vidPos].color = VidColor.setForeground(color, VidColor.GREY);
+        vidMem.cells[vidPos].color = VidColor.setFg(color, VidColor.GREY);
         vidPos += 1;
     }
 
     public static void clearScreen() {
         for (int i = 0; i < 2000; i++) {
             vidMem.cells[i].character = ' ';
-            vidMem.cells[i].color = VidColor.set(VidColor.BLACK, VidColor.BLACK);
+            vidMem.cells[i].color = VidColor.BLACK;
         }
         vidPos = 0;
     }

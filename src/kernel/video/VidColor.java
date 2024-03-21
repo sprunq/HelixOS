@@ -22,12 +22,12 @@ public class VidColor {
     private static final byte BIT_BRIGHTNESS_BG = 7;
 
     @SJC.Inline
-    public static byte set(byte foregroundColor, byte backgroundColor) {
-        return (byte) ((backgroundColor << 4) | foregroundColor);
+    public static byte set(byte fg, byte bg) {
+        return (byte) ((bg << 4) | fg);
     }
 
     @SJC.Inline
-    public static byte setForeground(byte color, byte fg) {
+    public static byte setFg(byte color, byte fg) {
         byte colorBits = (byte) (fg & 0x7);
         color &= 0xF8; // 01110000
         color |= colorBits;
@@ -35,7 +35,7 @@ public class VidColor {
     }
 
     @SJC.Inline
-    public static byte setBackground(byte color, byte bg) {
+    public static byte setBg(byte color, byte bg) {
         byte colorBits = (byte) (bg & 0x7);
         color &= 0x8F; // 10001111
         color |= colorBits << 4;
@@ -43,13 +43,13 @@ public class VidColor {
     }
 
     @SJC.Inline
-    public static byte setBrightnessBg(byte c, boolean isLight) {
-        return bitSetTo(c, BIT_BRIGHTNESS_BG, isLight);
+    public static byte setBrightBg(byte c, boolean isBright) {
+        return bitSetTo(c, BIT_BRIGHTNESS_BG, isBright);
     }
 
     @SJC.Inline
-    public static byte setBrightnessFg(byte c, boolean isLight) {
-        return bitSetTo(c, BIT_BRIGHTNESS_FG, isLight);
+    public static byte setBrightFg(byte c, boolean isBright) {
+        return bitSetTo(c, BIT_BRIGHTNESS_FG, isBright);
     }
 
     @SJC.Inline
