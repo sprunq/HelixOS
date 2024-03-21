@@ -1,6 +1,5 @@
 package kernel.video;
 
-import util.BinaryHelper;
 import util.BitHelper;
 
 /// Bit 76543210
@@ -27,13 +26,12 @@ public class VidColor {
         return set(fg, bg, false, false);
     }
 
-    @SJC.Inline
     public static byte set(byte fg, byte bg, boolean fgIsBright, boolean bgIsBright) {
         byte color = 0;
         color = setFg(color, fg);
         color = setBg(color, bg);
-        color = setBrightFg(color, fgIsBright);
-        color = setBrightBg(color, bgIsBright);
+        color = setFgBright(color, fgIsBright);
+        color = setBgBright(color, bgIsBright);
         return color;
     }
 
@@ -48,12 +46,12 @@ public class VidColor {
     }
 
     @SJC.Inline
-    public static byte setBrightBg(byte c, boolean isBright) {
-        return (byte)BitHelper.setFlag(c, 7, isBright);
+    public static byte setFgBright(byte color, boolean isBright) {
+        return (byte)BitHelper.setFlag(color, 3, isBright);
     }
 
     @SJC.Inline
-    public static byte setBrightFg(byte c, boolean isBright) {
-        return (byte)BitHelper.setFlag(c, 3, isBright);
+    public static byte setBgBright(byte color, boolean isBright) {
+        return (byte)BitHelper.setFlag(color, 7, isBright);
     }
 }

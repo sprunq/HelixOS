@@ -21,9 +21,9 @@ public class Kernel {
                     col = (byte) ((col + 1) % 8);
                 }
                 if (index % 3 == 0){
-                    vidMem.cells[i].color = VidColor.setBrightBg(vidMem.cells[i].color , true);
+                    vidMem.cells[i].color = VidColor.setBgBright(vidMem.cells[i].color , true);
                 } else {
-                    vidMem.cells[i].color = VidColor.setBrightBg(vidMem.cells[i].color , false);
+                    vidMem.cells[i].color = VidColor.setBgBright(vidMem.cells[i].color , false);
                 }
             }
             round += 1;

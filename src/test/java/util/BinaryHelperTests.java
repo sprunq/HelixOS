@@ -1,7 +1,7 @@
 package util;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
 import static util.BinaryHelper.bin;
 
@@ -13,8 +13,7 @@ public class BinaryHelperTests {
             long decNumberTruth = Long.parseLong(bitString, 2);
 
             long decNumberConverted = bin(binaryReprAsLong);
-
-            Assertions.assertEquals(decNumberTruth, decNumberConverted);
+            Assert.assertEquals(decNumberTruth, decNumberConverted);
             return;
         }
 
@@ -35,12 +34,12 @@ public class BinaryHelperTests {
 
     @Test
     public void binaryLiteralZeroTest() {
-        Assertions.assertEquals(0, bin(0));
+        Assert.assertEquals(0, bin(0));
     }
 
     @Test
     public void binaryLiteralOneTest() {
-        Assertions.assertEquals(1, bin(1));
+        Assert.assertEquals(1, bin(1));
     }
 
     @Test

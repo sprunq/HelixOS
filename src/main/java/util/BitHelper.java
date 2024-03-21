@@ -2,8 +2,7 @@ package util;
 
 public class BitHelper {
     @SJC.Inline
-    public static boolean getFlag(int value, int n)
-    {
+    public static boolean getFlag(int value, int n) {
         int flag = ((value >> n) & 1);
         return flag == 1;
     }
@@ -14,8 +13,7 @@ public class BitHelper {
     }
 
     @SJC.Inline
-    public static int setRange(int value, int start, int length, int newValue)
-    {
+    public static int setRange(int value, int start, int length, int newValue) {
         int highBits = (1 << length) - 1;
         int loadMask = highBits << start;
         int storeMask = (newValue & highBits) << start;
@@ -23,8 +21,7 @@ public class BitHelper {
     }
 
     @SJC.Inline
-    public static int getRange(int value, int start, int length)
-    {
+    public static int getRange(int value, int start, int length) {
         return (value >> start) & ((1 << length) - 1);
     }
 
