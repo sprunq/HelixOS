@@ -1,5 +1,4 @@
 # ToOS
-
 ## Build
 ### Prerequisites
 - Java (`java` in path)
