@@ -26,7 +26,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
     shutil.copy("bts_dsk.bin", BUILD_DIR)
     os.chdir(BUILD_DIR)
 
-    output = subprocess.run(["java", "-jar", sjc_jar_absolute, "../src", "-o", "boot"],
+    output = subprocess.run(["java", "-jar", sjc_jar_absolute, "../src/main", "-o", "boot"],
                        capture_output=True,
                        text=True) 
     
