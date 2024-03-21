@@ -6,7 +6,7 @@ import platform
 import sys
 import argparse
 
-BUILD_DIR = "os_build"
+BUILD_DIR = "build_os"
 RESOURCE_DIR = "res"
 START_DIR = os.getcwd()
 
