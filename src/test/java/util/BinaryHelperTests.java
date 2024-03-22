@@ -3,6 +3,8 @@ package util;
 import org.junit.Assert;
 import org.junit.Test;
 
+import kernel.video.TextWriter;
+
 import static util.BinaryHelper.bin;
 
 public class BinaryHelperTests {
@@ -49,4 +51,5 @@ public class BinaryHelperTests {
         boolean[] bits = new boolean[n];
         testAllBinaryCombinations(n, bits, 0);
     }
+
 }

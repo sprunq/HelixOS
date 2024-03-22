@@ -1,5 +1,6 @@
 package java.lang;
 import rte.SClassDesc;
+
 public class Object {
     public final SClassDesc _r_type=null;
     public final Object _r_next=null;

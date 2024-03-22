@@ -172,11 +172,11 @@ public class MAGIC {
 
     public static Object clssDesc(String clssName) {
         return null;
-    } //return SClassDesc
+    } // return SClassDesc
 
     public static Object intfDesc(String clssName) {
         return null;
-    } //returns SIntfDesc
+    } // returns SIntfDesc
 
     public static int mthdOff(String clssName, String mthdName) {
         return 0;

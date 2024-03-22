@@ -21,7 +21,6 @@ public class VidColor {
     public static final byte GREY = 7;
 
     @SJC.Inline
-    @SuppressWarnings("unused")
     public static byte set(byte fg, byte bg) {
         return set(fg, bg, false, false);
     }
@@ -37,21 +36,21 @@ public class VidColor {
 
     @SJC.Inline
     public static byte setFg(byte color, byte fg) {
-        return (byte)BitHelper.setRange(color, 0,3, fg);
+        return (byte) BitHelper.setRange(color, 0, 3, fg);
     }
 
     @SJC.Inline
     public static byte setBg(byte color, byte bg) {
-        return (byte)BitHelper.setRange(color, 4,3, bg);
+        return (byte) BitHelper.setRange(color, 4, 3, bg);
     }
 
     @SJC.Inline
     public static byte setFgBright(byte color, boolean isBright) {
-        return (byte)BitHelper.setFlag(color, 3, isBright);
+        return (byte) BitHelper.setFlag(color, 3, isBright);
     }
 
     @SJC.Inline
     public static byte setBgBright(byte color, boolean isBright) {
-        return (byte)BitHelper.setFlag(color, 7, isBright);
+        return (byte) BitHelper.setFlag(color, 7, isBright);
     }
 }
