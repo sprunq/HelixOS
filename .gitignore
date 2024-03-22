@@ -1,6 +1,7 @@
 /out/
 /os_build/
 .idea/**
+.vscode/**
 
 
 
