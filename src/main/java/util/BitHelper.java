@@ -40,4 +40,9 @@ public class BitHelper {
         value = ((value >> 16) & 0xffff) | ((value & 0xffff) << 16);
         return value;
     }
+
+    @SJC.Inline
+    public static int align(int base, int alignment) {
+        return ((base + (alignment - 1)) & ~(alignment - 1));
+    }
 }

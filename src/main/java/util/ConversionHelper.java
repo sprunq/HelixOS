@@ -5,7 +5,9 @@ public class ConversionHelper {
         char[] buffer = new char[33];
         // Special case for 0
         if (n == 0) {
-            return new char[] { '0' };
+            char[] b = new char[1];
+            b[0] = '0';
+            return b;
         }
 
         // Prints each digit of the number but in reverse order

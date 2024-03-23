@@ -1,41 +1,81 @@
 package kernel.memory;
 
+import kernel.video.OsWriter;
 import rte.SClassDesc;
+import util.BitHelper;
 
 public class MemoryManager {
     private static final BootableImage bootableImage = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
 
+    /**
+     * Represents the pointer to the next free memory location in the memory
+     * manager.
+     */
     private static int ptrNextFree;
-    private static int ptrLastObject;
+    private static int ptrPreviousObject;
 
     public static void init() {
-        ptrNextFree = bootableImage.memoryStart + bootableImage.memorySize;
-        ptrLastObject = 0;
+        ptrNextFree = getFirstAdr();
+        ptrPreviousObject = 0;
+    }
+
+    public static int getFirstAdr() {
+        return BitHelper.align(bootableImage.memoryStart + bootableImage.memorySize, 4);
+    }
+
+    public static Object getFirstObject() {
+        int firstAddr = getFirstAdr();
+        Object firstObject = MAGIC.cast2Obj(firstAddr);
+        return firstObject;
+    }
+
+    public static void renderObject(Object o) {
+        OsWriter.print("object(relocEntries=");
+        OsWriter.print(o._r_relocEntries);
+        OsWriter.print(", scalarSize=");
+        OsWriter.print(o._r_scalarSize);
+        OsWriter.println(")");
     }
 
     public static Object alloc(int scalarSize, int relocEntries, SClassDesc type) {
+        // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
         int size = relocsSize + scalarSize;
         int ptrObj = ptrNextFree;
 
-        Memory.set(ptrObj, size, (byte) 0);
+        // null object bytes
+        Memory.setBytes(ptrObj, size, (byte) 0);
 
+        // update object internal fields
+        Object newObject = setObject(ptrObj, scalarSize, relocEntries, type);
+        updateRefOfLastObj(newObject);
+
+        ptrNextFree = BitHelper.align(ptrNextFree + size, 4);
+        return newObject;
+    }
+
+    /**
+     * Initializes an object at the given memory address and sets its intrinsic
+     * values.
+     */
+    @SJC.Inline
+    private static Object setObject(int ptrObj, int scalarSize, int relocEntries, SClassDesc type) {
         Object obj = MAGIC.cast2Obj(ptrObj);
         MAGIC.assign(obj._r_type, type);
         MAGIC.assign(obj._r_scalarSize, scalarSize);
         MAGIC.assign(obj._r_relocEntries, relocEntries);
-
-        if (ptrLastObject != 0) {
-            Object lastObject = MAGIC.cast2Obj(ptrLastObject);
-            MAGIC.assign(lastObject._r_next, obj);
-        }
-
-        ptrLastObject = ptrObj;
-        ptrNextFree += size;
         return obj;
     }
 
-    public static int align4Byte(int x) {
-        return (x + 3) & ~3;
+    /**
+     * Updates previously created Object's <code>_r_next</code> field with a
+     * reference to the <code>newObject</code>
+     */
+    private static void updateRefOfLastObj(Object newObject) {
+        if (ptrPreviousObject != 0) {
+            Object lastObject = MAGIC.cast2Obj(ptrPreviousObject);
+            MAGIC.assign(lastObject._r_next, newObject);
+        }
+        ptrPreviousObject = MAGIC.cast2Ref(newObject);
     }
 }

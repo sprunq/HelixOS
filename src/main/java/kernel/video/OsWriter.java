@@ -1,14 +1,40 @@
 package kernel.video;
 
-public class TextWriter {
+public class OsWriter {
     private static final VidMem vidMem = (VidMem) MAGIC.cast2Struct(0xB8000);
     private static int vidPos;
 
     public static final int LINE_LENGTH = 80;
     public static final int LINE_COUNT = 25;
 
-    public static void newline() {
+    @SJC.Inline
+    public static void println() {
         vidPos = (vidPos / LINE_LENGTH + 1) * LINE_LENGTH;
+    }
+
+    public static void println(byte b) {
+        print(b);
+        println();
+    }
+
+    public static void println(boolean b) {
+        print(b);
+        println();
+    }
+
+    public static void println(char c) {
+        print(c);
+        println();
+    }
+
+    public static void println(String str) {
+        print(str);
+        println();
+    }
+
+    public static void println(int n) {
+        print(n);
+        println();
     }
 
     public static void clearScreen() {
@@ -73,4 +99,5 @@ public class TextWriter {
             vidMem.cells[y].character = temp;
         }
     }
+
 }
