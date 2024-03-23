@@ -1,7 +1,7 @@
-package kernel.video;
+package kernel.display.textmode;
 
-public class OsWriter {
-    private static final VidMem vidMem = (VidMem) MAGIC.cast2Struct(0xB8000);
+public class OsWriterOld {
+    private static final TmDisplayMemory vidMem = (TmDisplayMemory) MAGIC.cast2Struct(0xB8000);
     private static int vidPos;
 
     public static final int LINE_LENGTH = 80;
@@ -40,7 +40,7 @@ public class OsWriter {
     public static void clearScreen() {
         for (int i = 0; i < LINE_LENGTH * LINE_COUNT; i++) {
             vidMem.cells[i].character = ' ';
-            vidMem.cells[i].color = VidColor.set(VidColor.GREY, VidColor.BLACK);
+            vidMem.cells[i].color = TmColor.set(TmColor.GREY, TmColor.BLACK);
         }
         vidPos = 0;
     }
@@ -51,7 +51,7 @@ public class OsWriter {
         }
         vidMem.cells[vidPos].character = b;
         byte color = vidMem.cells[vidPos].color;
-        vidMem.cells[vidPos].color = VidColor.setFg(color, VidColor.GREY);
+        vidMem.cells[vidPos].color = TmColor.setFg(color, TmColor.GREY);
         vidPos += 1;
     }
 

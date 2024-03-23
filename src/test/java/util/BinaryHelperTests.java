@@ -3,8 +3,6 @@ package util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import kernel.video.OsWriter;
-
 import static util.BinaryHelper.bin;
 
 public class BinaryHelperTests {

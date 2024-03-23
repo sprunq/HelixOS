@@ -1,5 +1,7 @@
 package java.lang;
 
+import kernel.Sys;
+
 public class String {
     private char[] value;
     private int count;
@@ -18,4 +20,19 @@ public class String {
         this.value = value;
         this.count = value.length;
     }
+
+    public char[] toCharArray() {
+        char[] copy = new char[count];
+        for (int i = 0; i < count; i++) {
+            copy[i] = value[i];
+        }
+        return copy;
+    }
+
+    public String toUpperCase() {
+        Sys.panic("dummy method");
+        while (true) {
+        }
+    }
+
 }

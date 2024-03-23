@@ -1,36 +1,14 @@
 package rte;
 
+import kernel.Sys;
 import kernel.memory.MemoryManager;
-import kernel.video.OsWriter;
-import util.Sys;
 
 public class DynamicRuntime {
     public static Object newInstance(int scalarSize, int relocEntries, SClassDesc type) {
-        OsWriter.print("call newInstance(sclarSize=");
-        OsWriter.print(scalarSize);
-        OsWriter.print(", relocEntries=");
-        OsWriter.print(relocEntries);
-        OsWriter.print(", type=");
-        OsWriter.print("_");
-        OsWriter.println(")");
-
         return MemoryManager.alloc(scalarSize, relocEntries, type);
     }
 
     public static SArray newArray(int length, int arrDim, int entrySize, int stdType, Object unitType) {
-        OsWriter.print("call newArray(length=");
-        OsWriter.print(length);
-        OsWriter.print(", arrDim=");
-        OsWriter.print(arrDim);
-        OsWriter.print(", entrySize=");
-        OsWriter.print(entrySize);
-        OsWriter.print(", stdType=");
-        OsWriter.print(stdType);
-        OsWriter.print(", unitType=");
-        OsWriter.println("_)");
-
-        OsWriter.println(MAGIC.getInstScalarSize("SArray"));
-
         int scalarSize = MAGIC.getInstScalarSize("SArray");
         int relocEntries = MAGIC.getInstRelocEntries("SArray");
         SClassDesc classDesc = (SClassDesc) MAGIC.clssDesc("SArray");

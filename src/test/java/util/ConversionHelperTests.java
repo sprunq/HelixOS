@@ -3,6 +3,8 @@ package util;
 import org.junit.Assert;
 import org.junit.Test;
 
+import kernel.Sys;
+
 public class ConversionHelperTests {
     @Test
     public void SimpleConversionTest() {
@@ -51,6 +53,45 @@ public class ConversionHelperTests {
         char[] expected = new char[] { '0' };
         char[] converted = ConversionHelper.itoa(0, 16);
         Assert.assertArrayEquals(expected, converted);
+    }
+
+    @Test
+    public void HexConversionManyTest() {
+        for (int i = 0; i < 1_000_000; i++) {
+            char[] expected = Integer.toString(i, 16).toUpperCase().toCharArray();
+            char[] actual = ConversionHelper.itoa(i, 16);
+            Assert.assertArrayEquals(expected, actual);
+        }
+    }
+
+    @Test
+    public void HexConversionManyNegativeTest() {
+        for (int i = -1_000; i < 0; i++) {
+            char[] expected = Integer.toString(i, 16).toUpperCase().toCharArray();
+            char[] actual = ConversionHelper.itoa(i, 16);
+            Assert.assertArrayEquals(expected, actual);
+        }
+    }
+
+    @Test
+    public void ItoCTest() {
+        char[] expected = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+        for (int i = 0; i < 36; i++) {
+            char actual = ConversionHelper.itoc(i);
+            Assert.assertEquals(expected[i], actual);
+        }
+    }
+
+    @Test
+    public void ItoCOutOfRangeTest() {
+        char actual = ConversionHelper.itoc(37);
+        Assert.assertEquals('\0', actual);
+    }
+
+    @Test
+    public void ItoCOutOfRangeTest2() {
+        char actual = ConversionHelper.itoc(-1);
+        Assert.assertEquals('\0', actual);
     }
 
 }

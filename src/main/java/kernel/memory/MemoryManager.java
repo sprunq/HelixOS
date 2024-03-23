@@ -1,6 +1,5 @@
 package kernel.memory;
 
-import kernel.video.OsWriter;
 import rte.SClassDesc;
 import util.BitHelper;
 
@@ -23,31 +22,19 @@ public class MemoryManager {
         return BitHelper.align(bootableImage.memoryStart + bootableImage.memorySize, 4);
     }
 
-    public static Object getFirstObject() {
-        int firstAddr = getFirstAdr();
-        Object firstObject = MAGIC.cast2Obj(firstAddr);
-        return firstObject;
-    }
-
-    public static void renderObject(Object o) {
-        OsWriter.print("object(relocEntries=");
-        OsWriter.print(o._r_relocEntries);
-        OsWriter.print(", scalarSize=");
-        OsWriter.print(o._r_scalarSize);
-        OsWriter.println(")");
-    }
-
     public static Object alloc(int scalarSize, int relocEntries, SClassDesc type) {
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
-        int size = relocsSize + scalarSize;
+        int alignedScalarSize = BitHelper.align(scalarSize, 4);
+
+        int size = relocsSize + alignedScalarSize;
         int ptrObj = ptrNextFree;
 
         // null object bytes
         Memory.setBytes(ptrObj, size, (byte) 0);
 
         // update object internal fields
-        Object newObject = setObject(ptrObj, scalarSize, relocEntries, type);
+        Object newObject = setObject(ptrObj, alignedScalarSize, relocEntries, type);
         updateRefOfLastObj(newObject);
 
         ptrNextFree = BitHelper.align(ptrNextFree + size, 4);

@@ -1,13 +1,10 @@
 package kernel;
 
+import kernel.display.textmode.TmWriter;
 import kernel.memory.MemoryManager;
-import kernel.video.VidMem;
-import kernel.video.OsWriter;
 
-@SuppressWarnings("unused")
 public class Kernel {
-    private static final VidMem vidMem = (VidMem) MAGIC.cast2Struct(0xB8000);
-    private static int vidPos;
+    public static TmWriter out;
 
     public static void main() {
         prelude();
@@ -16,22 +13,36 @@ public class Kernel {
 
     private static void prelude() {
         MemoryManager.init();
+        out = new TmWriter();
     }
 
     private static void main_code() {
-        OsWriter.clearScreen();
+        out.clearScreen();
 
+        TestAllocC a = new TestAllocC();
+        TestAllocC b = new TestAllocC();
         TestAllocC c = new TestAllocC();
+        TestAllocC d = new TestAllocC();
 
-        OsWriter.println();
-
-        Object obj = MemoryManager.getFirstObject();
+        int firstAddr = MemoryManager.getFirstAdr();
+        Object obj = MAGIC.cast2Obj(firstAddr);
         while (obj != null) {
-            MemoryManager.renderObject(obj);
+            out.print("object(relocEntries=");
+            out.print(obj._r_relocEntries);
+            out.print(", scalarSize=");
+            out.print(obj._r_scalarSize);
+            out.println(")");
+
             obj = obj._r_next;
+            sleep();
         }
 
         while (true) {
+        }
+    }
+
+    private static void sleep() {
+        for (int i = 0; i < 100000000; i++) {
         }
     }
 }

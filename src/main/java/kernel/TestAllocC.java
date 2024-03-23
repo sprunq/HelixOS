@@ -1,7 +1,5 @@
 package kernel;
 
 public class TestAllocC {
-    byte a, b;
-
-    int c[] = new int[0];
+    long a, b, c, d, e, f, g;
 }
