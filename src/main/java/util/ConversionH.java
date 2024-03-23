@@ -1,12 +1,12 @@
 package util;
 
-import kernel.Sys;
+import kernel.Kernel;
 
-public class ConversionHelper {
+public class ConversionH {
 
     public static char[] itoa(int n, int base) {
         if (base < 2 || base > 36) {
-            Sys.panic("ConversionHelper: requested base out of range");
+            Kernel.panic("ConversionHelper: requested base out of range");
         }
         char[] buffer = new char[33];
         // Special case for 0
@@ -29,7 +29,7 @@ public class ConversionHelper {
             length++;
         }
 
-        ArrayHelper.reverse(buffer);
+        ArrayH.reverse(buffer);
         int offsetIfNegative = negative ? 1 : 0;
         char[] result = new char[length + offsetIfNegative];
         if (negative) {

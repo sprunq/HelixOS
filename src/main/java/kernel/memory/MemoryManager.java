@@ -1,7 +1,9 @@
 package kernel.memory;
 
+import kernel.Kernel;
+import rte.SArray;
 import rte.SClassDesc;
-import util.BitHelper;
+import util.BitH;
 
 public class MemoryManager {
     private static final BootableImage bootableImage = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
@@ -19,26 +21,57 @@ public class MemoryManager {
     }
 
     public static int getFirstAdr() {
-        return BitHelper.align(bootableImage.memoryStart + bootableImage.memorySize, 4);
+        return BitH.align(bootableImage.memoryStart + bootableImage.memorySize, 4096);
     }
 
     public static Object alloc(int scalarSize, int relocEntries, SClassDesc type) {
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
-        int alignedScalarSize = BitHelper.align(scalarSize, 4);
+        int alignedScalarSize = BitH.align(scalarSize, 4);
 
-        int size = relocsSize + alignedScalarSize;
-        int ptrObj = ptrNextFree;
+        int startOfObject = ptrNextFree;
+        int lengthOfObject = relocsSize + alignedScalarSize;
+        ptrNextFree = startOfObject + lengthOfObject;
 
-        // null object bytes
-        Memory.setBytes(ptrObj, size, (byte) 0);
+        // Clear the memory
+        Memory.setBytes(startOfObject, lengthOfObject, (byte) 0);
 
-        // update object internal fields
-        Object newObject = setObject(ptrObj, alignedScalarSize, relocEntries, type);
-        updateRefOfLastObj(newObject);
+        // cast2Obj expects the pointer to the first scalar field
+        // int firstScalarField = startOfObject + relocsSize; // does not work
+        int firstScalarField = startOfObject; // half works...
 
-        ptrNextFree = BitHelper.align(ptrNextFree + size, 4);
-        return newObject;
+        Object obj = MAGIC.cast2Obj(firstScalarField);
+        MAGIC.assign(obj._r_type, type);
+        MAGIC.assign(obj._r_scalarSize, alignedScalarSize);
+        MAGIC.assign(obj._r_relocEntries, relocEntries);
+
+        // The last object's _r_next field should point to the current object
+        if (ptrPreviousObject != 0) {
+            Object lastObject = MAGIC.cast2Obj(ptrPreviousObject);
+            MAGIC.assign(lastObject._r_next, obj);
+        }
+        ptrPreviousObject = MAGIC.cast2Ref(obj);
+
+        return obj;
+    }
+
+    public static SArray allocArray(int length, int arrDim, int entrySize, int stdType, Object unitType) {
+        int scalarSize = MAGIC.getInstScalarSize("SArray");
+        int relocEntries = MAGIC.getInstRelocEntries("SArray");
+        SClassDesc classDesc = (SClassDesc) MAGIC.clssDesc("SArray");
+
+        if (arrDim != 1) {
+            Kernel.panic("multidim arr not supported");
+        }
+
+        scalarSize += length * entrySize;
+
+        SArray obj = (SArray) MemoryManager.alloc(scalarSize, relocEntries, classDesc);
+        MAGIC.assign(obj.length, length);
+        MAGIC.assign(obj._r_dim, arrDim);
+        MAGIC.assign(obj._r_stdType, stdType);
+        MAGIC.assign(obj._r_unitType, unitType);
+        return obj;
     }
 
     /**

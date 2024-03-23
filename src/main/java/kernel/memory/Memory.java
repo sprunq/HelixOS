@@ -2,7 +2,6 @@ package kernel.memory;
 
 public class Memory {
     @SJC.Inline
-    @SJC.PrintCode
     public static void setBytes(int addr, int len, byte value) {
         while (len-- > 0) {
             MAGIC.wMem8(addr++, value);

@@ -1,6 +1,6 @@
 package kernel.display.textmode;
 
-import util.BitHelper;
+import util.BitH;
 
 /// Bit 76543210
 ///     ||||||||
@@ -47,21 +47,21 @@ public class TmColor {
 
     @SJC.Inline
     public static byte setFg(byte color, byte fg) {
-        return (byte) BitHelper.setRange(color, 0, 4, fg);
+        return (byte) BitH.setRange(color, 0, 4, fg);
     }
 
     @SJC.Inline
     public static byte setBg(byte color, byte bg) {
-        return (byte) BitHelper.setRange(color, 4, 4, bg);
+        return (byte) BitH.setRange(color, 4, 4, bg);
     }
 
     @SJC.Inline
     public static byte setFgBright(byte color, boolean isBright) {
-        return (byte) BitHelper.setFlag(color, 3, isBright);
+        return (byte) BitH.setFlag(color, 3, isBright);
     }
 
     @SJC.Inline
     public static byte setBgBright(byte color, boolean isBright) {
-        return (byte) BitHelper.setFlag(color, 7, isBright);
+        return (byte) BitH.setFlag(color, 7, isBright);
     }
 }

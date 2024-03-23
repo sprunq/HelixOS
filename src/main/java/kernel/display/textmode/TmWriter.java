@@ -1,6 +1,6 @@
 package kernel.display.textmode;
 
-import util.ConversionHelper;
+import util.ConversionH;
 
 public class TmWriter {
     private static final TmDisplayMemory vidMem = (TmDisplayMemory) MAGIC.cast2Struct(0xB8000);
@@ -26,7 +26,12 @@ public class TmWriter {
 
     @SJC.Inline
     public void println() {
-        cursor = (cursor / LINE_LENGTH + 1) * LINE_LENGTH;
+        cursor = newLinePos(cursor);
+    }
+
+    @SJC.Inline
+    public static int newLinePos(int cursor) {
+        return (cursor / LINE_LENGTH + 1) * LINE_LENGTH;
     }
 
     public void print(byte b) {
@@ -60,7 +65,7 @@ public class TmWriter {
     }
 
     public void print(int n, int base) {
-        char[] buffer = ConversionHelper.itoa(n, 10);
+        char[] buffer = ConversionH.itoa(n, 10);
         print(buffer);
     }
 
@@ -70,6 +75,11 @@ public class TmWriter {
 
     public void println(byte b) {
         print(b);
+        println();
+    }
+
+    public void println(char[] chars) {
+        print(chars);
         println();
     }
 
@@ -127,15 +137,15 @@ public class TmWriter {
         }
     }
 
-    public static int directPrintChar(char c, int pos, int col) {
+    public static int directPrint(char c, int pos, int col) {
         vidMem.cells[pos].character = (byte) c;
         vidMem.cells[pos].color = (byte) col;
         return pos + 1;
     }
 
-    public static int directPrintString(String s, int pos, int col) {
+    public static int directPrint(String s, int pos, int col) {
         for (int i = 0; i < s.length(); i++) {
-            directPrintChar(s.charAt(i), pos + i, col);
+            directPrint(s.charAt(i), pos + i, col);
         }
         return pos + s.length();
     }

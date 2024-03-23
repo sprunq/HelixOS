@@ -1,6 +1,6 @@
 package java.lang;
 
-import kernel.Sys;
+import kernel.Kernel;
 
 public class String {
     private char[] value;
@@ -30,7 +30,7 @@ public class String {
     }
 
     public String toUpperCase() {
-        Sys.panic("dummy method");
+        Kernel.panic("toUpperCase is a dummy method");
         while (true) {
         }
     }

@@ -3,7 +3,7 @@ package util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static util.BinaryHelper.bin;
+import static util.BitH.bin;
 
 public class BinaryHelperTests {
     private static void testAllBinaryCombinations(int n, boolean[] bits, int i) {

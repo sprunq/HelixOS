@@ -1,7 +1,10 @@
 package kernel;
 
+import kernel.display.textmode.TmColor;
 import kernel.display.textmode.TmWriter;
+import kernel.memory.BootableImage;
 import kernel.memory.MemoryManager;
+import kernel.memory.MemoryView;
 
 public class Kernel {
     public static TmWriter out;
@@ -14,15 +17,13 @@ public class Kernel {
     private static void prelude() {
         MemoryManager.init();
         out = new TmWriter();
+        out.clearScreen();
     }
 
     private static void main_code() {
-        out.clearScreen();
-
         TestAllocC a = new TestAllocC();
         TestAllocC b = new TestAllocC();
         TestAllocC c = new TestAllocC();
-        TestAllocC d = new TestAllocC();
 
         int firstAddr = MemoryManager.getFirstAdr();
         Object obj = MAGIC.cast2Obj(firstAddr);
@@ -37,6 +38,8 @@ public class Kernel {
             sleep();
         }
 
+        out.println("Finished rendering objects.");
+
         while (true) {
         }
     }
@@ -45,4 +48,19 @@ public class Kernel {
         for (int i = 0; i < 100000000; i++) {
         }
     }
+
+    public static void panic(String msg) {
+        int pos = 0;
+        pos = TmWriter.directPrint(' ', pos, TmColor.set(TmColor.BLACK, TmColor.RED));
+        pos = TmWriter.newLinePos(pos);
+        pos = TmWriter.directPrint(' ', pos, TmColor.set(TmColor.BLACK, TmColor.RED));
+        pos = TmWriter.directPrint(" PANIC: ", pos, TmColor.RED);
+        pos = TmWriter.directPrint(msg, pos, TmColor.set(TmColor.LIGHT_RED, TmColor.BLACK));
+        pos = TmWriter.newLinePos(pos);
+        pos = TmWriter.directPrint(' ', pos, TmColor.set(TmColor.BLACK, TmColor.RED));
+        pos = TmWriter.newLinePos(pos);
+        while (true) {
+        }
+    }
+
 }

@@ -1,6 +1,6 @@
 package util;
 
-public class ArrayHelper {
+public class ArrayH {
     public static void reverse(char[] a) {
         int i = a.length - 1;
         int j = 0;
