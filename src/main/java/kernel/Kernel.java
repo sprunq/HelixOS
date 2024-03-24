@@ -14,7 +14,6 @@ public class Kernel {
     }
 
     private static void prelude() {
-        MemoryManager.init();
         out = new TmWriter();
     }
 
@@ -34,8 +33,7 @@ public class Kernel {
         addrs[5] = MAGIC.cast2Ref(out.brush);
         addrs[6] = MAGIC.cast2Ref(NoAllocConv.ALPHABET);
 
-        int firstAddr = MemoryManager.getFirstAdr();
-        Object obj = MAGIC.cast2Obj(firstAddr + 8);
+        Object obj = MemoryManager.getFirstHeapObj();
         int foundObjects = 0;
         while (obj != null) {
             int addr = MAGIC.cast2Ref(obj);
@@ -68,18 +66,20 @@ public class Kernel {
         }
 
         out.brush.setFg(TmColor.WHITE);
-
-        out.println("Finished rendering objects.");
         out.print("Found ");
         out.print(foundObjects, 10);
         out.println(" objects.");
+
+        out.print("Consumed memory: ");
+        out.print(MemoryManager.getConsumedMemory(), 10);
+        out.println("b");
 
         while (true) {
         }
     }
 
     private static void sleep() {
-        for (int i = 0; i < 100000000; i++) {
+        for (int i = 0; i < 1000000; i++) {
         }
     }
 

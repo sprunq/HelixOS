@@ -1,12 +1,10 @@
 package rte;
 
 import kernel.Kernel;
-import kernel.display.textmode.TmWriter;
 import kernel.memory.MemoryManager;
 
 public class DynamicRuntime {
     public static Object newInstance(int scalarSize, int relocEntries, SClassDesc type) {
-        TmWriter.directPrint("alloc", 10, 20);
         return MemoryManager.allocObject(scalarSize, relocEntries, type);
     }
 

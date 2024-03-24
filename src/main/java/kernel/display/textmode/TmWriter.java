@@ -100,6 +100,11 @@ public class TmWriter {
         println();
     }
 
+    public void println(int n, int base) {
+        print(n, base);
+        println();
+    }
+
     public void clearScreen() {
         for (int i = 0; i < LINE_COUNT; i++) {
             clearLine(i);

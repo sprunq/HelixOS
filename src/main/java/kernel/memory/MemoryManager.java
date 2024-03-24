@@ -6,25 +6,39 @@ import rte.SClassDesc;
 import util.BitHelper;
 
 public class MemoryManager {
-    private static final BootableImage bootableImage = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
+    public static final BootableImage BOOT_IMAGE = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
 
-    /**
-     * Represents the pointer to the next free memory location in the memory
-     * manager.
+    /*
+     * Gets the last Object in the chain of heap objects.
+     * This is the object that was allocated last.
+     * Very inefficient, but good enough for now.
      */
-    private static int ptrNextFree;
-    private static int ptrPreviousObject;
-
-    public static void init() {
-        ptrNextFree = getFirstAdr();
-        ptrPreviousObject = 0;
+    public static Object getLastHeapObj() {
+        Object obj = getFirstHeapObj();
+        while (obj._r_next != null) {
+            obj = obj._r_next;
+        }
+        return obj;
     }
 
-    public static int getFirstAdr() {
-        return BitHelper.align(bootableImage.memoryStart + bootableImage.memorySize, 4);
+    public static Object getFirstHeapObj() {
+        return MAGIC.cast2Obj(BOOT_IMAGE.firstHeapObject);
+    }
+
+    public static int getConsumedMemory() {
+        int consumed = 0;
+        Object obj = getFirstHeapObj();
+        while (obj != null) {
+            consumed += obj._r_scalarSize;
+            obj = obj._r_next;
+        }
+        return consumed;
     }
 
     public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
+        Object lastHeapObj = getLastHeapObj();
+        int ptrNextFree = BitHelper.align(MAGIC.cast2Ref(lastHeapObj) + lastHeapObj._r_scalarSize, 4);
+
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
         // Scalars should also be aligned to 4 bytes
@@ -32,25 +46,19 @@ public class MemoryManager {
 
         int startOfObject = ptrNextFree;
         int lengthOfObject = relocsSize + alignedScalarSize;
-        ptrNextFree = startOfObject + lengthOfObject;
 
         // Clear the memory
         Memory.setBytes(startOfObject, lengthOfObject, (byte) 0);
 
         // cast2Obj expects the pointer to the first scalar field
-        int firstScalarField = startOfObject + relocsSize; // does not work
+        int firstScalarField = startOfObject + relocsSize;
 
         Object obj = MAGIC.cast2Obj(firstScalarField);
         MAGIC.assign(obj._r_type, type);
         MAGIC.assign(obj._r_scalarSize, alignedScalarSize);
         MAGIC.assign(obj._r_relocEntries, relocEntries);
 
-        // The last object's _r_next field should point to the current object
-        if (ptrPreviousObject != 0) {
-            Object lastObject = MAGIC.cast2Obj(ptrPreviousObject);
-            MAGIC.assign(lastObject._r_next, obj);
-        }
-        ptrPreviousObject = MAGIC.cast2Ref(obj);
+        MAGIC.assign(lastHeapObj._r_next, obj);
 
         return obj;
     }
