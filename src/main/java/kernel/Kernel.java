@@ -2,7 +2,6 @@ package kernel;
 
 import kernel.display.textmode.TmColor;
 import kernel.display.textmode.TmWriter;
-import kernel.lib.NoAllocConv;
 import kernel.memory.MemoryManager;
 
 public class Kernel {
@@ -20,18 +19,15 @@ public class Kernel {
     private static void main_code() {
         out.clearScreen();
 
-        TestAllocA a = new TestAllocA();
-        TestAllocB b = new TestAllocB();
-        TestAllocC c = new TestAllocC();
+        TestAllocA a = new TestAllocA(5, 7, 9, true, "hello from a");
+        TestAllocB b = new TestAllocB(a);
 
         int[] addrs = new int[100];
         addrs[0] = MAGIC.cast2Ref(a);
         addrs[1] = MAGIC.cast2Ref(b);
-        addrs[2] = MAGIC.cast2Ref(c);
         addrs[3] = MAGIC.cast2Ref(addrs);
         addrs[4] = MAGIC.cast2Ref(out);
         addrs[5] = MAGIC.cast2Ref(out.brush);
-        addrs[6] = MAGIC.cast2Ref(NoAllocConv.ALPHABET);
 
         Object obj = MemoryManager.getFirstHeapObj();
         int foundObjects = 0;
@@ -74,12 +70,20 @@ public class Kernel {
         out.print(MemoryManager.getConsumedMemory(), 10);
         out.println("b");
 
+        // Show that the objects are not overwritten
+        TestAllocA c = new TestAllocA(11, 13, 15, false, "hello from c");
+        TestAllocB d = new TestAllocB(c);
+
+        b.print();
+        out.println();
+        d.print();
+
         while (true) {
         }
     }
 
     private static void sleep() {
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 3000000; i++) {
         }
     }
 

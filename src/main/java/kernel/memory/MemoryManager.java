@@ -37,7 +37,9 @@ public class MemoryManager {
 
     public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
         Object lastHeapObj = getLastHeapObj();
-        int ptrNextFree = BitHelper.align(MAGIC.cast2Ref(lastHeapObj) + lastHeapObj._r_scalarSize, 4);
+        int lastHeapObjAddr = MAGIC.cast2Ref(lastHeapObj);
+        // Align the next object to 4 bytes
+        int ptrNextFree = BitHelper.align(lastHeapObjAddr + lastHeapObj._r_scalarSize, 4);
 
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
@@ -50,7 +52,8 @@ public class MemoryManager {
         // Clear the memory
         Memory.setBytes(startOfObject, lengthOfObject, (byte) 0);
 
-        // cast2Obj expects the pointer to the first scalar field
+        // cast2Obj expects the pointer to the first scalar field.
+        // It needs space because relocs will be stored in front of the object
         int firstScalarField = startOfObject + relocsSize;
 
         Object obj = MAGIC.cast2Obj(firstScalarField);
@@ -58,6 +61,7 @@ public class MemoryManager {
         MAGIC.assign(obj._r_scalarSize, alignedScalarSize);
         MAGIC.assign(obj._r_relocEntries, relocEntries);
 
+        // Link the object into the chain
         MAGIC.assign(lastHeapObj._r_next, obj);
 
         return obj;
