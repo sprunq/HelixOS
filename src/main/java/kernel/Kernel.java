@@ -81,9 +81,11 @@ public class Kernel {
         out.println();
 
         // test memory limit
+
+        out.println("Testing memory limit...");
         while (true) {
             int z = MemoryManager.getConsumedMemory();
-            int[] arr = new int[10000];
+            byte[] arr = new byte[1000];
 
             int consumed = MemoryManager.getConsumedMemory();
             if (z == consumed) {
@@ -93,11 +95,14 @@ public class Kernel {
 
                 int adr = MAGIC.cast2Ref(arr);
                 out.print("Array at 0x");
-                out.print(adr, 16);
+                out.println(adr, 16);
                 break;
             }
-
         }
+
+        int objects = MemoryManager.getObjectCount();
+        out.print("Objects: ");
+        out.print(objects, 10);
 
         while (true) {
         }
@@ -109,14 +114,17 @@ public class Kernel {
     }
 
     public static void panic(String msg) {
+        byte border = TmColor.set(TmColor.BLACK, TmColor.RED);
+        byte textMsg = TmColor.set(TmColor.LIGHT_RED, TmColor.BLACK);
+        byte textPanic = TmColor.set(TmColor.RED, TmColor.BLACK);
         int pos = 0;
-        pos = TmWriter.directPrint(' ', pos, TmColor.set(TmColor.BLACK, TmColor.RED));
+        pos = TmWriter.directPrint(' ', pos, border);
         pos = TmWriter.newLinePos(pos);
-        pos = TmWriter.directPrint(' ', pos, TmColor.set(TmColor.BLACK, TmColor.RED));
-        pos = TmWriter.directPrint(" PANIC: ", pos, TmColor.set(TmColor.RED, TmColor.BLACK));
-        pos = TmWriter.directPrint(msg, pos, TmColor.set(TmColor.LIGHT_RED, TmColor.BLACK));
+        pos = TmWriter.directPrint(' ', pos, border);
+        pos = TmWriter.directPrint(" PANIC: ", pos, textPanic);
+        pos = TmWriter.directPrint(msg, pos, textMsg);
         pos = TmWriter.newLinePos(pos);
-        pos = TmWriter.directPrint(' ', pos, TmColor.set(TmColor.BLACK, TmColor.RED));
+        pos = TmWriter.directPrint(' ', pos, border);
         pos = TmWriter.newLinePos(pos);
         while (true) {
         }

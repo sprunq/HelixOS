@@ -35,6 +35,16 @@ public class MemoryManager {
         return consumed;
     }
 
+    public static int getObjectCount() {
+        int count = 0;
+        Object obj = getFirstHeapObj();
+        while (obj != null) {
+            count++;
+            obj = obj._r_next;
+        }
+        return count;
+    }
+
     public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
         Object lastHeapObj = getLastHeapObj();
         int lastHeapObjAddr = MAGIC.cast2Ref(lastHeapObj);
