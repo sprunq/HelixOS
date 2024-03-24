@@ -68,6 +68,7 @@ public class TmWriter {
         for (int i = old_pos; i < cursor; i++) {
             vidMem.cells[i].color = brush.getColor();
         }
+        updateCursorCaret();
     }
 
     public void println() {
