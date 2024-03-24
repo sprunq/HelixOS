@@ -73,6 +73,10 @@ public class TmWriter {
 
     public void println() {
         cursor = newLinePos(cursor);
+        if (cursor >= MAX_CURSOR) {
+            scroll_down();
+            cursor -= LINE_LENGTH;
+        }
         updateCursorCaret();
     }
 

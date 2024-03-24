@@ -8,45 +8,28 @@ import util.BitHelper;
 public class MemoryManager {
     public static final BootableImage BOOT_IMAGE = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
 
-    /*
-     * Gets the last Object in the chain of heap objects.
-     * This is the object that was allocated last.
-     * Very inefficient, but good enough for now.
-     */
+    public static int cachedLastHeapObjAdr = -1;
+
     public static Object getLastHeapObj() {
-        Object obj = getFirstHeapObj();
-        while (obj._r_next != null) {
-            obj = obj._r_next;
+        // Init falls noch nicht geschehen
+        if (cachedLastHeapObjAdr == -1) {
+            Object obj = getFirstHeapObj();
+            while (obj._r_next != null) {
+                obj = obj._r_next;
+            }
+            cachedLastHeapObjAdr = MAGIC.cast2Ref(obj);
         }
-        return obj;
+        return MAGIC.cast2Obj(cachedLastHeapObjAdr);
     }
 
+    @SJC.Inline
     public static Object getFirstHeapObj() {
         return MAGIC.cast2Obj(BOOT_IMAGE.firstHeapObject);
     }
 
-    public static int getConsumedMemory() {
-        int consumed = 0;
-        Object obj = getFirstHeapObj();
-        while (obj != null) {
-            consumed += obj._r_scalarSize;
-            obj = obj._r_next;
-        }
-        return consumed;
-    }
-
-    public static int getObjectCount() {
-        int count = 0;
-        Object obj = getFirstHeapObj();
-        while (obj != null) {
-            count++;
-            obj = obj._r_next;
-        }
-        return count;
-    }
-
     public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
         Object lastHeapObj = getLastHeapObj();
+
         int lastHeapObjAddr = MAGIC.cast2Ref(lastHeapObj);
         // Align the next object to 4 bytes
         int ptrNextFree = BitHelper.align(lastHeapObjAddr + lastHeapObj._r_scalarSize, 4);
@@ -54,10 +37,9 @@ public class MemoryManager {
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
         // Scalars should also be aligned to 4 bytes
-        int alignedScalarSize = BitHelper.align(scalarSize, 4);
 
         int startOfObject = ptrNextFree;
-        int lengthOfObject = relocsSize + alignedScalarSize;
+        int lengthOfObject = relocsSize + scalarSize;
 
         // Clear the memory
         Memory.setBytes(startOfObject, lengthOfObject, (byte) 0);
@@ -68,11 +50,13 @@ public class MemoryManager {
 
         Object obj = MAGIC.cast2Obj(firstScalarField);
         MAGIC.assign(obj._r_type, type);
-        MAGIC.assign(obj._r_scalarSize, alignedScalarSize);
+        MAGIC.assign(obj._r_scalarSize, scalarSize);
         MAGIC.assign(obj._r_relocEntries, relocEntries);
 
         // Link the object into the chain
         MAGIC.assign(lastHeapObj._r_next, obj);
+
+        cachedLastHeapObjAdr = MAGIC.cast2Ref(obj);
 
         return obj;
     }
@@ -94,6 +78,26 @@ public class MemoryManager {
         MAGIC.assign(obj._r_stdType, stdType);
         MAGIC.assign(obj._r_unitType, unitType);
         return obj;
+    }
+
+    public static int getConsumedMemory() {
+        int consumed = 0;
+        Object obj = getFirstHeapObj();
+        while (obj != null) {
+            consumed += obj._r_scalarSize;
+            obj = obj._r_next;
+        }
+        return consumed;
+    }
+
+    public static int getObjectCount() {
+        int count = 0;
+        Object obj = getFirstHeapObj();
+        while (obj != null) {
+            count++;
+            obj = obj._r_next;
+        }
+        return count;
     }
 
     /**
