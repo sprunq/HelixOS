@@ -3,7 +3,7 @@ package kernel.memory;
 import kernel.Kernel;
 import rte.SArray;
 import rte.SClassDesc;
-import util.BitH;
+import util.BitHelper;
 
 public class MemoryManager {
     private static final BootableImage bootableImage = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
@@ -21,13 +21,14 @@ public class MemoryManager {
     }
 
     public static int getFirstAdr() {
-        return BitH.align(bootableImage.memoryStart + bootableImage.memorySize, 4096);
+        return BitHelper.align(bootableImage.memoryStart + bootableImage.memorySize, 4);
     }
 
-    public static Object alloc(int scalarSize, int relocEntries, SClassDesc type) {
+    public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
-        int alignedScalarSize = BitH.align(scalarSize, 4);
+        // Scalars should also be aligned to 4 bytes
+        int alignedScalarSize = BitHelper.align(scalarSize, 4);
 
         int startOfObject = ptrNextFree;
         int lengthOfObject = relocsSize + alignedScalarSize;
@@ -37,8 +38,7 @@ public class MemoryManager {
         Memory.setBytes(startOfObject, lengthOfObject, (byte) 0);
 
         // cast2Obj expects the pointer to the first scalar field
-        // int firstScalarField = startOfObject + relocsSize; // does not work
-        int firstScalarField = startOfObject; // half works...
+        int firstScalarField = startOfObject + relocsSize; // does not work
 
         Object obj = MAGIC.cast2Obj(firstScalarField);
         MAGIC.assign(obj._r_type, type);
@@ -66,7 +66,7 @@ public class MemoryManager {
 
         scalarSize += length * entrySize;
 
-        SArray obj = (SArray) MemoryManager.alloc(scalarSize, relocEntries, classDesc);
+        SArray obj = (SArray) MemoryManager.allocObject(scalarSize, relocEntries, classDesc);
         MAGIC.assign(obj.length, length);
         MAGIC.assign(obj._r_dim, arrDim);
         MAGIC.assign(obj._r_stdType, stdType);
@@ -87,15 +87,4 @@ public class MemoryManager {
         return obj;
     }
 
-    /**
-     * Updates previously created Object's <code>_r_next</code> field with a
-     * reference to the <code>newObject</code>
-     */
-    private static void updateRefOfLastObj(Object newObject) {
-        if (ptrPreviousObject != 0) {
-            Object lastObject = MAGIC.cast2Obj(ptrPreviousObject);
-            MAGIC.assign(lastObject._r_next, newObject);
-        }
-        ptrPreviousObject = MAGIC.cast2Ref(newObject);
-    }
 }

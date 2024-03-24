@@ -8,6 +8,7 @@ public class Memory {
         }
     }
 
+    @SJC.Inline
     public static void copyBytes(int src, int dest, int len) {
         while (len-- > 0) {
             MAGIC.wMem8(dest++, MAGIC.rMem8(src++));

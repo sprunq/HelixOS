@@ -14,13 +14,13 @@ public class BootableImage extends STRUCT {
     public int memorySize;
 
     /**
-     * Class descriptor address of start method
+     * Class descriptor address of kernel.Kernel
      */
     @SJC(offset = 8)
-    public int startMethodClassDesc;
+    public int classDescKernel;
 
     /**
-     * Address of first code byte in start method
+     * Address of first code byte in start method (kernel.Kernel.main)
      */
     @SJC(offset = 12)
     public int startMethodCodeStart;
@@ -29,7 +29,7 @@ public class BootableImage extends STRUCT {
      * Address of first object
      */
     @SJC(offset = 16)
-    public int firstObjectAddress;
+    public int firstHeapObject;
 
     /**
      * Address of RAM-init object in embedded mode

@@ -1,5 +1,5 @@
 package kernel;
 
 public class TestAllocB {
-    byte a;
+    int a, b, c, d;
 }

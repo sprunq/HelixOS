@@ -1,47 +1,42 @@
 package kernel.display.textmode;
 
-import util.ConversionH;
+import kernel.lib.NoAllocConv;
 
 public class TmWriter {
     private static final TmDisplayMemory vidMem = (TmDisplayMemory) MAGIC.cast2Struct(0xB8000);
 
     public static final int LINE_LENGTH = 80;
     public static final int LINE_COUNT = 25;
+    public static final int MAX_CURSOR = LINE_LENGTH * LINE_COUNT;
 
     private int cursor;
-    public byte color;
+    public Brush brush;
 
     public TmWriter() {
-        cursor = 0;
-        color = TmColor.set(TmColor.GREY, TmColor.BLACK);
-    }
-
-    public void setColor(byte fg, byte bg) {
-        color = TmColor.set(fg, bg);
+        this.cursor = 0;
+        this.brush = new Brush();
     }
 
     public void setCursor(int line, int column) {
         cursor = index1d(line, column);
+        updateCursorCaret();
     }
 
-    @SJC.Inline
-    public void println() {
-        cursor = newLinePos(cursor);
+    public void setCursor(int idx) {
+        cursor = idx;
+        updateCursorCaret();
     }
 
-    @SJC.Inline
-    public static int newLinePos(int cursor) {
-        return (cursor / LINE_LENGTH + 1) * LINE_LENGTH;
+    public int getCursor() {
+        return cursor;
+    }
+
+    public void updateCursorCaret() {
+        setCursorCaret(cursor);
     }
 
     public void print(byte b) {
-        if (cursor >= 2000) {
-            scroll();
-            cursor -= LINE_LENGTH;
-        }
-        vidMem.cells[cursor].character = b;
-        vidMem.cells[cursor].color = color;
-        cursor += 1;
+        setCharacterByte(b);
     }
 
     public void print(String str) {
@@ -60,17 +55,24 @@ public class TmWriter {
         print((byte) c);
     }
 
-    public void print(int n) {
-        print(n, 10);
+    public void print(boolean b) {
+        print(b ? "true" : "false");
     }
 
     public void print(int n, int base) {
-        char[] buffer = ConversionH.itoa(n, 10);
-        print(buffer);
+        int max_len = MAX_CURSOR - cursor;
+        int old_pos = cursor;
+        cursor += NoAllocConv.itoa(MAGIC.cast2Ref(vidMem) + cursor * 2, 2, max_len, n, base);
+
+        // Set color for the printed number
+        for (int i = old_pos; i < cursor; i++) {
+            vidMem.cells[i].color = brush.getColor();
+        }
     }
 
-    public void print(boolean b) {
-        print(b ? "true" : "false");
+    public void println() {
+        cursor = newLinePos(cursor);
+        updateCursorCaret();
     }
 
     public void println(byte b) {
@@ -98,16 +100,6 @@ public class TmWriter {
         println();
     }
 
-    public void println(int n) {
-        print(n);
-        println();
-    }
-
-    @SJC.Inline
-    private static int index1d(int line, int column) {
-        return (line * LINE_LENGTH) + column;
-    }
-
     public void clearScreen() {
         for (int i = 0; i < LINE_COUNT; i++) {
             clearLine(i);
@@ -115,7 +107,7 @@ public class TmWriter {
         cursor = 0;
     }
 
-    public static void scroll() {
+    public static void scroll_down() {
         for (int line = 0; line < LINE_COUNT - 1; line++) {
             for (int column = 0; column < LINE_LENGTH; column++) {
                 int indexOld = index1d(line, column);
@@ -149,4 +141,39 @@ public class TmWriter {
         }
         return pos + s.length();
     }
+
+    public static void setCursorCaret(int pos) {
+        MAGIC.wIOs8(0x3D4, (byte) 0x0F);
+        MAGIC.wIOs8(0x3D5, (byte) (pos & 0xFF));
+        MAGIC.wIOs8(0x3D4, (byte) 0x0E);
+        MAGIC.wIOs8(0x3D5, (byte) ((pos >> 8) & 0xFF));
+    }
+
+    public static void disableCursor() {
+        MAGIC.wIOs8(0x3D4, (byte) 0x0A);
+        MAGIC.wIOs8(0x3D5, (byte) 0x20);
+    }
+
+    @SJC.Inline
+    public static int newLinePos(int cursor) {
+        return (cursor / LINE_LENGTH + 1) * LINE_LENGTH;
+    }
+
+    @SJC.Inline
+    private void setCharacterByte(byte b) {
+        if (cursor >= 2000) {
+            scroll_down();
+            cursor -= LINE_LENGTH;
+        }
+        vidMem.cells[cursor].character = b;
+        vidMem.cells[cursor].color = brush.getColor();
+        cursor += 1;
+        updateCursorCaret();
+    }
+
+    @SJC.Inline
+    private static int index1d(int line, int column) {
+        return (line * LINE_LENGTH) + column;
+    }
+
 }

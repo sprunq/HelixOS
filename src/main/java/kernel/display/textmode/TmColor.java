@@ -1,6 +1,6 @@
 package kernel.display.textmode;
 
-import util.BitH;
+import util.BitHelper;
 
 /// Bit 76543210
 ///     ||||||||
@@ -19,14 +19,14 @@ public class TmColor {
     public static final byte VIOLET = 5;
     public static final byte BROWN = 6;
     public static final byte GREY = 7;
-    public static final byte LIGHT_BLACK = 8;
+    public static final byte DARK_GREY = 8;
     public static final byte LIGHT_BLUE = 9;
     public static final byte LIGHT_GREEN = 10;
     public static final byte LIGHT_TURQUOISE = 11;
     public static final byte LIGHT_RED = 12;
     public static final byte LIGHT_VIOLET = 13;
     public static final byte LIGHT_BROWN = 14;
-    public static final byte LIGHT_GREY = 15;
+    public static final byte WHITE = 15;
 
     @SJC.Inline
     public static byte set(byte fg, byte bg) {
@@ -36,6 +36,7 @@ public class TmColor {
         return color;
     }
 
+    @SJC.Inline
     public static byte set(byte fg, byte bg, boolean fgIsBright, boolean bgIsBright) {
         byte color = 0;
         color = setFg(color, fg);
@@ -47,21 +48,21 @@ public class TmColor {
 
     @SJC.Inline
     public static byte setFg(byte color, byte fg) {
-        return (byte) BitH.setRange(color, 0, 4, fg);
+        return (byte) BitHelper.setRange(color, 0, 4, fg);
     }
 
     @SJC.Inline
     public static byte setBg(byte color, byte bg) {
-        return (byte) BitH.setRange(color, 4, 4, bg);
+        return (byte) BitHelper.setRange(color, 4, 4, bg);
     }
 
     @SJC.Inline
     public static byte setFgBright(byte color, boolean isBright) {
-        return (byte) BitH.setFlag(color, 3, isBright);
+        return (byte) BitHelper.setFlag(color, 3, isBright);
     }
 
     @SJC.Inline
     public static byte setBgBright(byte color, boolean isBright) {
-        return (byte) BitH.setFlag(color, 7, isBright);
+        return (byte) BitHelper.setFlag(color, 7, isBright);
     }
 }

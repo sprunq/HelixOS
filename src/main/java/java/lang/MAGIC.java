@@ -248,7 +248,7 @@ public class MAGIC {
         return null;
     }
 
-    public static char[] toCharArray(String s) {
+    public static char[] toCharArray(String s, boolean whatisthis) {
         return null;
     }
 

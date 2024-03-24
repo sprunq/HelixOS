@@ -2,7 +2,7 @@ package util;
 
 import kernel.Kernel;
 
-public class BitH {
+public class BitHelper {
     @SJC.Inline
     public static boolean getFlag(int value, int n) {
         int flag = ((value >> n) & 1);
@@ -70,8 +70,8 @@ public class BitH {
             result |= rightmost_bit;
             number_length += 1;
         }
-        result = BitH.reverse32Bit(result);
-        result = BitH.rotateRight32Bit(result, 32 - number_length);
+        result = BitHelper.reverse32Bit(result);
+        result = BitHelper.rotateRight32Bit(result, 32 - number_length);
         return result;
     }
 
