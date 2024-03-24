@@ -244,11 +244,11 @@ public class MAGIC {
     public static void doStaticInit() {
     }
 
-    public static byte[] toByteArray(String s) {
+    public static byte[] toByteArray(String s, boolean trailingZero) {
         return null;
     }
 
-    public static char[] toCharArray(String s, boolean whatisthis) {
+    public static char[] toCharArray(String s, boolean trailingZero) {
         return null;
     }
 
