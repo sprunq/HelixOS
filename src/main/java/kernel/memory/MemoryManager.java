@@ -20,13 +20,13 @@ public class MemoryManager {
 
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
-        // Scalars should also be aligned to 4 bytes
 
         int startOfObject = ptrNextFree;
         int lengthOfObject = relocsSize + scalarSize;
+        int endOfObject = startOfObject + lengthOfObject;
 
         // Check if the object fits into the memory. If not, panic
-        if (startOfObject + lengthOfObject > Env.MEMORY_LIMIT) {
+        if (endOfObject >= Env.MEMORY_LIMIT) {
             Kernel.panic("Out of memory");
         }
 

@@ -17,17 +17,13 @@ public class Kernel {
         out.clearScreen();
         int i = 0;
         while (true) {
-            i++;
-            byte[] b = new byte[500];
+            byte[] b = new byte[1000];
 
-            if (i % 100000000 == 0) {
+            if (i % 100000 == 0) {
                 out.println(MAGIC.cast2Ref(b), 10);
             }
+            i++;
         }
-
-        while (true) {
-        }
-
     }
 
     private static void show_alloc_functionality() {

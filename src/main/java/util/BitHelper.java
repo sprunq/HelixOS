@@ -27,6 +27,13 @@ public class BitHelper {
         return (value >> start) & ((1 << length) - 1);
     }
 
+    /**
+     * Aligns a base value to the specified alignment.
+     *
+     * @param base      the base value to align
+     * @param alignment the alignment value which <b>must be a power of 2</b>
+     * @return the aligned value
+     */
     @SJC.Inline
     public static int align(int base, int alignment) {
         return ((base + (alignment - 1)) & ~(alignment - 1));
