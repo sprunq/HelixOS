@@ -9,8 +9,7 @@ public class Kernel {
 
     public static void main() {
         out = new TmWriter();
-        // entkommentieren, um Alloc zu testen
-        // show_alloc_functionality();
+        show_alloc_functionality();
         test_memory_limit();
     }
 
@@ -19,17 +18,10 @@ public class Kernel {
         int i = 0;
         while (true) {
             i++;
-            TestAllocA e = new TestAllocA(42, 43, 44, false, "_");
+            byte[] b = new byte[500];
 
-            if (e.a != 42) {
-                out.print("Error in object at 0x");
-                out.print(MAGIC.cast2Ref(e), 16);
-                out.println(": Values are not correct.");
-                break;
-            }
-
-            if (i % 10000 == 0) {
-                out.println(MAGIC.cast2Ref(e), 10);
+            if (i % 100000000 == 0) {
+                out.println(MAGIC.cast2Ref(b), 10);
             }
         }
 
@@ -70,8 +62,8 @@ public class Kernel {
                 out.brush.setFg(TmColor.LIGHT_RED);
             }
 
-            out.print("0_");
-            out.print(addr, 10);
+            out.print("0x");
+            out.print(addr, 16);
             out.print(": ");
             out.print("object(relocEntries=");
             out.print(obj._r_relocEntries, 10);
@@ -80,7 +72,6 @@ public class Kernel {
             out.println(")");
             obj = obj._r_next;
             foundObjects++;
-            // sleep();
         }
 
         out.brush.setFg(TmColor.WHITE);
@@ -103,11 +94,6 @@ public class Kernel {
         out.println();
 
         while (true) {
-        }
-    }
-
-    private static void sleep() {
-        for (int i = 0; i < 3000000; i++) {
         }
     }
 

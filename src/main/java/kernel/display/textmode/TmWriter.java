@@ -1,9 +1,10 @@
 package kernel.display.textmode;
 
+import kernel.Env;
 import kernel.lib.NoAllocConv;
 
 public class TmWriter {
-    private static final TmDisplayMemory vidMem = (TmDisplayMemory) MAGIC.cast2Struct(0xB8000);
+    private static final TmDisplayMemory vidMem = (TmDisplayMemory) MAGIC.cast2Struct(Env.VGA_TM3_BUFFER);
 
     public static final int LINE_LENGTH = 80;
     public static final int LINE_COUNT = 25;

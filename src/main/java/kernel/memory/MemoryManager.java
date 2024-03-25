@@ -1,5 +1,6 @@
 package kernel.memory;
 
+import kernel.Env;
 import kernel.Kernel;
 import rte.SArray;
 import rte.SClassDesc;
@@ -9,23 +10,6 @@ public class MemoryManager {
     public static final BootableImage BOOT_IMAGE = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
 
     public static int cachedLastHeapObjAdr = -1;
-
-    public static Object getLastHeapObj() {
-        // Init falls noch nicht geschehen
-        if (cachedLastHeapObjAdr == -1) {
-            Object obj = getFirstHeapObj();
-            while (obj._r_next != null) {
-                obj = obj._r_next;
-            }
-            cachedLastHeapObjAdr = MAGIC.cast2Ref(obj);
-        }
-        return MAGIC.cast2Obj(cachedLastHeapObjAdr);
-    }
-
-    @SJC.Inline
-    public static Object getFirstHeapObj() {
-        return MAGIC.cast2Obj(BOOT_IMAGE.firstHeapObject);
-    }
 
     public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
         Object lastHeapObj = getLastHeapObj();
@@ -40,6 +24,11 @@ public class MemoryManager {
 
         int startOfObject = ptrNextFree;
         int lengthOfObject = relocsSize + scalarSize;
+
+        // Check if the object fits into the memory. If not, panic
+        if (startOfObject + lengthOfObject > Env.MEMORY_LIMIT) {
+            Kernel.panic("Out of memory");
+        }
 
         // Clear the memory
         Memory.setBytes(startOfObject, lengthOfObject, (byte) 0);
@@ -80,6 +69,23 @@ public class MemoryManager {
         return obj;
     }
 
+    @SJC.Inline
+    public static Object getFirstHeapObj() {
+        return MAGIC.cast2Obj(BOOT_IMAGE.firstHeapObject);
+    }
+
+    public static Object getLastHeapObj() {
+        // Init falls noch nicht geschehen
+        if (cachedLastHeapObjAdr == -1) {
+            Object obj = getFirstHeapObj();
+            while (obj._r_next != null) {
+                obj = obj._r_next;
+            }
+            cachedLastHeapObjAdr = MAGIC.cast2Ref(obj);
+        }
+        return MAGIC.cast2Obj(cachedLastHeapObjAdr);
+    }
+
     public static int getConsumedMemory() {
         int consumed = 0;
         Object obj = getFirstHeapObj();
@@ -99,18 +105,4 @@ public class MemoryManager {
         }
         return count;
     }
-
-    /**
-     * Initializes an object at the given memory address and sets its intrinsic
-     * values.
-     */
-    @SJC.Inline
-    private static Object setObject(int ptrObj, int scalarSize, int relocEntries, SClassDesc type) {
-        Object obj = MAGIC.cast2Obj(ptrObj);
-        MAGIC.assign(obj._r_type, type);
-        MAGIC.assign(obj._r_scalarSize, scalarSize);
-        MAGIC.assign(obj._r_relocEntries, relocEntries);
-        return obj;
-    }
-
 }
