@@ -8,7 +8,7 @@ import util.MathH;
  * Performs conversions without allocating memory.
  */
 public class NoAllocConv {
-    public static final char[] ALPHABET = MAGIC.toCharArray("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", false);
+    public static final byte[] ALPHABET = MAGIC.toByteArray("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", false);
 
     /**
      * Converts an integer to a string representation in the specified base.
@@ -40,9 +40,9 @@ public class NoAllocConv {
         int digit_count = 0;
         while (n > 0 && digit_count < max_len) {
             int digit = n % base;
-            char c = ALPHABET[digit];
+            byte c = ALPHABET[digit];
             n /= base;
-            MAGIC.wMem8(buffer + digit_count * byte_offset, (byte) c);
+            MAGIC.wMem8(buffer + digit_count * byte_offset, c);
             digit_count++;
         }
 

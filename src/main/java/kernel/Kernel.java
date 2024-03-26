@@ -9,29 +9,18 @@ public class Kernel {
 
     public static void main() {
         out = new TmWriter();
+        out.clearScreen();
         show_alloc_functionality();
+        out.println();
         test_memory_limit();
     }
 
-    private static void test_memory_limit() {
-        out.clearScreen();
-        int i = 0;
-        while (true) {
-            byte[] b = new byte[1000];
-
-            if (i % 100000 == 0) {
-                out.println(MAGIC.cast2Ref(b), 10);
-            }
-            i++;
-        }
-    }
-
     private static void show_alloc_functionality() {
-        out.clearScreen();
-
         TestAllocA a = new TestAllocA(5, 7, 9, true, "hello from a");
         TestAllocB b = new TestAllocB(a);
 
+        // Look for these objects in the heap
+        // If they are found, they will be highlighted in green
         int[] addrs = new int[6];
         addrs[0] = MAGIC.cast2Ref(a);
         addrs[1] = MAGIC.cast2Ref(b);
@@ -62,9 +51,9 @@ public class Kernel {
             out.print(addr, 16);
             out.print(": ");
             out.print("object(relocEntries=");
-            out.print(obj._r_relocEntries, 10);
+            out.print(obj._r_relocEntries);
             out.print(", scalarSize=");
-            out.print(obj._r_scalarSize, 10);
+            out.print(obj._r_scalarSize);
             out.println(")");
             obj = obj._r_next;
             foundObjects++;
@@ -72,11 +61,11 @@ public class Kernel {
 
         out.brush.setFg(TmColor.WHITE);
         out.print("Found ");
-        out.print(foundObjects, 10);
+        out.print(foundObjects);
         out.println(" objects.");
 
         out.print("Consumed memory: ");
-        out.print(MemoryManager.getConsumedMemory(), 10);
+        out.print(MemoryManager.getConsumedMemory());
         out.println("b");
 
         // Show that the objects are not overwritten
@@ -88,23 +77,43 @@ public class Kernel {
         d.print();
 
         out.println();
+    }
 
+    private static void test_memory_limit() {
+        out.println("Testing memory limit. Allocating until failure...");
+
+        int i = 0;
         while (true) {
+            byte[] b = new byte[1024];
+
+            if (i % 100000 == 0) {
+                out.print("Allocation #");
+                out.print(i);
+                out.print(" at ADR ");
+                out.println(MAGIC.cast2Ref(b));
+            }
+            i++;
         }
     }
 
     public static void panic(String msg) {
-        byte border = TmColor.set(TmColor.BLACK, TmColor.RED);
-        byte textMsg = TmColor.set(TmColor.LIGHT_RED, TmColor.BLACK);
-        byte textPanic = TmColor.set(TmColor.RED, TmColor.BLACK);
+        final byte colBorder = TmColor.set(TmColor.BLACK, TmColor.RED);
+        final byte colTextMsg = TmColor.set(TmColor.LIGHT_RED, TmColor.BLACK);
+        final byte colTextPanic = TmColor.set(TmColor.RED, TmColor.BLACK);
+        final byte clearCol = TmColor.set(TmColor.GREY, TmColor.BLACK);
+
+        TmWriter.setLine(0, (byte) ' ', clearCol);
+        TmWriter.setLine(1, (byte) ' ', clearCol);
+        TmWriter.setLine(2, (byte) ' ', clearCol);
+
         int pos = 0;
-        pos = TmWriter.directPrint(' ', pos, border);
+        pos = TmWriter.directPrint(' ', pos, colBorder);
         pos = TmWriter.newLinePos(pos);
-        pos = TmWriter.directPrint(' ', pos, border);
-        pos = TmWriter.directPrint(" PANIC: ", pos, textPanic);
-        pos = TmWriter.directPrint(msg, pos, textMsg);
+        pos = TmWriter.directPrint(' ', pos, colBorder);
+        pos = TmWriter.directPrint(" PANIC: ", pos, colTextPanic);
+        pos = TmWriter.directPrint(msg, pos, colTextMsg);
         pos = TmWriter.newLinePos(pos);
-        pos = TmWriter.directPrint(' ', pos, border);
+        pos = TmWriter.directPrint(' ', pos, colBorder);
         pos = TmWriter.newLinePos(pos);
         while (true) {
         }
