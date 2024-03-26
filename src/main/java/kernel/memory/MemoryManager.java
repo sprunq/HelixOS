@@ -2,7 +2,6 @@ package kernel.memory;
 
 import kernel.Env;
 import kernel.Kernel;
-import rte.SArray;
 import rte.SClassDesc;
 import util.BitHelper;
 
@@ -47,25 +46,6 @@ public class MemoryManager {
 
         cachedLastHeapObjAdr = MAGIC.cast2Ref(obj);
 
-        return obj;
-    }
-
-    public static SArray allocArray(int length, int arrDim, int entrySize, int stdType, Object unitType) {
-        int scalarSize = MAGIC.getInstScalarSize("SArray");
-        int relocEntries = MAGIC.getInstRelocEntries("SArray");
-        SClassDesc classDesc = (SClassDesc) MAGIC.clssDesc("SArray");
-
-        if (arrDim != 1) {
-            Kernel.panic("multidim arr not supported");
-        }
-
-        scalarSize += length * entrySize;
-
-        SArray obj = (SArray) MemoryManager.allocObject(scalarSize, relocEntries, classDesc);
-        MAGIC.assign(obj.length, length);
-        MAGIC.assign(obj._r_dim, arrDim);
-        MAGIC.assign(obj._r_stdType, stdType);
-        MAGIC.assign(obj._r_unitType, unitType);
         return obj;
     }
 
