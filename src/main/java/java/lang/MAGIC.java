@@ -172,11 +172,11 @@ public class MAGIC {
 
     public static Object clssDesc(String clssName) {
         return null;
-    } //return SClassDesc
+    } // return SClassDesc
 
     public static Object intfDesc(String clssName) {
         return null;
-    } //returns SIntfDesc
+    } // returns SIntfDesc
 
     public static int mthdOff(String clssName, String mthdName) {
         return 0;
@@ -244,11 +244,11 @@ public class MAGIC {
     public static void doStaticInit() {
     }
 
-    public static byte[] toByteArray(String s) {
+    public static byte[] toByteArray(String s, boolean trailingZero) {
         return null;
     }
 
-    public static char[] toCharArray(String s) {
+    public static char[] toCharArray(String s, boolean trailingZero) {
         return null;
     }
 

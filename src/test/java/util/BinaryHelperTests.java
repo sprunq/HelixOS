@@ -1,9 +1,9 @@
 package util;
 
+import static util.BitHelper.bin;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import static util.BinaryHelper.bin;
 
 public class BinaryHelperTests {
     private static void testAllBinaryCombinations(int n, boolean[] bits, int i) {
@@ -49,4 +49,5 @@ public class BinaryHelperTests {
         boolean[] bits = new boolean[n];
         testAllBinaryCombinations(n, bits, 0);
     }
+
 }

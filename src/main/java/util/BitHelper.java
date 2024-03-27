@@ -1,5 +1,7 @@
 package util;
 
+import kernel.Kernel;
+
 public class BitHelper {
     @SJC.Inline
     public static boolean getFlag(int value, int n) {
@@ -23,6 +25,61 @@ public class BitHelper {
     @SJC.Inline
     public static int getRange(int value, int start, int length) {
         return (value >> start) & ((1 << length) - 1);
+    }
+
+    /**
+     * Aligns a base value to the specified alignment.
+     *
+     * @param base      the base value to align
+     * @param alignment the alignment value which <b>must be a power of 2</b>
+     * @return the aligned value
+     */
+    @SJC.Inline
+    public static int align(int base, int alignment) {
+        return ((base + (alignment - 1)) & ~(alignment - 1));
+    }
+
+    /**
+     * A utility class which converts longs in binary form into their actual binary
+     * values.
+     * Was created because SJC does not support binary literals
+     * <i>but it turns out it's useless because function calls cannot be assigned to
+     * static fields</i>.
+     * 
+     * <p>
+     * <br>
+     * Example:
+     * 
+     * <pre>
+     *     bin(10) = 2
+     *     bin(110) = 6
+     *     bin(1010) = 10
+     * </pre>
+     *
+     * <br>
+     * <b>Note: This class should only be used where speed doesn't matter or for
+     * debugging. It is not efficient!</b>
+     * </p>
+     * 
+     * @param b The value to convert.
+     * @return The value as an integer value.
+     */
+    public static int bin(long b) {
+        int result = 0;
+        int number_length = 0;
+        while (b > 0) {
+            long rightmost_bit = b % 10;
+            if (rightmost_bit > 1) {
+                Kernel.panic("Invalid binary literal. Only 0 and 1 are allowed.");
+            }
+            b /= 10;
+            result <<= 1;
+            result |= rightmost_bit;
+            number_length += 1;
+        }
+        result = BitHelper.reverse32Bit(result);
+        result = BitHelper.rotateRight32Bit(result, 32 - number_length);
+        return result;
     }
 
     /// https://stackoverflow.com/a/5844096
