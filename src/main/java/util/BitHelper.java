@@ -29,14 +29,21 @@ public class BitHelper {
 
     /**
      * Aligns a base value to the specified alignment.
-     *
+     * 
      * @param base      the base value to align
-     * @param alignment the alignment value which <b>must be a power of 2</b>
+     * @param alignment the alignment value
      * @return the aligned value
      */
     @SJC.Inline
     public static int align(int base, int alignment) {
-        return ((base + (alignment - 1)) & ~(alignment - 1));
+        if (base % alignment != 0) {
+            base += alignment - base % alignment;
+        }
+        return base;
+
+        // if the alignment is a power of 2, the following code could be used,
+        // but it is equally as fast so it is not worth it
+        // return (base + alignment - 1) & ~(alignment - 1);
     }
 
     /**
