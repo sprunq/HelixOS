@@ -14,16 +14,16 @@ public class TestAllocA {
     }
 
     public void print() {
-        Kernel.Display.print("TestAllocA(");
-        Kernel.Display.print(a, 10);
-        Kernel.Display.print(", ");
-        Kernel.Display.print(b, 10);
-        Kernel.Display.print(", ");
-        Kernel.Display.print(c, 10);
-        Kernel.Display.print(", ");
-        Kernel.Display.print(bool);
-        Kernel.Display.print(", ");
-        Kernel.Display.print(str);
-        Kernel.Display.print(")");
+        Kernel.out.print("TestAllocA(");
+        Kernel.out.print(a, 10);
+        Kernel.out.print(", ");
+        Kernel.out.print(b, 10);
+        Kernel.out.print(", ");
+        Kernel.out.print(c, 10);
+        Kernel.out.print(", ");
+        Kernel.out.print(bool);
+        Kernel.out.print(", ");
+        Kernel.out.print(str);
+        Kernel.out.print(")");
     }
 }

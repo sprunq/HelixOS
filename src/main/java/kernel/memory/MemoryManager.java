@@ -106,7 +106,7 @@ public class MemoryManager {
      * Returns the last object in the dynamic allocation.
      */
     public static Object getLastDynamicHeapObj() {
-        if (_lastAllocation == -1) {
+        if (_lastAllocation <= 0) {
             Object obj = getDynamicAllocRoot();
             while (obj._r_next != null) {
                 obj = obj._r_next;

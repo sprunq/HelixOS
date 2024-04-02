@@ -5,14 +5,14 @@ import kernel.display.textmode.TmWriter;
 import kernel.memory.MemoryManager;
 
 public class Kernel {
-    public static TmWriter Display;
+    public static TmWriter out;
 
     public static void main() {
         MemoryManager.init();
-        Kernel.Display = new TmWriter();
-        Display.clearScreen();
+        Kernel.out = new TmWriter();
+        out.clearScreen();
         show_alloc_functionality();
-        Display.println();
+        out.println();
         test_memory_limit();
     }
 
@@ -37,55 +37,55 @@ public class Kernel {
             }
 
             if (found) {
-                Display.brush.setFg(TmColor.LIGHT_GREEN);
+                out.brush.setFg(TmColor.LIGHT_GREEN);
             } else {
-                Display.brush.setFg(TmColor.LIGHT_RED);
+                out.brush.setFg(TmColor.LIGHT_RED);
             }
 
-            Display.print("0x");
-            Display.print(addr, 16);
-            Display.print(": ");
-            Display.print("object(relocEntries=");
-            Display.print(obj._r_relocEntries);
-            Display.print(", scalarSize=");
-            Display.print(obj._r_scalarSize);
-            Display.println(")");
+            out.print("0x");
+            out.print(addr, 16);
+            out.print(": ");
+            out.print("object(relocEntries=");
+            out.print(obj._r_relocEntries);
+            out.print(", scalarSize=");
+            out.print(obj._r_scalarSize);
+            out.println(")");
             obj = obj._r_next;
             foundObjects++;
         }
 
-        Display.brush.setFg(TmColor.WHITE);
-        Display.print("Found ");
-        Display.print(foundObjects);
-        Display.println(" objects.");
+        out.brush.setFg(TmColor.WHITE);
+        out.print("Found ");
+        out.print(foundObjects);
+        out.println(" objects.");
 
-        Display.print("Consumed memory: ");
-        Display.print(getDynamicAllocationSize());
-        Display.println("b");
+        out.print("Consumed memory: ");
+        out.print(getDynamicAllocationSize());
+        out.println(" bytes");
 
         // Show that the objects are not overwritten
         TestAllocA c = new TestAllocA(11, 13, 15, false, "hello from c");
         TestAllocB d = new TestAllocB(c);
 
         b.print();
-        Display.println();
+        out.println();
         d.print();
 
-        Display.println();
+        out.println();
     }
 
     private static void test_memory_limit() {
-        Display.println("Testing memory limit. Allocating until failure...");
+        out.println("Testing memory limit. Allocating until failure...");
 
         int i = 0;
         while (true) {
             byte[] b = new byte[1024];
 
             if (i % 100000 == 0) {
-                Display.print("Allocation #");
-                Display.print(i);
-                Display.print(" at ADR ");
-                Display.println(MAGIC.cast2Ref(b));
+                out.print("Allocation #");
+                out.print(i);
+                out.print(" at ADR ");
+                out.println(MAGIC.cast2Ref(b));
             }
             i++;
         }

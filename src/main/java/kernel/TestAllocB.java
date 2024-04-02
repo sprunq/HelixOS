@@ -8,8 +8,8 @@ public class TestAllocB {
     }
 
     public void print() {
-        Kernel.Display.print("TestAllocB(");
+        Kernel.out.print("TestAllocB(");
         this.a.print();
-        Kernel.Display.print(")");
+        Kernel.out.print(")");
     }
 }
