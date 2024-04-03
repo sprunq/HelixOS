@@ -1,5 +1,6 @@
 package kernel;
 
+import kernel.bios.BIOS;
 import kernel.display.textmode.TmColor;
 import kernel.display.textmode.TmWriter;
 import kernel.interrupt.InterruptDescriptorTable;
@@ -20,8 +21,16 @@ public class Kernel {
         Kernel.out = new TmWriter(true);
         out.clearScreen();
 
+        BIOS.activateGraphicsMode();
+
+        for (int i = 0xA0000; i < 0xA0000 + 64000; i++) {
+            MAGIC.wMem8(i, (byte) (i & 0x11));
+        }
+
+        SystemClock.sleep(1000);
+
         while (true) {
-            // out.println((int) SystemClock.asSeconds());
+            out.println((int) SystemClock.asSeconds());
             Kernel.printHomeBar();
             SystemClock.sleep(100);
 

@@ -12,10 +12,12 @@ public class InterruptDescriptorTable {
      * Question: Could this not lead to the IDT being overwritten by the stack?
      */
     private final static int IDT_BASE = 0x07E00;
+    private final static int IDT_ENTRIES = 48;
+    private final static int IDT_ENTRY_SIZE = 8;
 
     public static void initialize() {
         ProgramInterruptController.initialize();
-        loadDescriptorTable(IDT_BASE, 48 * 8);
+        loadTable();
 
         SClassDesc cls = (SClassDesc) MAGIC.clssDesc("Interrupts");
         int dscAddr = MAGIC.cast2Ref(cls);
@@ -54,8 +56,8 @@ public class InterruptDescriptorTable {
         x86.cli();
     }
 
-    private static void loadDescriptorTable(int baseAddress, int tableLimit) {
-        x86.ldit(baseAddress, tableLimit);
+    public static void loadTable() {
+        x86.ldit(IDT_BASE, IDT_ENTRIES * IDT_ENTRY_SIZE);
     }
 
     private static int codeOffset(int classDesc, int mthdOff) {
