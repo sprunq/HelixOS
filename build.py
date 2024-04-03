@@ -25,10 +25,10 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
     # copy content in res/
     for file in os.listdir(RESOURCE_DIR):
         shutil.copy(os.path.join(RESOURCE_DIR, file), BUILD_DIR)
-        
+
     os.chdir(BUILD_DIR)
 
-    output = subprocess.run(["java", "-jar", sjc_jar_absolute, "../src/main", "font8x8.bim", "-o", "boot"],
+    output = subprocess.run(["java", "-jar", sjc_jar_absolute, "../src/main", "-o", "boot"],
                        capture_output=True,
                        text=True) 
     

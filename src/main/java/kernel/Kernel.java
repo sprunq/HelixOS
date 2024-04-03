@@ -3,7 +3,6 @@ package kernel;
 import kernel.bios.BIOS;
 import kernel.display.textmode.TmColor;
 import kernel.display.textmode.TmWriter;
-import kernel.display.videomode.Font;
 import kernel.display.videomode.VidWriter;
 import kernel.interrupt.InterruptDescriptorTable;
 import kernel.interrupt.PeriodicInterruptTimer;
@@ -23,55 +22,70 @@ public class Kernel {
         Kernel.out = new TmWriter();
         out.clearScreen();
 
-        for (int ch = 0; ch < 24; ch++) {
-            for (int vals = 0; vals < 13; vals++) {
-                out.print(Font.getByte(ch, vals), 16);
-                out.print(' ');
-            }
-            out.println();
-        }
-
-        // SystemClock.sleep(1000000000);
         BIOS.activateGraphicsMode();
 
-        int x = 0;
-        int y = 0;
-        for (int i = 0; i < 95; i++) {
-            VidWriter.font_char((byte) i, x, y, (byte) 90);
-            x += 16;
-            if (x >= 320) {
-                x = 0;
-                y += 16;
+        int x2 = 0;
+        int y2 = 0;
+        for (int i = 0; i < 255; i++) {
+            for (int j = x2; j < x2 + 8; j++) {
+                for (int j2 = y2; j2 < y2 + 8; j2++) {
+                    VidWriter.putPixel(j, j2, (byte) i);
+                }
+            }
+
+            x2 += 10;
+            if (x2 >= 320) {
+                x2 = 0;
+                y2 += 10;
             }
         }
 
-        SystemClock.sleep(10000000);
+        int x = 0;
+        int y = y2 + 10;
+        for (int i = 0; i < 95; i++) {
+            VidWriter.putChar((byte) i, x, y, (byte) i);
+            x += 10;
+            if (x >= 320) {
+                x = 0;
+                y += 10;
+            }
+        }
+
+        SystemClock.sleep(1000);
 
         int start = SystemClock.getTick();
-        for (int c = 0; c < 10000; c++) {
+        int loops = 1000;
+        for (int c = 0; c < loops; c++) {
             for (int i = 0; i < 200; i++) {
                 for (int j = 0; j < 320; j++) {
-                    VidWriter.putPixel(j, i, (byte) ((i + j + c) % 255));
+                    int color = (((i + j + c) / 10));
+                    VidWriter.putPixel(j, i, (byte) (color % 255));
                 }
             }
         }
+
         int end = SystemClock.getTick();
+        int totalMs = SystemClock.tickToMilliseconds(end - start);
+        int msPerFrame = totalMs / loops;
         BIOS.activateTextMode();
         out.print("Time: ");
-        out.print(SystemClock.tickToMilliseconds(end - start));
+        out.print(totalMs);
         out.println("ms");
 
-        SystemClock.sleep(100000);
+        out.print("Frames: ");
+        out.print(loops);
+        out.println();
+
+        out.print("ms per frame: ");
+        out.print(msPerFrame);
+        out.println();
 
         while (true) {
-            out.println((int) SystemClock.asSeconds());
-            Kernel.printHomeBar();
-            SystemClock.sleep(100);
-
         }
     }
 
     public static void panic(String msg) {
+        BIOS.activateTextMode();
         final byte colBorder = TmColor.set(TmColor.BLACK, TmColor.RED);
         final byte colTextMsg = TmColor.set(TmColor.LIGHT_RED, TmColor.BLACK);
         final byte colTextPanic = TmColor.set(TmColor.RED, TmColor.BLACK);
@@ -94,16 +108,4 @@ public class Kernel {
         }
     }
 
-    public static void printHomeBar() {
-        final byte colText = TmColor.set(TmColor.WHITE, TmColor.LIGHT_BLUE);
-        final byte clearCol = TmColor.set(TmColor.GREY, TmColor.LIGHT_BLUE);
-
-        TmWriter.setLine(24, (byte) ' ', clearCol);
-        int pos = TmWriter.getLineStart(24);
-        int uptime = (int) SystemClock.asSeconds();
-        pos = TmWriter.directPrint("TOOS v0.01", pos, colText);
-        pos = TmWriter.directPrint(" | Uptime: ", pos, colText);
-        pos = TmWriter.directPrint(uptime, 10, pos, colText);
-        pos = TmWriter.directPrint("s", pos, colText);
-    }
 }
