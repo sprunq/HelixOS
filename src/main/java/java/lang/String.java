@@ -3,7 +3,7 @@ package java.lang;
 import kernel.Kernel;
 
 public class String {
-    private byte[] value;
+    private char[] value;
     private int count;
 
     @SJC.Inline
@@ -12,11 +12,11 @@ public class String {
     }
 
     @SJC.Inline
-    public byte charAt(int i) {
+    public char charAt(int i) {
         return value[i];
     }
 
-    public String(byte[] value) {
+    public String(char[] value) {
         this.value = value;
         this.count = value.length;
     }

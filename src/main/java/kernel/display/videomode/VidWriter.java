@@ -25,9 +25,8 @@ public class VidWriter {
     public static void font_char(byte c, int x, int y, byte color) {
         for (int yy = 0; yy < 8; yy++) {
             for (int xx = 0; xx < 8; xx++) {
-                int b = Font.getByte(c, yy);
-                boolean set = (b & (1 << xx)) != 0;
-                if (set) {
+                byte b = Font.getByte(c, yy);
+                if (BitHelper.getFlag(b, xx)) {
                     putPixel(x + xx, y + yy, color);
                 }
             }

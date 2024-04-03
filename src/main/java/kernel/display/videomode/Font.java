@@ -1,15 +1,14 @@
 package kernel.display.videomode;
 
-import kernel.Kernel;
-
 public class Font {
 
-    public static String FONT = MAGIC.getNamedString(
-            "C:\\Users\\Tobias\\Documents\\Projects\\ToOs\\src\\main\\java\\kernel\\display\\videomode\\font.bim");
+    public static String FONT = MAGIC.getNamedString("font8x8.bim");
 
-    public static int getByte(int ch, int offset) {
-        int line_len = 8;
-        int b = FONT.charAt(ch * line_len + offset);
-        return b;
+    public static final int FONT_WIDTH = 8;
+    public static final int FONT_HEIGHT = 8;
+
+    public static byte getByte(int ch, int offset) {
+        int b = FONT.charAt(ch * FONT_HEIGHT + offset);
+        return (byte) b;
     }
 }
