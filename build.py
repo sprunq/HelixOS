@@ -22,9 +22,10 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         exit()
 
     clean_dir(BUILD_DIR)
-    shutil.copy("bootconf.txt", BUILD_DIR)
-    shutil.copy("bts_dsk.bin", BUILD_DIR)
-    shutil.copy("font8x8.bim", BUILD_DIR)
+    # copy content in res/
+    for file in os.listdir(RESOURCE_DIR):
+        shutil.copy(os.path.join(RESOURCE_DIR, file), BUILD_DIR)
+        
     os.chdir(BUILD_DIR)
 
     output = subprocess.run(["java", "-jar", sjc_jar_absolute, "../src/main", "font8x8.bim", "-o", "boot"],
