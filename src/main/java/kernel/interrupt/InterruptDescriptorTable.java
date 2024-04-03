@@ -5,8 +5,6 @@ import rte.SClassDesc;
 import util.BitHelper;
 
 public class InterruptDescriptorTable {
-    private final static int MASTER = 0x20;
-    private final static int SLAVE = 0xA0;
     /*
      * The IDT starts at the lowest free address in the reserved stack region.
      * Question: Could this not lead to the IDT being overwritten by the stack?
@@ -14,7 +12,7 @@ public class InterruptDescriptorTable {
     private final static int IDT_BASE = 0x07E00;
 
     public static void initialize() {
-        initProgrammableInterruptController();
+        ProgramInterruptController.initialize();
         loadDescriptorTable(IDT_BASE, 48 * 8);
 
         SClassDesc cls = (SClassDesc) MAGIC.clssDesc("Interrupts");
@@ -37,10 +35,10 @@ public class InterruptDescriptorTable {
         for (int j = 15; j < 32; j++) {
             writeTableEntry(j, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "reservedHandler")));
         }
-        writeTableEntry(32, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "timerHandler")));
-        writeTableEntry(33, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "keyboardHandler")));
+        writeTableEntry(32, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "timerHandler"))); // IRQ 0
+        writeTableEntry(33, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "keyboardHandler"))); // IRQ 1
         for (int j = 34; j < 48; j++) {
-            writeTableEntry(j, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ignoreHandler")));
+            writeTableEntry(j, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ignoreHandler"))); // IRQ 2-15
         }
     }
 
@@ -71,16 +69,5 @@ public class InterruptDescriptorTable {
         entry.zero = 0;
         entry.typeAttr = (byte) 0x8E; // 10001110
         entry.offsetHigh = (short) BitHelper.getRange(handlerAddr, 16, 16);
-    }
-
-    private static void initProgrammableInterruptController() {
-        programmChip(MASTER, 0x20, 0x04); // init offset and slave config of master
-        programmChip(SLAVE, 0x28, 0x02); // init offset and slave config of slave
-    }
-
-    private static void programmChip(int port, int offset, int icw3) {
-        MAGIC.wIOs8(port++, (byte) 0x11); // ICW1
-        MAGIC.wIOs8(port, (byte) offset); // ICW2
-        MAGIC.wIOs8(port, (byte) icw3); // ICW3
     }
 }

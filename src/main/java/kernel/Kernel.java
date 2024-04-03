@@ -1,6 +1,5 @@
 package kernel;
 
-import assembler.x86;
 import kernel.display.textmode.TmColor;
 import kernel.display.textmode.TmWriter;
 import kernel.interrupt.InterruptDescriptorTable;
