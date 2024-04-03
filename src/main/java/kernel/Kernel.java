@@ -3,7 +3,8 @@ package kernel;
 import kernel.display.textmode.TmColor;
 import kernel.display.textmode.TmWriter;
 import kernel.interrupt.InterruptDescriptorTable;
-import kernel.interrupt.Interrupts;
+import kernel.interrupt.PeriodicInterruptTimer;
+import kernel.lib.SystemClock;
 import kernel.memory.MemoryManager;
 
 public class Kernel {
@@ -14,16 +15,16 @@ public class Kernel {
         InterruptDescriptorTable.enable();
         MemoryManager.initialize();
 
-        Kernel.out = new TmWriter();
+        PeriodicInterruptTimer.setRate((short) 100); // 100 hertz
+
+        Kernel.out = new TmWriter(true);
         out.clearScreen();
 
-        out.println("Kernel finished");
-        int oldTick = 0;
         while (true) {
-            if (oldTick != Interrupts.timerTicks) {
-                oldTick = Interrupts.timerTicks;
-                out.println(oldTick);
-            }
+            // out.println((int) SystemClock.asSeconds());
+            Kernel.printHomeBar();
+            SystemClock.sleep(100);
+
         }
     }
 
@@ -48,5 +49,18 @@ public class Kernel {
         pos = TmWriter.newLinePos(pos);
         while (true) {
         }
+    }
+
+    public static void printHomeBar() {
+        final byte colText = TmColor.set(TmColor.WHITE, TmColor.LIGHT_BLUE);
+        final byte clearCol = TmColor.set(TmColor.GREY, TmColor.LIGHT_BLUE);
+
+        TmWriter.setLine(24, (byte) ' ', clearCol);
+        int pos = TmWriter.getLineStart(24);
+        int uptime = (int) SystemClock.asSeconds();
+        pos = TmWriter.directPrint("TOOS v0.01", pos, colText);
+        pos = TmWriter.directPrint(" | Uptime: ", pos, colText);
+        pos = TmWriter.directPrint(uptime, 10, pos, colText);
+        pos = TmWriter.directPrint("s", pos, colText);
     }
 }

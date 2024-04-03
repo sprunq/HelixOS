@@ -19,11 +19,14 @@ public class TmWriter {
     private int cursorPos;
     private static int onScreenCursorPos;
 
+    private boolean containsHomeBar;
+
     public Brush brush;
 
-    public TmWriter() {
+    public TmWriter(boolean ignoreHomeBar) {
         this.cursorPos = 0;
         this.brush = new Brush();
+        this.containsHomeBar = ignoreHomeBar;
     }
 
     public void setCursor(int line, int column) {
@@ -179,6 +182,21 @@ public class TmWriter {
         setLine(LINE_COUNT - 1, (byte) ' ', clearColor);
     }
 
+    public static void shift_lines_ignore_lower() {
+
+        for (int i = 0; i < TmWriter.LINE_COUNT - 2; i++) {
+            int lineStart = i * TmWriter.LINE_LENGTH;
+            int nextLineStart = (i + 1) * TmWriter.LINE_LENGTH;
+            for (int j = 0; j < TmWriter.LINE_LENGTH; j++) {
+                vidMem.cells[lineStart + j].character = vidMem.cells[nextLineStart + j].character;
+                vidMem.cells[lineStart + j].color = vidMem.cells[nextLineStart + j].color;
+            }
+        }
+
+        byte clearColor = TmColor.set(TmColor.GREY, TmColor.BLACK);
+        setLine(LINE_COUNT - 2, (byte) ' ', clearColor);
+    }
+
     public static void setLine(int line, byte character, byte color) {
         int lineStart = line * LINE_LENGTH;
         int lineEnd = lineStart + LINE_LENGTH;
@@ -186,6 +204,10 @@ public class TmWriter {
             vidMem.cells[i].character = character;
             vidMem.cells[i].color = color;
         }
+    }
+
+    public static int getLineStart(int line) {
+        return line * LINE_LENGTH;
     }
 
     /**
@@ -225,8 +247,14 @@ public class TmWriter {
     @SJC.Inline
     private boolean shiftIfOutOfBounds() {
         if (cursorPos >= MAX_CURSOR) {
-            shift_lines();
-            cursorPos -= LINE_LENGTH;
+            if (containsHomeBar) {
+                shift_lines_ignore_lower();
+                cursorPos -= LINE_LENGTH * 2;
+            } else {
+                shift_lines();
+                cursorPos -= LINE_LENGTH;
+
+            }
             updateCursorCaretDisplay();
             return true;
         }

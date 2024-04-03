@@ -6,7 +6,9 @@ import util.BitHelper;
 
 public class InterruptDescriptorTable {
     /*
-     * The IDT starts at the lowest free address in the reserved stack region.
+     * The IDT can be placed somewhere in memory.
+     * In my system it starts at the lowest free address in the reserved stack
+     * region.
      * Question: Could this not lead to the IDT being overwritten by the stack?
      */
     private final static int IDT_BASE = 0x07E00;

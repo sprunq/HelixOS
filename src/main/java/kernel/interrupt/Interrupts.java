@@ -1,6 +1,7 @@
 package kernel.interrupt;
 
 import kernel.Kernel;
+import kernel.lib.SystemClock;
 
 public class Interrupts {
     @SJC.Interrupt
@@ -62,14 +63,9 @@ public class Interrupts {
         Kernel.panic("Interrupt pageFaultHandler");
     }
 
-    public static int timerTicks = 0;
-
     @SJC.Interrupt
     public static void timerHandler() {
-        timerTicks += 1;
-        if (timerTicks < 0) {
-            timerTicks = 0;
-        }
+        SystemClock.tick();
         ProgramInterruptController.acknowledge(0);
     }
 
