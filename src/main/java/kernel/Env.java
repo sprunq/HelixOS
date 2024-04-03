@@ -12,4 +12,6 @@ public class Env {
      * The memory address of the VGA text mode 3 buffer.
      */
     public static final int VGA_TM3_BUFFER = 0xB8000;
+
+    public static final int VGA_VID_BUFFER = 0xA0000;
 }

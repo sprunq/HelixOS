@@ -30,4 +30,9 @@ public class SystemClock {
     public static double asSeconds() {
         return (double) tickCount / PeriodicInterruptTimer.getRateHz();
     }
+
+    @SJC.Inline
+    public static int tickToMilliseconds(int ticks) {
+        return (int) (ticks * 1000 / PeriodicInterruptTimer.getRateHz());
+    }
 }

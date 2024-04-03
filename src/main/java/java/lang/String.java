@@ -3,7 +3,7 @@ package java.lang;
 import kernel.Kernel;
 
 public class String {
-    private char[] value;
+    private byte[] value;
     private int count;
 
     @SJC.Inline
@@ -12,11 +12,11 @@ public class String {
     }
 
     @SJC.Inline
-    public char charAt(int i) {
+    public byte charAt(int i) {
         return value[i];
     }
 
-    public String(char[] value) {
+    public String(byte[] value) {
         this.value = value;
         this.count = value.length;
     }
@@ -24,7 +24,7 @@ public class String {
     public char[] toCharArray() {
         char[] copy = new char[count];
         for (int i = 0; i < count; i++) {
-            copy[i] = value[i];
+            copy[i] = (char) value[i];
         }
         return copy;
     }
@@ -33,6 +33,14 @@ public class String {
         Kernel.panic("toUpperCase is a dummy method");
         while (true) {
         }
+    }
+
+    public byte[] toByteArray() {
+        byte[] copy = new byte[count];
+        for (int i = 0; i < count; i++) {
+            copy[i] = (byte) value[i];
+        }
+        return copy;
     }
 
 }
