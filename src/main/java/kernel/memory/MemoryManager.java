@@ -32,7 +32,7 @@ public class MemoryManager {
      * Initializes the memory manager. This method is called once at the start of
      * the system and has to be called before any dynamic allocations are done.
      */
-    public static void init() {
+    public static void initialize() {
         int dynHeapStart = getDynamicHeapStart();
         int rootScalarSize = MAGIC.getInstScalarSize("DynamicAllocRoot");
         int rootRelocsEntries = MAGIC.getInstRelocEntries("DynamicAllocRoot");

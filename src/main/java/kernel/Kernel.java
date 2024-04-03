@@ -2,18 +2,30 @@ package kernel;
 
 import kernel.display.textmode.TmColor;
 import kernel.display.textmode.TmWriter;
+import kernel.interrupt.InterruptDescriptorTable;
 import kernel.memory.MemoryManager;
 
 public class Kernel {
     public static TmWriter out;
 
     public static void main() {
-        MemoryManager.init();
+        InterruptDescriptorTable.initialize();
+        InterruptDescriptorTable.enable();
+        MemoryManager.initialize();
+
         Kernel.out = new TmWriter();
         out.clearScreen();
-        show_alloc_functionality();
-        out.println();
-        test_memory_limit();
+
+        // show_alloc_functionality();
+        // out.println();
+        // test_memory_limit();
+
+        // MAGIC.inline(0xCC);
+
+        out.println("Kernel finished");
+        while (true) {
+
+        }
     }
 
     private static void show_alloc_functionality() {
