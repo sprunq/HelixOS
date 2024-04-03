@@ -62,9 +62,14 @@ public class Interrupts {
         Kernel.panic("pageFaultHandler");
     }
 
+    public static int timerTicks = 0;
+
     @SJC.Interrupt
     public static void timerHandler() {
-        Kernel.panic("timerHandler");
+        timerTicks += 1;
+        if (timerTicks < 0) {
+            timerTicks = 0;
+        }
     }
 
     @SJC.Interrupt

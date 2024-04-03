@@ -26,4 +26,12 @@ public class x86 {
         MAGIC.inline(0x0F, 0x01, 0x5D);
         MAGIC.inlineOffset(1, tmp); // lidt [ebp-0x08/tmp]
     }
+
+    /*
+     * Breakpoint
+     */
+    @SJC.Inline
+    public static void breakpoint() {
+        MAGIC.inline(0xCC);
+    }
 }

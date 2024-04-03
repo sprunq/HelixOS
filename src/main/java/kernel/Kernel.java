@@ -1,8 +1,10 @@
 package kernel;
 
+import assembler.x86;
 import kernel.display.textmode.TmColor;
 import kernel.display.textmode.TmWriter;
 import kernel.interrupt.InterruptDescriptorTable;
+import kernel.interrupt.Interrupts;
 import kernel.memory.MemoryManager;
 
 public class Kernel {
@@ -16,101 +18,14 @@ public class Kernel {
         Kernel.out = new TmWriter();
         out.clearScreen();
 
-        // show_alloc_functionality();
-        // out.println();
-        // test_memory_limit();
-
-        // MAGIC.inline(0xCC);
-
         out.println("Kernel finished");
+        int oldTick = 0;
         while (true) {
-
-        }
-    }
-
-    private static void show_alloc_functionality() {
-        TestAllocA a = new TestAllocA(5, 7, 9, true, "hello from a");
-        TestAllocB b = new TestAllocB(a);
-
-        int[] addrs = new int[20];
-        addrs[0] = MAGIC.cast2Ref(a);
-
-        Object obj = MemoryManager.getDynamicAllocRoot();
-        int foundObjects = 0;
-        while (obj != null) {
-            int addr = MAGIC.cast2Ref(obj);
-
-            boolean found = false;
-            for (int i = 0; i < addrs.length; i++) {
-                if (addrs[i] == addr) {
-                    found = true;
-                    break;
-                }
+            if (oldTick != Interrupts.timerTicks) {
+                oldTick = Interrupts.timerTicks;
+                out.println(oldTick);
             }
-
-            if (found) {
-                out.brush.setFg(TmColor.LIGHT_GREEN);
-            } else {
-                out.brush.setFg(TmColor.LIGHT_RED);
-            }
-
-            out.print("0x");
-            out.print(addr, 16);
-            out.print(": ");
-            out.print("object(relocEntries=");
-            out.print(obj._r_relocEntries);
-            out.print(", scalarSize=");
-            out.print(obj._r_scalarSize);
-            out.println(")");
-            obj = obj._r_next;
-            foundObjects++;
         }
-
-        out.brush.setFg(TmColor.WHITE);
-        out.print("Found ");
-        out.print(foundObjects);
-        out.println(" objects.");
-
-        out.print("Consumed memory: ");
-        out.print(getDynamicAllocationSize());
-        out.println(" bytes");
-
-        // Show that the objects are not overwritten
-        TestAllocA c = new TestAllocA(11, 13, 15, false, "hello from c");
-        TestAllocB d = new TestAllocB(c);
-
-        b.print();
-        out.println();
-        d.print();
-
-        out.println();
-    }
-
-    private static void test_memory_limit() {
-        out.println("Testing memory limit. Allocating until failure...");
-
-        int i = 0;
-        while (true) {
-            byte[] b = new byte[1024];
-
-            if (i % 100000 == 0) {
-                out.print("Allocation #");
-                out.print(i);
-                out.print(" at ADR ");
-                out.println(MAGIC.cast2Ref(b));
-            }
-            i++;
-        }
-    }
-
-    private static int getDynamicAllocationSize() {
-        int consumed = 0;
-        Object obj = MemoryManager.getDynamicAllocRoot();
-        while (obj != null) {
-            consumed += obj._r_scalarSize;
-            obj = obj._r_next;
-        }
-        return consumed;
     }
 
     public static void panic(String msg) {
