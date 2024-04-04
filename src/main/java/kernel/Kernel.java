@@ -32,9 +32,19 @@ public class Kernel {
                 10,
                 300,
                 180,
-                8,
+                Ascii8x8.getInstance(),
                 0,
-                2);
+                0);
+
+        while (true) {
+            int tick = SystemClock.getTick();
+            String time = Integer.toString(tick, 10);
+            tf.addString(time);
+            tf.newLine();
+
+            tf.draw();
+            SystemClock.sleep(1000);
+        }
 
         int x2 = 0;
         int y2 = 0;

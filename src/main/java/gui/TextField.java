@@ -1,6 +1,6 @@
 package gui;
 
-import kernel.display.videomode.Ascii7x5;
+import kernel.display.videomode.IFont;
 import kernel.display.videomode.VidWriter;
 
 public class TextField {
@@ -10,26 +10,26 @@ public class TextField {
     private int lines;
     private int charSpacing;
     private int lineSpacing;
-    private int fontSize;
     private int x;
     private int y;
     private int width;
     private int height;
     private int cursorX;
     private int cursorY;
+    private IFont font;
 
-    public TextField(int x, int y, int width, int height, int fontSize, int charSpacing, int lineSpacing) {
+    public TextField(int x, int y, int width, int height, IFont font, int charSpacing, int lineSpacing) {
         this.x = x;
         this.y = y;
         this.cursorX = 0;
         this.cursorY = 0;
         this.width = width;
         this.height = height;
-        this.fontSize = fontSize;
+        this.font = font;
         this.charSpacing = charSpacing;
         this.lineSpacing = lineSpacing;
-        this.lineLength = width / (fontSize + charSpacing);
-        this.lines = height / (fontSize + lineSpacing);
+        this.lineLength = width / (font.getWidth() + charSpacing);
+        this.lines = height / (font.getHeight() + lineSpacing);
         this.characters = new byte[lines][lineLength];
     }
 
@@ -37,9 +37,9 @@ public class TextField {
         VidWriter.setRegion(x, y, width, height, (byte) 0);
         for (int i = 0; i < lines; i++) {
             for (int j = 0; j < lineLength; j++) {
-                int x = this.x + j * (fontSize + charSpacing);
-                int y = this.y + i * (fontSize + lineSpacing);
-                VidWriter.putChar(characters[i][j], Ascii7x5.getInstance(), x, y, (byte) 90);
+                int x = this.x + j * (font.getWidth() + charSpacing);
+                int y = this.y + i * (font.getHeight() + lineSpacing);
+                VidWriter.putChar(characters[i][j], font, x, y, (byte) 90);
             }
         }
     }

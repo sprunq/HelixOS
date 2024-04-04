@@ -6,9 +6,8 @@ package kernel.display.videomode;
 public class Ascii7x5 implements IFont {
     public static String FONT = MAGIC.getNamedString("font_ascii_7x5.bim");
 
-    public static final int FONT_WIDTH = 7;
-    public static final int FONT_HEIGHT = 5;
-    public static final int FONT_CHARACHTERS = 256;
+    public static final int FONT_WIDTH = 5;
+    public static final int FONT_HEIGHT = 7;
     public static final int BYTES_PER_CHAR = 5;
 
     private static Ascii7x5 instance;
@@ -21,6 +20,9 @@ public class Ascii7x5 implements IFont {
     }
 
     public byte getCharacterBitmapLine(int ch, int line) {
+        if (line >= 5) {
+            return 0;
+        }
         int b = FONT.charAt(ch * BYTES_PER_CHAR + line);
         return (byte) b;
     }
@@ -35,13 +37,19 @@ public class Ascii7x5 implements IFont {
         return y;
     }
 
+    /*
+     * Font is rotated
+     */
     @Override
     public int getWidth() {
-        return FONT_WIDTH;
+        return FONT_HEIGHT;
     }
 
+    /*
+     * Font is rotated
+     */
     @Override
     public int getHeight() {
-        return FONT_HEIGHT;
+        return FONT_WIDTH;
     }
 }

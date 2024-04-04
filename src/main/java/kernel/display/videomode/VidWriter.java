@@ -1,7 +1,6 @@
 package kernel.display.videomode;
 
 import kernel.Env;
-import kernel.Kernel;
 import util.BitHelper;
 
 public class VidWriter {
