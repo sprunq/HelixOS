@@ -21,6 +21,14 @@ public class String {
         this.count = value.length;
     }
 
+    public String(byte[] value) {
+        this.value = new char[value.length];
+        for (int i = 0; i < value.length; i++) {
+            this.value[i] = (char) value[i];
+        }
+        this.count = value.length;
+    }
+
     public char[] toCharArray() {
         char[] copy = new char[count];
         for (int i = 0; i < count; i++) {

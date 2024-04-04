@@ -1,5 +1,6 @@
 package kernel;
 
+import gui.TextField;
 import kernel.bios.BIOS;
 import kernel.display.textmode.TmColor;
 import kernel.display.textmode.TmWriter;
@@ -23,6 +24,21 @@ public class Kernel {
         out.clearScreen();
 
         BIOS.activateGraphicsMode();
+
+        TextField tf = new TextField(
+                10,
+                10,
+                300,
+                180,
+                8,
+                0,
+                2);
+
+        while (true) {
+            tf.addString("Hello, World!");
+            tf.draw();
+            SystemClock.sleep(50);
+        }
 
         int x2 = 0;
         int y2 = 0;

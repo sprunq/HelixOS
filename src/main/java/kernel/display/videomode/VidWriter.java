@@ -36,4 +36,12 @@ public class VidWriter {
             }
         }
     }
+
+    public static void setRegion(int x, int y, int width, int height, byte color) {
+        for (int yy = y; yy < y + height; yy++) {
+            for (int xx = x; xx < x + width; xx++) {
+                putPixel(xx, yy, color);
+            }
+        }
+    }
 }
