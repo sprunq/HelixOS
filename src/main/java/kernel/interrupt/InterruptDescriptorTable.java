@@ -57,7 +57,7 @@ public class InterruptDescriptorTable {
     }
 
     public static void loadTable() {
-        x86.ldit(IDT_BASE, IDT_ENTRIES * IDT_ENTRY_SIZE);
+        x86.ldit(IDT_BASE, IDT_ENTRIES * IDT_ENTRY_SIZE - 1);
     }
 
     private static int codeOffset(int classDesc, int mthdOff) {
