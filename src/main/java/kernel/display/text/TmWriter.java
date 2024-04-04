@@ -1,4 +1,4 @@
-package kernel.display.textmode;
+package kernel.display.text;
 
 import kernel.Env;
 import kernel.lib.NoAllocConv;
@@ -163,11 +163,15 @@ public class TmWriter {
     }
 
     public void clearScreen() {
+        clearScreenS();
+        cursorPos = 0;
+    }
+
+    public static void clearScreenS() {
         byte colClear = TmColor.set(TmColor.GREY, TmColor.BLACK);
         for (int i = 0; i < LINE_COUNT; i++) {
             setLine(i, (byte) ' ', colClear);
         }
-        cursorPos = 0;
     }
 
     public static void shift_lines() {

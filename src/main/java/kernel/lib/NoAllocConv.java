@@ -67,7 +67,7 @@ public class NoAllocConv {
         }
     }
 
-    public static int itoa(byte[] buffer, int max_len, int n, int base) {
+    public static int itoa(byte[] buffer, int max_len, long n, int base) {
         if (base < 2 || base > 36) {
             Kernel.panic("ConversionHelper: requested base out of range");
         }
@@ -83,7 +83,7 @@ public class NoAllocConv {
         // Prints each digit of the number but in reverse order
         int digit_count = 0;
         while (n > 0 && digit_count < max_len) {
-            int digit = n % base;
+            int digit = (int) (n % base);
             byte c = ALPHABET[digit];
             n /= base;
             buffer[digit_count] = c;

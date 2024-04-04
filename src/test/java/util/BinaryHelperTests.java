@@ -25,9 +25,9 @@ public class BinaryHelperTests {
     }
 
     private static String joinBits(boolean[] aArr) {
-        char[] chars = new char[aArr.length];
+        byte[] chars = new byte[aArr.length];
         for (int i = 0; i < aArr.length; i++) {
-            chars[i] = aArr[i] ? '1' : '0';
+            chars[i] = (byte) (aArr[i] ? '1' : '0');
         }
         return new String(chars);
     }

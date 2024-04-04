@@ -40,7 +40,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         print("Detected errors during compilation. Aborting build..")
         exit()
     
-    subprocess.run(["qemu-system-i386", "-m", "1024", "-boot", "a", "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy"])
+    subprocess.run(["qemu-system-i386", "-m", "1024", "-boot", "a", "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy", "-rtc", "base=localtime"])
 
     # Cleanup
     os.chdir(START_DIR)

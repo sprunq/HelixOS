@@ -1,4 +1,4 @@
-package kernel.display.textmode;
+package kernel.display.text;
 
 public class TmDisplayMemory extends STRUCT {
     @SJC(count = 2000)

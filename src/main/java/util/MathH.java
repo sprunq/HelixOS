@@ -13,6 +13,10 @@ public class MathH {
         return n < 0 ? -n : n;
     }
 
+    public static long abs(long n) {
+        return n < 0 ? -n : n;
+    }
+
     public static int min(int a, int b) {
         return a < b ? a : b;
     }

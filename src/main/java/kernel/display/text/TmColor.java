@@ -1,4 +1,4 @@
-package kernel.display.textmode;
+package kernel.display.text;
 
 import util.BitHelper;
 

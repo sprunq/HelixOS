@@ -1,11 +1,11 @@
-package kernel.display.videomode;
+package kernel.display.video.m13;
 
 import kernel.Env;
-import kernel.memory.Memory;
+import kernel.display.video.font.IFont;
 import util.BitHelper;
 
-public class VidWriter {
-    private static final VidDisplayMemory vidMem = (VidDisplayMemory) MAGIC.cast2Struct(Env.VGA_VID_BUFFER);
+public class VideoMode13 {
+    private static final VideoMode13Memory vidMem = (VideoMode13Memory) MAGIC.cast2Struct(Env.VGA_VID_BUFFER);
 
     public static final int WIDTH = 320;
     public static final int HEIGHT = 200;
@@ -14,7 +14,7 @@ public class VidWriter {
     public static final int PALETTE_WRITE = 0x3C8;
     public static final int PALETTE_DATA = 0x3C9;
 
-    public VidWriter() {
+    public VideoMode13() {
     }
 
     @SJC.Inline
@@ -46,5 +46,21 @@ public class VidWriter {
                 putPixel(xx, yy, color);
             }
         }
+    }
+
+    /*
+     * Does not work :(
+     */
+    public static void setPalette() {
+        MAGIC.wIOs8(PALETTE_MASK, (byte) 0xFF);
+        MAGIC.wIOs8(PALETTE_WRITE, (byte) 0);
+        for (int i = 0; i < 255; i++) {
+            MAGIC.wIOs8(PALETTE_DATA, (byte) 20);
+            MAGIC.wIOs8(PALETTE_DATA, (byte) 0);
+            MAGIC.wIOs8(PALETTE_DATA, (byte) 20);
+        }
+        MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
+        MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
+        MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
     }
 }

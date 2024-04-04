@@ -2,6 +2,7 @@ package kernel.memory;
 
 import kernel.Env;
 import kernel.Kernel;
+import kernel.Logger;
 import rte.SClassDesc;
 import util.BitHelper;
 
@@ -149,8 +150,17 @@ public class MemoryManager {
         MAGIC.assign(obj._r_type, type);
         MAGIC.assign(obj._r_scalarSize, scalarSize);
         MAGIC.assign(obj._r_relocEntries, relocEntries);
+
+        allocationChunk += lengthOfObject;
+        if (allocationChunk > 8 * 1024) {
+            allocationChunk = 0;
+            Logger.log("ALLOC 8kb - GC pls");
+        }
+
         return obj;
     }
+
+    private static int allocationChunk = 0;
 
     @SJC.Inline
     private static int getDynamicHeapStart() {

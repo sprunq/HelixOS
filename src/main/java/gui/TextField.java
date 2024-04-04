@@ -1,7 +1,7 @@
 package gui;
 
-import kernel.display.videomode.IFont;
-import kernel.display.videomode.VidWriter;
+import kernel.display.video.font.IFont;
+import kernel.display.video.m13.VideoMode13;
 
 public class TextField implements IUiElement {
 
@@ -17,14 +17,17 @@ public class TextField implements IUiElement {
     private int cursorX;
     private int cursorY;
     private IFont font;
-    private byte color;
+    private byte textColor;
+    private byte backGroundColor;
 
-    public TextField(int x, int y, int width, int height, IFont font, int charSpacing, int lineSpacing, byte color) {
+    public TextField(int x, int y, int width, int height, IFont font,
+            int charSpacing, int lineSpacing, byte textColor, byte backGroundColor) {
         this.x = x;
         this.y = y;
         this.cursorX = 0;
         this.cursorY = 0;
-        this.color = color;
+        this.textColor = textColor;
+        this.backGroundColor = backGroundColor;
         this.width = width;
         this.height = height;
         this.font = font;
@@ -35,8 +38,8 @@ public class TextField implements IUiElement {
         this.characters = new byte[lines][lineLength];
     }
 
-    public void clearRegion() {
-        VidWriter.setRegion(x, y, width, height, (byte) 0);
+    public void clearDrawing() {
+        VideoMode13.setRegion(x, y, width, height, backGroundColor);
     }
 
     public void draw() {
@@ -44,7 +47,7 @@ public class TextField implements IUiElement {
             for (int j = 0; j < lineLength; j++) {
                 int x = this.x + j * (font.getWidth() + charSpacing);
                 int y = this.y + i * (font.getHeight() + lineSpacing);
-                VidWriter.putChar(characters[i][j], font, x, y, color);
+                VideoMode13.putChar(characters[i][j], font, x, y, textColor);
             }
         }
     }
@@ -84,7 +87,7 @@ public class TextField implements IUiElement {
         }
     }
 
-    public void clear() {
+    public void clearText() {
         for (int i = 0; i < lines; i++) {
             for (int j = 0; j < lineLength; j++) {
                 characters[i][j] = (byte) 0;

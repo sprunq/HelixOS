@@ -1,4 +1,4 @@
-package kernel.display.textmode;
+package kernel.display.text;
 
 public class TmDisplayCell extends STRUCT {
     public byte character;

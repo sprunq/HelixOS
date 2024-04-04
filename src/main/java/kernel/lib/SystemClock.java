@@ -1,6 +1,6 @@
 package kernel.lib;
 
-import kernel.interrupt.PeriodicInterruptTimer;
+import kernel.hardware.PIT;
 
 public class SystemClock {
     private static int tickCount = 0;
@@ -20,7 +20,7 @@ public class SystemClock {
 
     @SJC.Inline
     public static void sleep(int ms) {
-        double timerRate = PeriodicInterruptTimer.getRateHz();
+        double timerRate = PIT.getRateHz();
         int end = tickCount + (int) (ms * timerRate / 1000);
         while (tickCount < end) {
         }
@@ -28,11 +28,11 @@ public class SystemClock {
 
     @SJC.Inline
     public static double asSeconds() {
-        return (double) tickCount / PeriodicInterruptTimer.getRateHz();
+        return (double) tickCount / PIT.getRateHz();
     }
 
     @SJC.Inline
     public static int tickToMilliseconds(int ticks) {
-        return (int) (ticks * 1000 / PeriodicInterruptTimer.getRateHz());
+        return (int) (ticks * 1000 / PIT.getRateHz());
     }
 }

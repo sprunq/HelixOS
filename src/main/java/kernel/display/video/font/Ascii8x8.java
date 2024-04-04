@@ -1,4 +1,4 @@
-package kernel.display.videomode;
+package kernel.display.video.font;
 
 public class Ascii8x8 implements IFont {
     public static String FONT = MAGIC.getNamedString("font_ascii_8x8.bim");

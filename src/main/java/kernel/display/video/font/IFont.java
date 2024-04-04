@@ -1,4 +1,4 @@
-package kernel.display.videomode;
+package kernel.display.video.font;
 
 public interface IFont {
 

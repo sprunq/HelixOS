@@ -1,15 +1,11 @@
 package kernel;
 
-import gui.Homebar;
-import gui.TextField;
+import gui.GUI;
 import kernel.bios.BIOS;
-import kernel.display.textmode.TmColor;
-import kernel.display.textmode.TmWriter;
-import kernel.display.videomode.Ascii7x5;
-import kernel.display.videomode.Ascii8x8;
-import kernel.display.videomode.VidWriter;
+import kernel.display.text.TmColor;
+import kernel.display.text.TmWriter;
+import kernel.hardware.PIT;
 import kernel.interrupt.InterruptDescriptorTable;
-import kernel.interrupt.PeriodicInterruptTimer;
 import kernel.lib.SystemClock;
 import kernel.memory.MemoryManager;
 
@@ -17,91 +13,35 @@ public class Kernel {
     public static TmWriter out;
 
     public static void main() {
-        InterruptDescriptorTable.initialize();
-        InterruptDescriptorTable.enable();
         MemoryManager.initialize();
+        Logger.init(100);
+        InterruptDescriptorTable.initialize();
+        Logger.log("Initialized IDT");
+        InterruptDescriptorTable.enable();
+        Logger.log("Enabled IDT");
 
-        PeriodicInterruptTimer.setRate((short) 100); // 100 hertz
+        PIT.setRate((short) 100); // 100 hertz
+        Logger.log("Set PIT rate");
 
         Kernel.out = new TmWriter();
         out.clearScreen();
 
         BIOS.activateGraphicsMode();
+        Logger.log("Activated graphics");
 
-        Homebar homebar = new Homebar(0, 200 - 16, 320, 16);
-        TextField tf = new TextField(5, 5, 310, 200 - homebar.height - 1, Ascii8x8.getInstance(), 0, 0, (byte) 90);
-
-        while (true) {
-            tf.clearRegion();
-            homebar.clearRegion();
-
-            int tick = SystemClock.getTick();
-            String time = Integer.toString(tick, 10);
-            tf.addString(time);
-            tf.newLine();
-
-            tf.draw();
-            homebar.draw();
-            SystemClock.sleep(1000);
-        }
-
-        int x2 = 0;
-        int y2 = 0;
-        for (int i = 0; i < 255; i++) {
-            for (int j = x2; j < x2 + 8; j++) {
-                for (int j2 = y2; j2 < y2 + 8; j2++) {
-                    VidWriter.putPixel(j, j2, (byte) i);
-                }
-            }
-
-            x2 += 10;
-            if (x2 >= 320) {
-                x2 = 0;
-                y2 += 10;
-            }
-        }
-
-        int x = 0;
-        int y = y2 + 10;
-        for (int i = 0x61; i < 0x79; i++) {
-            VidWriter.putChar((byte) i, Ascii7x5.getInstance(), x, y, (byte) 90);
-            x += 10;
-            if (x >= 320) {
-                x = 0;
-                y += 10;
-            }
-        }
-
-        SystemClock.sleep(1000000000);
-
-        int start = SystemClock.getTick();
-        int loops = 1000;
-        for (int c = 0; c < loops; c++) {
-            for (int i = 0; i < 200; i++) {
-                for (int j = 0; j < 320; j++) {
-                    int color = (((i + j + c) / 10));
-                    VidWriter.putPixel(j, i, (byte) (color % 255));
-                }
-            }
-        }
-
-        int end = SystemClock.getTick();
-        int totalMs = SystemClock.tickToMilliseconds(end - start);
-        int msPerFrame = totalMs / loops;
-        BIOS.activateTextMode();
-        out.print("Time: ");
-        out.print(totalMs);
-        out.println("ms");
-
-        out.print("Frames: ");
-        out.print(loops);
-        out.println();
-
-        out.print("ms per frame: ");
-        out.print(msPerFrame);
-        out.println();
+        GUI gui = new GUI();
 
         while (true) {
+            gui.clearDrawing();
+            gui.draw();
+            SystemClock.sleep(100);
+
+            int ticks = SystemClock.getTick();
+            String ticksStr = Integer.toString(ticks, 10);
+            String paddedTicks = ticksStr.leftPad(5, ' ');
+            gui.tfMain.addString(paddedTicks);
+            gui.tfMain.addString(" ticks");
+            gui.tfMain.newLine();
         }
     }
 
