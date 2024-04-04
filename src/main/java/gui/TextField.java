@@ -1,5 +1,6 @@
 package gui;
 
+import kernel.display.videomode.Ascii7x5;
 import kernel.display.videomode.VidWriter;
 
 public class TextField {
@@ -38,7 +39,7 @@ public class TextField {
             for (int j = 0; j < lineLength; j++) {
                 int x = this.x + j * (fontSize + charSpacing);
                 int y = this.y + i * (fontSize + lineSpacing);
-                VidWriter.putChar(characters[i][j], x, y, (byte) 90);
+                VidWriter.putChar(characters[i][j], Ascii7x5.getInstance(), x, y, (byte) 90);
             }
         }
     }

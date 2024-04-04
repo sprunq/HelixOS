@@ -1,6 +1,7 @@
 package kernel.display.videomode;
 
 import kernel.Env;
+import kernel.Kernel;
 import util.BitHelper;
 
 public class VidWriter {
@@ -26,12 +27,14 @@ public class VidWriter {
         return WIDTH * y + x;
     }
 
-    public static void putChar(byte c, int x, int y, byte color) {
-        for (int yy = 0; yy < 8; yy++) {
-            for (int xx = 0; xx < 8; xx++) {
-                byte b = BasicAsciiFont8x8.getByte(c, yy);
-                if (BitHelper.getFlag(b, xx)) {
-                    putPixel(x + xx, y + yy, color);
+    public static void putChar(byte c, IFont font, int positionX, int positionY, byte color) {
+        for (int charLine = 0; charLine < font.getHeight(); charLine++) {
+            byte b = font.getCharacterBitmapLine(c, charLine);
+            for (int lineBit = 0; lineBit < font.getWidth(); lineBit++) {
+                if (BitHelper.getFlag(b, lineBit)) {
+                    int x = font.correctTranslationX(positionX, positionY, lineBit, charLine);
+                    int y = font.correctTranslationY(positionX, positionY, lineBit, charLine);
+                    putPixel(x, y, color);
                 }
             }
         }

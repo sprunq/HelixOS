@@ -4,6 +4,8 @@ import gui.TextField;
 import kernel.bios.BIOS;
 import kernel.display.textmode.TmColor;
 import kernel.display.textmode.TmWriter;
+import kernel.display.videomode.Ascii7x5;
+import kernel.display.videomode.Ascii8x8;
 import kernel.display.videomode.VidWriter;
 import kernel.interrupt.InterruptDescriptorTable;
 import kernel.interrupt.PeriodicInterruptTimer;
@@ -34,16 +36,6 @@ public class Kernel {
                 0,
                 2);
 
-        while (true) {
-            int ticks = SystemClock.getTick();
-            String ticksS = Integer.toString(ticks, 10);
-            tf.addString(ticksS);
-            tf.addString(" ticks");
-            tf.newLine();
-            tf.draw();
-            SystemClock.sleep(1000);
-        }
-
         int x2 = 0;
         int y2 = 0;
         for (int i = 0; i < 255; i++) {
@@ -62,8 +54,8 @@ public class Kernel {
 
         int x = 0;
         int y = y2 + 10;
-        for (int i = 0; i < 95; i++) {
-            VidWriter.putChar((byte) i, x, y, (byte) i);
+        for (int i = 0x61; i < 0x79; i++) {
+            VidWriter.putChar((byte) i, Ascii7x5.getInstance(), x, y, (byte) 90);
             x += 10;
             if (x >= 320) {
                 x = 0;
@@ -71,7 +63,7 @@ public class Kernel {
             }
         }
 
-        SystemClock.sleep(1000);
+        SystemClock.sleep(1000000000);
 
         int start = SystemClock.getTick();
         int loops = 1000;
