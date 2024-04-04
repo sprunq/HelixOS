@@ -24,4 +24,16 @@ public class Array {
             j++;
         }
     }
+
+    public static void reverseByteBuffer(byte[] buffer) {
+        int i = buffer.length - 1;
+        int j = 0;
+        while (i > j) {
+            byte temp = buffer[i];
+            buffer[i] = buffer[j];
+            buffer[j] = temp;
+            i--;
+            j++;
+        }
+    }
 }

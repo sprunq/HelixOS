@@ -4,19 +4,33 @@ import kernel.lib.NoAllocConv;
 
 public class Integer {
 
-    public static String toString(int i) {
-        byte[] buf = new byte[34];
-        int length = NoAllocConv.itoa(
-                MAGIC.cast2Ref(buf),
-                1,
-                buf.length,
-                i,
-                10);
+    public static byte[] BUFFER = MAGIC.toByteArray("0000000000000000000000000000", false);
 
-        char[] chars = new char[length];
-        for (int j = 0; j < length; j++) {
-            chars[j] = (char) buf[j];
+    public static String toString(int i, int base) {
+        for (int j = 0; j < BUFFER.length; j++) {
+            BUFFER[j] = (byte) 0;
         }
-        return new String(buf);
+
+        int digitCount = NoAllocConv.itoa(BUFFER, BUFFER.length, i, base);
+
+        int newLength = digitCount;
+        if (i < 0) {
+            newLength += 1;
+        }
+
+        int offest = BUFFER.length - digitCount;
+        byte[] chars = new byte[newLength];
+        if (i < 0) {
+            chars[0] = (byte) '-';
+            for (int j = 0; j < digitCount; j++) {
+                chars[j + 1] = BUFFER[j + offest];
+            }
+        } else {
+            for (int j = 0; j < digitCount; j++) {
+                chars[j] = BUFFER[j + offest];
+            }
+        }
+
+        return new String(chars);
     }
 }

@@ -28,7 +28,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
 
     os.chdir(BUILD_DIR)
 
-    output = subprocess.run(["java", "-jar", sjc_jar_absolute, "../src/main", "-o", "boot"],
+    output = subprocess.run(["java", "-jar", sjc_jar_absolute, "../src/main", "-o", "boot", "-y"],
                        capture_output=True,
                        text=True) 
     

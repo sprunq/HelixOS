@@ -35,9 +35,13 @@ public class Kernel {
                 2);
 
         while (true) {
-            tf.addString("Hello, World!");
+            int ticks = SystemClock.getTick();
+            String ticksS = Integer.toString(ticks, 10);
+            tf.addString(ticksS);
+            tf.addString(" ticks");
+            tf.newLine();
             tf.draw();
-            SystemClock.sleep(50);
+            SystemClock.sleep(1000);
         }
 
         int x2 = 0;
