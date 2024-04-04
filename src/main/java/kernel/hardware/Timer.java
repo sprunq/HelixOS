@@ -1,8 +1,6 @@
-package kernel.lib;
+package kernel.hardware;
 
-import kernel.hardware.PIT;
-
-public class SystemClock {
+public class Timer {
     private static int tickCount = 0;
 
     @SJC.Inline
@@ -24,15 +22,5 @@ public class SystemClock {
         int end = tickCount + (int) (ms * timerRate / 1000);
         while (tickCount < end) {
         }
-    }
-
-    @SJC.Inline
-    public static double asSeconds() {
-        return (double) tickCount / PIT.getRateHz();
-    }
-
-    @SJC.Inline
-    public static int tickToMilliseconds(int ticks) {
-        return (int) (ticks * 1000 / PIT.getRateHz());
     }
 }

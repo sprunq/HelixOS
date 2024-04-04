@@ -5,8 +5,8 @@ import kernel.bios.BIOS;
 import kernel.display.text.TmColor;
 import kernel.display.text.TmWriter;
 import kernel.hardware.PIT;
+import kernel.hardware.Timer;
 import kernel.interrupt.InterruptDescriptorTable;
-import kernel.lib.SystemClock;
 import kernel.memory.MemoryManager;
 
 public class Kernel {
@@ -14,7 +14,7 @@ public class Kernel {
 
     public static void main() {
         MemoryManager.initialize();
-        Logger.init(100);
+        Logger.init(20);
         InterruptDescriptorTable.initialize();
         Logger.log("Initialized IDT");
         InterruptDescriptorTable.enable();
@@ -34,9 +34,9 @@ public class Kernel {
         while (true) {
             gui.clearDrawing();
             gui.draw();
-            SystemClock.sleep(100);
+            Timer.sleep(100);
 
-            int ticks = SystemClock.getTick();
+            int ticks = Timer.getTick();
             String ticksStr = Integer.toString(ticks, 10);
             String paddedTicks = ticksStr.leftPad(5, ' ');
             gui.tfMain.addString(paddedTicks);

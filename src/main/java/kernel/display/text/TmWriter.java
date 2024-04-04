@@ -1,8 +1,8 @@
 package kernel.display.text;
 
 import kernel.Env;
-import kernel.lib.NoAllocConv;
 import kernel.memory.Memory;
+import util.NoAllocConv;
 
 public class TmWriter {
     private static final TmDisplayMemory vidMem = (TmDisplayMemory) MAGIC.cast2Struct(Env.VGA_TM3_BUFFER);

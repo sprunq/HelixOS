@@ -1,7 +1,6 @@
-package kernel.lib;
+package util;
 
 import kernel.Kernel;
-import util.MathH;
 
 /*
  * A utility class for various conversions.

@@ -1,4 +1,4 @@
-package kernel.lib;
+package util;
 
 public class Array {
     public static void reverse(char[] a) {

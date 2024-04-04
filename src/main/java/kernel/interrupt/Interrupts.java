@@ -2,7 +2,7 @@ package kernel.interrupt;
 
 import kernel.Kernel;
 import kernel.bios.BIOS;
-import kernel.lib.SystemClock;
+import kernel.hardware.Timer;
 
 public class Interrupts {
     @SJC.Interrupt
@@ -77,7 +77,7 @@ public class Interrupts {
 
     @SJC.Interrupt
     public static void timerHandler() {
-        SystemClock.tick();
+        Timer.tick();
         ProgramInterruptController.acknowledge(0);
     }
 

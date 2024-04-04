@@ -3,12 +3,6 @@ package kernel.interrupt;
 /**
  * Represents an entry in the Interrupt Descriptor Table.
  * Each entry is 64 bits long.
- * 
- * <pre>
- * | 0-15       | 16-31    | 32-39 | 40-47               | 48-63       |
- * |-------------------------------------------------------------------|
- * | Offset Low | Selector | Zero  | Type and Attributes | Offset High |
- * </pre>
  */
 public class InterruptDescTableEntry extends STRUCT {
     /**

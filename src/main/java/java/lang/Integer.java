@@ -1,6 +1,6 @@
 package java.lang;
 
-import kernel.lib.NoAllocConv;
+import util.NoAllocConv;
 
 public class Integer {
 
