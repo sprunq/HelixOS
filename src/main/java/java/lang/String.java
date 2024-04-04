@@ -43,4 +43,19 @@ public class String {
         return copy;
     }
 
+    public String leftPad(int length, char c) {
+        int pad = length - count;
+        if (pad <= 0) {
+            return this;
+        }
+        byte[] padded = new byte[length];
+        for (int i = 0; i < pad; i++) {
+            padded[i] = (byte) c;
+        }
+        for (int i = 0; i < count; i++) {
+            padded[i + pad] = value[i];
+        }
+        return new String(padded);
+    }
+
 }

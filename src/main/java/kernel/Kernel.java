@@ -1,5 +1,6 @@
 package kernel;
 
+import gui.Homebar;
 import gui.TextField;
 import kernel.bios.BIOS;
 import kernel.display.textmode.TmColor;
@@ -27,22 +28,20 @@ public class Kernel {
 
         BIOS.activateGraphicsMode();
 
-        TextField tf = new TextField(
-                10,
-                10,
-                300,
-                180,
-                Ascii8x8.getInstance(),
-                0,
-                0);
+        Homebar homebar = new Homebar(0, 200 - 16, 320, 16);
+        TextField tf = new TextField(5, 5, 310, 200 - homebar.height - 1, Ascii8x8.getInstance(), 0, 0, (byte) 90);
 
         while (true) {
+            tf.clearRegion();
+            homebar.clearRegion();
+
             int tick = SystemClock.getTick();
             String time = Integer.toString(tick, 10);
             tf.addString(time);
             tf.newLine();
 
             tf.draw();
+            homebar.draw();
             SystemClock.sleep(1000);
         }
 

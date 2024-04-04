@@ -3,26 +3,28 @@ package gui;
 import kernel.display.videomode.IFont;
 import kernel.display.videomode.VidWriter;
 
-public class TextField {
+public class TextField implements IUiElement {
 
+    public int lineLength;
+    public int lines;
+    public int charSpacing;
+    public int lineSpacing;
+    public int x;
+    public int y;
+    public int width;
+    public int height;
     private byte[][] characters;
-    private int lineLength;
-    private int lines;
-    private int charSpacing;
-    private int lineSpacing;
-    private int x;
-    private int y;
-    private int width;
-    private int height;
     private int cursorX;
     private int cursorY;
     private IFont font;
+    private byte color;
 
-    public TextField(int x, int y, int width, int height, IFont font, int charSpacing, int lineSpacing) {
+    public TextField(int x, int y, int width, int height, IFont font, int charSpacing, int lineSpacing, byte color) {
         this.x = x;
         this.y = y;
         this.cursorX = 0;
         this.cursorY = 0;
+        this.color = color;
         this.width = width;
         this.height = height;
         this.font = font;
@@ -33,13 +35,16 @@ public class TextField {
         this.characters = new byte[lines][lineLength];
     }
 
-    public void draw() {
+    public void clearRegion() {
         VidWriter.setRegion(x, y, width, height, (byte) 0);
+    }
+
+    public void draw() {
         for (int i = 0; i < lines; i++) {
             for (int j = 0; j < lineLength; j++) {
                 int x = this.x + j * (font.getWidth() + charSpacing);
                 int y = this.y + i * (font.getHeight() + lineSpacing);
-                VidWriter.putChar(characters[i][j], font, x, y, (byte) 90);
+                VidWriter.putChar(characters[i][j], font, x, y, color);
             }
         }
     }
@@ -82,9 +87,10 @@ public class TextField {
     public void clear() {
         for (int i = 0; i < lines; i++) {
             for (int j = 0; j < lineLength; j++) {
-                characters[i][j] = (byte) ' ';
+                characters[i][j] = (byte) 0;
             }
         }
+        setCursor(0, 0);
     }
 
     public void newLine() {
