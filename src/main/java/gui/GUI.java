@@ -3,7 +3,6 @@ package gui;
 import kernel.display.video.VM13;
 import kernel.display.video.font.Font3x6;
 import kernel.display.video.font.Font5x7;
-import kernel.display.video.font.Font8x8;
 
 /*
  * The OS Desktop.

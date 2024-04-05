@@ -1,6 +1,5 @@
 package kernel.memory;
 
-import assembler.x86;
 import kernel.Env;
 import kernel.Kernel;
 import kernel.Logger;
