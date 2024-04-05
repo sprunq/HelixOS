@@ -1,5 +1,6 @@
 package kernel.memory;
 
+import assembler.x86;
 import kernel.Env;
 import kernel.Kernel;
 import kernel.Logger;
@@ -152,9 +153,9 @@ public class MemoryManager {
         MAGIC.assign(obj._r_relocEntries, relocEntries);
 
         allocationChunk += lengthOfObject;
-        if (allocationChunk > 8 * 1024) {
+        if (allocationChunk > 4 * 1024) {
             allocationChunk = 0;
-            Logger.log("ALLOC 8kb - GC pls");
+            Logger.warning("Allocated 4kb without a GC");
         }
 
         return obj;

@@ -1,8 +1,9 @@
 package gui;
 
-import kernel.display.video.font.Ascii8x8;
-import kernel.display.video.m13.VideoMode13;
-import kernel.display.video.m13.VideoMode13Memory;
+import kernel.display.video.VM13;
+import kernel.display.video.font.Font3x6;
+import kernel.display.video.font.Font5x7;
+import kernel.display.video.font.Font8x8;
 
 /*
  * The OS Desktop.
@@ -14,28 +15,41 @@ public class GUI implements IUiElement {
     public TextField tfLogs;
 
     public GUI() {
-        byte backgroundColor = (byte) 245;
-        byte textColor = (byte) 15;
-        homebar = new Homebar(0, 200 - 16, 320, 16);
+        int border = 4;
+        homebar = new Homebar(
+                0,
+                200 - 16,
+                320,
+                16);
 
         tfMain = new TextField(
-                5, 5,
-                150, 200 - homebar.height - 1 - 8,
-                Ascii8x8.getInstance(),
-                0, 1,
-                textColor, backgroundColor);
+                border,
+                border,
+                185,
+                200 - homebar.height,
+                Font5x7.Instance,
+                0, 2,
+                VM13.frgb(0.7, 0.7, 0.7),
+                VM13.frgb(1.0, 1.0, 1.0));
 
-        int tfMainEndX = tfMain.x + tfMain.width;
+        int tfMainEndX = tfMain.x + tfMain.width + border;
         colorPalette = new ColorPalette(
-                tfMainEndX + 5, tfMain.y,
-                320 - tfMainEndX - 10, 30, 4);
+                tfMainEndX,
+                tfMain.y,
+                320 - tfMainEndX - border,
+                20,
+                3);
 
         int cpEndY = colorPalette.y + colorPalette.height;
         tfLogs = new LogTextField(
-                colorPalette.x, cpEndY + 5,
-                colorPalette.width, tfMain.height - colorPalette.height - 5,
-                Ascii8x8.getInstance(), 0, 1,
-                textColor, backgroundColor);
+                colorPalette.x,
+                cpEndY + 5,
+                colorPalette.width,
+                tfMain.height - colorPalette.height - border,
+                Font3x6.Instance,
+                0,
+                2,
+                VM13.frgb(0.4, 0.4, 0.4));
     }
 
     @Override
@@ -44,7 +58,6 @@ public class GUI implements IUiElement {
         colorPalette.draw();
         tfLogs.draw();
         homebar.draw();
-        VideoMode13.swap();
     }
 
     @Override

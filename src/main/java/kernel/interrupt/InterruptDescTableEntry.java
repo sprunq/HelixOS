@@ -13,9 +13,7 @@ public class InterruptDescTableEntry extends STRUCT {
     public short offsetLow;
 
     /**
-     * The selector field represents the segment selector associated with the
-     * interrupt descriptor table entry.
-     * It identifies the segment in the GDT that contains the interrupt handler
+     * Identifies the segment in the GDT that contains the interrupt handler
      * code.
      * Bits 16-31
      */

@@ -123,5 +123,4 @@ public class RTC {
         hours = (hours & 0xF) + ((hours & 0x70) >> 4) * 10 + (hours & 0x80);
         return hours;
     }
-
 }

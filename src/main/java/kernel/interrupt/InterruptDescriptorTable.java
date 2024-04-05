@@ -1,6 +1,7 @@
 package kernel.interrupt;
 
 import assembler.x86;
+import kernel.Logger;
 import rte.SClassDesc;
 import util.BitHelper;
 
@@ -44,20 +45,25 @@ public class InterruptDescriptorTable {
         for (int j = 34; j < 48; j++) {
             writeTableEntry(j, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ignoreHandler"))); // IRQ 2-15
         }
+        Logger.info("Initialized IDT");
     }
 
     @SJC.Inline
     public static void enable() {
         x86.sti();
+        Logger.info("Enabled IDT");
     }
 
     @SJC.Inline
     public static void disable() {
         x86.cli();
+        Logger.info("Disabled IDT");
     }
 
+    @SJC.Inline
     public static void loadTable() {
         x86.ldit(IDT_BASE, IDT_ENTRIES * IDT_ENTRY_SIZE - 1);
+        Logger.info("Load IDT (protected)");
     }
 
     private static int codeOffset(int classDesc, int mthdOff) {
@@ -66,7 +72,6 @@ public class InterruptDescriptorTable {
     }
 
     private static void writeTableEntry(int i, int handlerAddr) {
-
         InterruptDescTableEntry entry = (InterruptDescTableEntry) MAGIC.cast2Struct(IDT_BASE + i * 8);
         entry.offsetLow = (short) BitHelper.getRange(handlerAddr, 0, 16);
         entry.selector = 8;

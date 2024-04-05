@@ -1,5 +1,7 @@
 package kernel.hardware;
 
+import kernel.Logger;
+
 /**
  * The Programmable Interval Timer class represents a hardware timer used
  * for generating periodic interrupts.
@@ -10,6 +12,11 @@ public class PIT {
     private static final byte PIT_SET = (byte) 0x36;
     private static final double INTERNAL_CLOCK_SPEED = 1193131.666;
     private static double rateHz = 18.2;
+
+    public static void init() {
+        setRate(100);
+        Logger.info("Set PIT rate to 100Hz");
+    }
 
     /**
      * Sets the rate of the PIT timer.

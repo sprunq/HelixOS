@@ -6,9 +6,11 @@ public interface IFont {
 
     public int getHeight();
 
+    public int getSpacingW();
+
+    public int getSpacingH();
+
     public byte getCharacterBitmapLine(int ch, int line);
 
-    public int correctTranslationX(int positionX, int positionY, int relX, int relY);
-
-    public int correctTranslationY(int positionX, int positionY, int relX, int relY);
+    public boolean isVertical();
 }

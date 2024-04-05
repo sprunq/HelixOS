@@ -29,6 +29,10 @@ public class MathH {
         return n < min ? min : n > max ? max : n;
     }
 
+    public static int compress(int n, int min, int max, int newMin, int newMax) {
+        return (n - min) * (newMax - newMin) / (max - min) + newMin;
+    }
+
     // Returns -1 if n is negative, 1 if n is positive, and 0 if n is zero
     public static int sign(int n) {
         if (n < 0) {

@@ -1,5 +1,7 @@
 package kernel.interrupt;
 
+import kernel.Logger;
+
 public class ProgramInterruptController {
     public final static int MASTER = 0x20;
     public final static int SLAVE = 0xA0;
@@ -7,6 +9,7 @@ public class ProgramInterruptController {
     public static void initialize() {
         programmChip(MASTER, 0x20, 0x04); // init offset and slave config of master
         programmChip(SLAVE, 0x28, 0x02); // init offset and slave config of slave
+        Logger.info("Initialized PIT");
     }
 
     @SJC.Inline

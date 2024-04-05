@@ -1,8 +1,8 @@
 package gui;
 
-import kernel.display.video.font.Ascii8x8;
-import kernel.display.video.font.IFont;
-import kernel.display.video.m13.VideoMode13;
+import kernel.display.video.VM13;
+import kernel.display.video.font.Font5x7;
+import kernel.display.video.font.Font8x8;
 import kernel.hardware.RTC;
 
 public class Homebar implements IUiElement {
@@ -10,7 +10,6 @@ public class Homebar implements IUiElement {
     public final int y;
     public final int width;
     public final int height;
-    public IFont font;
     public TextField clock;
     public TextField nameVersion;
     private byte backgroundColor;
@@ -20,16 +19,29 @@ public class Homebar implements IUiElement {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.backgroundColor = (byte) 53;
-        this.font = Ascii8x8.getInstance();
-        this.clock = new TextField(320 - 153 - 1, 200 - 11, 153, 9, this.font, 1, 1, (byte) 15, backgroundColor);
-        this.nameVersion = new TextField(5, 200 - 11, 100, 9, this.font, 1, 1, (byte) 15, backgroundColor);
-        this.nameVersion.addString("TOOS v0.01");
+        this.backgroundColor = VM13.frgb(0.1, 0.2, 0.5);
+
+        this.clock = new TextField(
+                320 - 120 - 1,
+                200 - 11,
+                120,
+                9,
+                Font5x7.Instance, 0, 0,
+                backgroundColor,
+                VM13.frgb(1.0, 1.0, 1.0));
+
+        this.nameVersion = new TextField(
+                5, 200 - 11,
+                100, 9,
+                Font8x8.Instance, 0, 0,
+                backgroundColor,
+                VM13.frgb(1.0, 1.0, 1.0));
+        this.nameVersion.addString("TOOS");
     }
 
     @Override
     public void draw() {
-        VideoMode13.setRegion(x, y, width, height, backgroundColor);
+        VM13.setRegion(x, y, width, height, backgroundColor);
         nameVersion.draw();
         drawClock();
     }
@@ -38,7 +50,7 @@ public class Homebar implements IUiElement {
     public void clearDrawing() {
         clock.clearDrawing();
         nameVersion.clearDrawing();
-        VideoMode13.setRegion(x, y, width, height, (byte) 0);
+        VM13.setRegion(x, y, width, height, (byte) 0);
     }
 
     private void drawClock() {

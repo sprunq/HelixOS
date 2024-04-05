@@ -132,7 +132,7 @@ font_array =  [
 
 # writes the hex values as bytes to a file
 def main():
-    with open("font_ascii_8x8.bim", "wb") as file:
+    with open("font_8x8.bim", "wb") as file:
         for row in font_array:
             bytes = bytearray(row)
             file.write(bytes)

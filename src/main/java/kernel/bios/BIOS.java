@@ -1,6 +1,7 @@
 package kernel.bios;
 
 import assembler.x86;
+import kernel.Logger;
 import kernel.interrupt.InterruptDescriptorTable;
 
 public class BIOS {
@@ -206,5 +207,6 @@ public class BIOS {
     @SJC.Inline
     private static void lidtRealMode() {
         x86.ldit(0, 1023);
+        Logger.info("Load IDT (real)");
     }
 }

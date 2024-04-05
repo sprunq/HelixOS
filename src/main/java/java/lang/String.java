@@ -58,4 +58,15 @@ public class String {
         return new String(padded);
     }
 
+    public String append(String other) {
+        byte[] appended = new byte[count + other.count];
+        for (int i = 0; i < count; i++) {
+            appended[i] = value[i];
+        }
+        for (int i = 0; i < other.count; i++) {
+            appended[i + count] = other.value[i];
+        }
+        return new String(appended);
+    }
+
 }
