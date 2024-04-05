@@ -26,16 +26,24 @@ public class Homebar implements IUiElement {
                 200 - 11,
                 120,
                 9,
-                Font5x7.Instance, 0, 0,
+                0,
+                0,
+                0,
                 backgroundColor,
-                VM13.frgb(1.0, 1.0, 1.0));
+                VM13.frgb(1.0, 1.0, 1.0),
+                Font5x7.Instance);
 
         this.nameVersion = new TextField(
-                5, 200 - 11,
-                100, 9,
-                Font8x8.Instance, 0, 0,
+                5,
+                200 - 11,
+                100,
+                9,
+                0,
+                0,
+                0,
                 backgroundColor,
-                VM13.frgb(1.0, 1.0, 1.0));
+                VM13.frgb(1.0, 1.0, 1.0),
+                Font8x8.Instance);
         this.nameVersion.addString("TOOS");
     }
 

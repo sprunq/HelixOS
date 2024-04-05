@@ -31,7 +31,7 @@ public class Kernel {
         VM13.setPalette();
 
         gui = new GUI();
-        gui.tfMain.addString("   ## Welcome TO TOOS ##");
+        gui.tfMain.addString("  ## Welcome TO TOOS ##");
         gui.tfMain.newLine();
         gui.tfMain.newLine();
         gui.tfMain.addString("Features:");
@@ -46,7 +46,7 @@ public class Kernel {
         gui.tfMain.newLine();
         gui.tfMain.addString(" - GUI in VGA Mode 13h");
         gui.tfMain.newLine();
-        gui.tfMain.addString(" - Fonts (scherzhaft)");
+        gui.tfMain.addString(" - Fonts (schmerzhaft)");
         gui.tfMain.newLine();
         gui.tfMain.newLine();
         gui.tfMain.newLine();
@@ -62,7 +62,7 @@ public class Kernel {
             gui.clearDrawing();
             gui.draw();
             VM13.swap();
-            Timer.sleep(1000);
+            Timer.sleep(1000 / 2);
         }
     }
 

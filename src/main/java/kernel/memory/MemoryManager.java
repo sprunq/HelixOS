@@ -154,7 +154,7 @@ public class MemoryManager {
         allocationChunk += lengthOfObject;
         if (allocationChunk > 4 * 1024) {
             allocationChunk = 0;
-            Logger.warning("Allocated 4kb without a GC");
+            Logger.warning("Alloc 4kb - no GC /('o.o)\\");
         }
 
         return obj;

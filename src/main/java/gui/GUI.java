@@ -4,9 +4,6 @@ import kernel.display.video.VM13;
 import kernel.display.video.font.Font3x6;
 import kernel.display.video.font.Font5x7;
 
-/*
- * The OS Desktop.
- */
 public class GUI implements IUiElement {
     public TextField tfMain;
     public Homebar homebar;
@@ -26,10 +23,11 @@ public class GUI implements IUiElement {
                 border,
                 185,
                 200 - homebar.height,
-                Font5x7.Instance,
+                2,
                 0, 2,
                 VM13.frgb(0.7, 0.7, 0.7),
-                VM13.frgb(1.0, 1.0, 1.0));
+                VM13.frgb(1.0, 1.0, 1.0),
+                Font5x7.Instance);
 
         int tfMainEndX = tfMain.x + tfMain.width + border;
         colorPalette = new ColorPalette(
@@ -45,6 +43,7 @@ public class GUI implements IUiElement {
                 cpEndY + 5,
                 colorPalette.width,
                 tfMain.height - colorPalette.height - border,
+                2,
                 Font3x6.Instance,
                 0,
                 2,

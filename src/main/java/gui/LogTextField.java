@@ -11,11 +11,12 @@ public class LogTextField extends TextField {
             int y,
             int width,
             int height,
+            int border,
             IFont font,
             int charSpacing,
             int lineSpacing,
             byte backGroundColor) {
-        super(x, y, width, height, font, charSpacing, lineSpacing, backGroundColor, VM13.frgb(1.0, 1.0, 1.0));
+        super(x, y, width, height, border, charSpacing, lineSpacing, backGroundColor, VM13.frgb(1.0, 1.0, 1.0), font);
     }
 
     public void draw() {

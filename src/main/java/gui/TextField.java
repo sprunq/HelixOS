@@ -5,14 +5,15 @@ import kernel.display.video.font.IFont;
 
 public class TextField implements IUiElement {
 
-    public int lineLength;
-    public int lines;
-    public int spacingW;
-    public int spacingH;
     public int x;
     public int y;
     public int width;
     public int height;
+    private int spacingBorder;
+    public int spacingW;
+    public int spacingH;
+    public int lineLength;
+    public int lines;
     private byte[][] characters;
     private byte[][] characterColors;
     private int cursorX;
@@ -21,8 +22,17 @@ public class TextField implements IUiElement {
     private byte backGroundColor;
     private byte brush;
 
-    public TextField(int x, int y, int width, int height, IFont font,
-            int charSpacing, int lineSpacing, byte backGroundColor, byte defaultBrushColor) {
+    public TextField(
+            int x,
+            int y,
+            int width,
+            int height,
+            int borderSpacing,
+            int charSpacing,
+            int lineSpacing,
+            byte backGroundColor,
+            byte defaultBrushColor,
+            IFont font) {
         this.x = x;
         this.y = y;
         this.cursorX = 0;
@@ -30,11 +40,12 @@ public class TextField implements IUiElement {
         this.backGroundColor = backGroundColor;
         this.width = width;
         this.height = height;
+        this.spacingBorder = borderSpacing;
         this.font = font;
         this.spacingW = charSpacing + font.getSpacingW();
         this.spacingH = lineSpacing + font.getSpacingH();
-        this.lineLength = width / (font.getWidth() + spacingW);
-        this.lines = height / (font.getHeight() + spacingH);
+        this.lineLength = (width - borderSpacing * 2) / (font.getWidth() + spacingW);
+        this.lines = (height - borderSpacing * 2) / (font.getHeight() + spacingH);
         this.characters = new byte[lines][lineLength];
         this.characterColors = new byte[lines][lineLength];
         this.brush = defaultBrushColor;
@@ -47,8 +58,8 @@ public class TextField implements IUiElement {
     public void draw() {
         for (int i = 0; i < lines; i++) {
             for (int j = 0; j < lineLength; j++) {
-                int x = this.x + j * (font.getWidth() + spacingW);
-                int y = this.y + i * (font.getHeight() + spacingH);
+                int x = this.x + j * (font.getWidth() + spacingW) + spacingBorder;
+                int y = this.y + i * (font.getHeight() + spacingH) + spacingBorder;
                 byte character = characters[i][j];
                 byte characterColor = characterColors[i][j];
                 VM13.putChar(character, x, y, font, characterColor);
