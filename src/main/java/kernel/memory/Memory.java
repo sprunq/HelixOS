@@ -23,6 +23,10 @@ public class Memory {
         }
     }
 
+    /*
+     * Copy bytes from one memory location to another.
+     * Bigger batches are faster even on 32-bit systems.
+     */
     @SJC.Inline
     public static void copyBytes(int src, int dest, int len) {
         if (len % 8 == 0) {

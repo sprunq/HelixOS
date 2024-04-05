@@ -1,6 +1,8 @@
 package gui;
 
 import kernel.display.video.font.Ascii8x8;
+import kernel.display.video.m13.VideoMode13;
+import kernel.display.video.m13.VideoMode13Memory;
 
 /*
  * The OS Desktop.
@@ -42,6 +44,7 @@ public class GUI implements IUiElement {
         colorPalette.draw();
         tfLogs.draw();
         homebar.draw();
+        VideoMode13.swap();
     }
 
     @Override

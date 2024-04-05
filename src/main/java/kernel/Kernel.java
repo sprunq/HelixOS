@@ -4,6 +4,7 @@ import gui.GUI;
 import kernel.bios.BIOS;
 import kernel.display.text.TmColor;
 import kernel.display.text.TmWriter;
+import kernel.display.video.m13.VideoMode13;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
 import kernel.interrupt.InterruptDescriptorTable;
@@ -30,10 +31,10 @@ public class Kernel {
         Logger.log("Activated graphics");
 
         GUI gui = new GUI();
-
         while (true) {
             gui.clearDrawing();
             gui.draw();
+
             Timer.sleep(100);
 
             int ticks = Timer.getTick();
