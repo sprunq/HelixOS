@@ -16,11 +16,17 @@ public class Timer {
         return tickCount;
     }
 
-    @SJC.Inline
     public static void sleep(int ms) {
-        double timerRate = PIT.getRateHz();
-        int end = tickCount + (int) (ms * timerRate / 1000);
-        while (tickCount < end) {
+        double rate = PIT.getRateHz();
+        int ticks = (int) (rate / 1000.0 * (double) ms);
+        int start = getTick();
+        while (getTick() - start < ticks) {
+            // wait
         }
+    }
+
+    public static int getTickDifferenceMs(int start, int end) {
+        double rate = PIT.getRateHz();
+        return (int) ((end - start) / rate * 1000.0);
     }
 }

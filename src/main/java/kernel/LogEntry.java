@@ -9,18 +9,22 @@ public class LogEntry {
         this.priority = priority;
     }
 
+    @SJC.Inline
     public String getMessage() {
         return message;
     }
 
+    @SJC.Inline
     public byte getPriority() {
         return priority;
     }
 
+    @SJC.Inline
     public void setMessage(String message) {
         this.message = message;
     }
 
+    @SJC.Inline
     public void setPriority(byte priority) {
         this.priority = priority;
     }

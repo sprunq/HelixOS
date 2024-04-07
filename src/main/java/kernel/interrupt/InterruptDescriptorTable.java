@@ -16,6 +16,9 @@ public class InterruptDescriptorTable {
     private final static int IDT_ENTRIES = 48;
     private final static int IDT_ENTRY_SIZE = 8;
 
+    private static final int SEGMENT_CODE = 1;
+    private static final int REQUESTED_PRIV_LEVEL_OS = 0;
+
     public static void initialize() {
         ProgramInterruptController.initialize();
         loadTable();
@@ -74,9 +77,23 @@ public class InterruptDescriptorTable {
     private static void writeTableEntry(int i, int handlerAddr) {
         InterruptDescTableEntry entry = (InterruptDescTableEntry) MAGIC.cast2Struct(IDT_BASE + i * 8);
         entry.offsetLow = (short) BitHelper.getRange(handlerAddr, 0, 16);
-        entry.selector = 8;
+        entry.selector = getSelector(SEGMENT_CODE, REQUESTED_PRIV_LEVEL_OS, false);
         entry.zero = 0;
         entry.typeAttr = (byte) 0x8E; // 10001110
         entry.offsetHigh = (short) BitHelper.getRange(handlerAddr, 16, 16);
+    }
+
+    /*
+     * The selector is a 16-bit value that contains the following fields:
+     * 0-1: Requested privilege level (0 = OS, ..., 3 = User)
+     * 2: Table indicator (0 = GDT, 1 = LDT)
+     * 3-13: Index of the segment descriptor in the GDT or LDT
+     */
+    private static short getSelector(int segment, int privLevel, boolean tableLDT) {
+        int selector = 0;
+        selector = BitHelper.setRange(selector, 0, 2, privLevel);
+        selector = BitHelper.setFlag(selector, 2, tableLDT);
+        selector = BitHelper.setRange(selector, 3, 13, segment);
+        return (short) selector;
     }
 }

@@ -14,13 +14,13 @@ public class PIT {
     private static double rateHz = 18.2;
 
     public static void init() {
-        setRate(100);
-        Logger.info("Set PIT rate to 100Hz");
+        setRate(250);
+        Logger.info("Set PIT rate to 250Hz");
     }
 
     /**
      * Sets the rate of the PIT timer.
-     * 
+     * Not really accurate. Either set to 100 or 1000 Hz.
      *
      * @param hz The desired rate in Hz.
      */

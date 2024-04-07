@@ -16,7 +16,7 @@ public class Kernel {
 
     public static void main() {
         MemoryManager.initialize();
-        Logger.init(Logger.DEBUG, 20);
+        Logger.initialize(Logger.DEBUG, 20);
         InterruptDescriptorTable.initialize();
         InterruptDescriptorTable.enable();
         PIT.init();
@@ -62,7 +62,7 @@ public class Kernel {
             gui.clearDrawing();
             gui.draw();
             VM13.swap();
-            Timer.sleep(1000 / 2);
+            Timer.sleep(1000 / 4);
         }
     }
 
