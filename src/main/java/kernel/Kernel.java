@@ -16,7 +16,7 @@ public class Kernel {
 
     public static void main() {
         MemoryManager.initialize();
-        Logger.initialize(Logger.DEBUG, 20);
+        Logger.initialize(Logger.INFO, 20);
         IDT.initialize();
         IDT.enable();
         PIT.init();
@@ -63,14 +63,7 @@ public class Kernel {
             gui.draw();
             VM13.swap();
             Timer.sleep(1000 / 4);
-            rec(1000000);
-
         }
-    }
-
-    private static void rec(int i) {
-        int c = i / 2;
-        rec(c);
     }
 
     public static void panic(String msg) {
