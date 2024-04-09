@@ -2,7 +2,10 @@ package kernel.interrupt;
 
 import kernel.Logger;
 
-public class ProgramInterruptController {
+/**
+ * Programmable Interrupt Controller
+ */
+public class PIC {
     public final static int MASTER = 0x20;
     public final static int SLAVE = 0xA0;
 

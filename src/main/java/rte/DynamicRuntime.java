@@ -1,9 +1,21 @@
 package rte;
 
 import kernel.Kernel;
+import kernel.bios.BIOS;
+import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
 
 public class DynamicRuntime {
+    static final int SIZE_FOR_PANIC_CALL = 512;
+    static int stackExtreme = BIOS.BIOS_STKEND + SIZE_FOR_PANIC_CALL;
+
+    @SJC.StackExtreme
+    static void stackExtremeError() {
+        // make space for panic call
+        stackExtreme -= SIZE_FOR_PANIC_CALL;
+        Kernel.panic("Stack Overflow");
+    }
+
     public static Object newInstance(int scalarSize, int relocEntries, SClassDesc type) {
         return MemoryManager.allocObject(scalarSize, relocEntries, type);
     }

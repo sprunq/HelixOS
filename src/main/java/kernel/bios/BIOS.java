@@ -2,12 +2,12 @@ package kernel.bios;
 
 import assembler.x86;
 import kernel.Logger;
-import kernel.interrupt.InterruptDescriptorTable;
+import kernel.interrupt.IDT;
 
 public class BIOS {
-    private final static int BIOS_MEMORY = 0x60000;
-    private final static int BIOS_STKEND = BIOS_MEMORY + 0x1000;
-    private final static int BIOS_STKBSE = BIOS_STKEND - 0x28;
+    public final static int BIOS_MEMORY = 0x60000;
+    public final static int BIOS_STKEND = BIOS_MEMORY + 0x1000;
+    public final static int BIOS_STKBSE = BIOS_STKEND - 0x28;
 
     public final static BIOSRegs regs = (BIOSRegs) MAGIC.cast2Struct(BIOS_STKBSE);
 
@@ -23,11 +23,13 @@ public class BIOS {
 
     private static boolean initDone;
 
+    @SJC.Inline
     public static void activateGraphicsMode() {
         BIOS.regs.EAX = 0x0013;
         BIOS.rint(0x10);
     }
 
+    @SJC.Inline
     public static void activateTextMode() {
         BIOS.regs.EAX = 0x0003;
         BIOS.rint(0x10);
@@ -201,7 +203,7 @@ public class BIOS {
 
     @SJC.Inline
     private static void lidt() {
-        InterruptDescriptorTable.loadTable();
+        IDT.loadTable();
     }
 
     @SJC.Inline

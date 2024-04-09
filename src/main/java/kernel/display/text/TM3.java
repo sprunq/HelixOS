@@ -5,7 +5,7 @@ import kernel.memory.Memory;
 import util.NoAllocConv;
 
 public class TM3 {
-    private static final TMMemory vidMem = (TMMemory) MAGIC.cast2Struct(Env.VGA_TM3_BUFFER);
+    public static final TMMemory vidMem = (TMMemory) MAGIC.cast2Struct(Env.VGA_TM3_BUFFER);
 
     public static final int LINE_LENGTH = 80;
     public static final int LINE_COUNT = 25;
@@ -125,6 +125,7 @@ public class TM3 {
         println();
     }
 
+    @SJC.Inline
     public static int directPrint(char c, int position, int color) {
         vidMem.cells[position].character = (byte) c;
         vidMem.cells[position].color = (byte) color;

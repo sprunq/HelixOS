@@ -4,7 +4,7 @@ package kernel.interrupt;
  * Represents an entry in the Interrupt Descriptor Table.
  * Each entry is 64 bits long.
  */
-public class InterruptDescTableEntry extends STRUCT {
+public class IDTEntry extends STRUCT {
     /**
      * The lower 16 bits of the interrupt handler's offset.
      * Bits 0-15

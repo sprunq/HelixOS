@@ -28,7 +28,15 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
 
     os.chdir(BUILD_DIR)
 
-    output = subprocess.run(["java", "-jar", sjc_jar_absolute, "../src/main", "-o", "boot", "-y"],
+    output = subprocess.run([
+                            "java", 
+                            "-jar", sjc_jar_absolute, 
+                            "../src/main",
+                            "-o", "boot", 
+                            "-y", 
+                            "-t", "ia32", "-T", "sse3", 
+                            "-x"
+                            ],
                        capture_output=True,
                        text=True) 
     
@@ -40,7 +48,13 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         print("Detected errors during compilation. Aborting build..")
         exit()
     
-    subprocess.run(["qemu-system-i386", "-m", "1024", "-boot", "a", "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy", "-rtc", "base=localtime"])
+    subprocess.run([
+        "qemu-system-i386", 
+        "-m", "1024", 
+        "-boot", "a", 
+        "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy", 
+        "-rtc", "base=localtime"
+        ])
 
     # Cleanup
     os.chdir(START_DIR)

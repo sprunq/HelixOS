@@ -30,9 +30,7 @@ public class VM13 {
     public static void swap() {
         int ptrToVidMem = MAGIC.cast2Ref(vidMem.color);
 
-        // Arrays are objects. We need to skip the scalars to get to the actual data.
-        // "SArray" class descriptors cannot be found so I fake the class locally.
-        int ptrToBackBuffer = MAGIC.cast2Ref(backBuffer) + MAGIC.getInstScalarSize("ArraySizeForwarder");
+        int ptrToBackBuffer = MAGIC.cast2Ref(backBuffer) + SArray.getScalarSize();
         Memory.copyBytes(ptrToBackBuffer, ptrToVidMem, WIDTH * HEIGHT);
         Logger.debug("VGA Swap buffer");
     }
@@ -139,9 +137,5 @@ public class VM13 {
         color = BitHelper.setRange(color, 2, 3, green);
         color = BitHelper.setRange(color, 5, 3, red);
         return (byte) color;
-    }
-
-    @SuppressWarnings("unused")
-    private class ArraySizeForwarder extends SArray {
     }
 }

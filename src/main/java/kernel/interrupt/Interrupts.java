@@ -68,12 +68,12 @@ public class Interrupts {
     @SJC.Interrupt
     public static void timerHandler() {
         Timer.tick();
-        ProgramInterruptController.acknowledge(0);
+        PIC.acknowledge(0);
     }
 
     @SJC.Interrupt
     public static void keyboardHandler() {
         Logger.error("INTR: keyboardHandler");
-        ProgramInterruptController.acknowledge(1);
+        PIC.acknowledge(1);
     }
 }

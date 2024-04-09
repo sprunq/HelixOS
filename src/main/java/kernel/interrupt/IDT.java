@@ -5,22 +5,27 @@ import kernel.Logger;
 import rte.SClassDesc;
 import util.BitHelper;
 
-public class InterruptDescriptorTable {
+/**
+ * The Interrupt Descriptor Table
+ */
+public class IDT {
     /*
      * The IDT can be placed somewhere in memory.
      * In my system it starts at the lowest free address in the reserved stack
      * region.
      * Question: Could this not lead to the IDT being overwritten by the stack?
      */
-    private final static int IDT_BASE = 0x07E00;
-    private final static int IDT_ENTRIES = 48;
-    private final static int IDT_ENTRY_SIZE = 8;
+    public final static int IDT_BASE = 0x07E00;
+    public final static int IDT_ENTRIES = 256;
+    public final static int IDT_ENTRY_SIZE = 8;
+    public final static int IDT_SIZE = IDT_ENTRIES * IDT_ENTRY_SIZE;
+    public final static int IDT_END = IDT_BASE + IDT_SIZE;
 
     private static final int SEGMENT_CODE = 1;
     private static final int REQUESTED_PRIV_LEVEL_OS = 0;
 
     public static void initialize() {
-        ProgramInterruptController.initialize();
+        PIC.initialize();
         loadTable();
 
         SClassDesc cls = (SClassDesc) MAGIC.clssDesc("Interrupts");
@@ -47,6 +52,9 @@ public class InterruptDescriptorTable {
         writeTableEntry(33, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "keyboardHandler"))); // IRQ 1
         for (int j = 34; j < 48; j++) {
             writeTableEntry(j, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ignoreHandler"))); // IRQ 2-15
+        }
+        for (int j = 48; j < IDT_ENTRIES; j++) {
+            writeTableEntry(j, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ignoreHandler"))); // IRQ 16-255
         }
         Logger.info("Initialized IDT");
     }
@@ -75,7 +83,7 @@ public class InterruptDescriptorTable {
     }
 
     private static void writeTableEntry(int i, int handlerAddr) {
-        InterruptDescTableEntry entry = (InterruptDescTableEntry) MAGIC.cast2Struct(IDT_BASE + i * 8);
+        IDTEntry entry = (IDTEntry) MAGIC.cast2Struct(IDT_BASE + i * 8);
         entry.offsetLow = (short) BitHelper.getRange(handlerAddr, 0, 16);
         entry.selector = getSelector(SEGMENT_CODE, REQUESTED_PRIV_LEVEL_OS, false);
         entry.zero = 0;

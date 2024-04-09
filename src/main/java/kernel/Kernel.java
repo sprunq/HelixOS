@@ -7,7 +7,7 @@ import kernel.display.video.VM13;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
-import kernel.interrupt.InterruptDescriptorTable;
+import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
 
 public class Kernel {
@@ -17,8 +17,8 @@ public class Kernel {
     public static void main() {
         MemoryManager.initialize();
         Logger.initialize(Logger.DEBUG, 20);
-        InterruptDescriptorTable.initialize();
-        InterruptDescriptorTable.enable();
+        IDT.initialize();
+        IDT.enable();
         PIT.init();
 
         Kernel.tmOut = new TM3();
@@ -46,7 +46,7 @@ public class Kernel {
         gui.tfMain.newLine();
         gui.tfMain.addString(" - GUI in VGA Mode 13h");
         gui.tfMain.newLine();
-        gui.tfMain.addString(" - Fonts (schmerzhaft)");
+        gui.tfMain.addString(" - Fonts");
         gui.tfMain.newLine();
         gui.tfMain.newLine();
         gui.tfMain.newLine();
@@ -63,7 +63,14 @@ public class Kernel {
             gui.draw();
             VM13.swap();
             Timer.sleep(1000 / 4);
+            rec(1000000);
+
         }
+    }
+
+    private static void rec(int i) {
+        int c = i / 2;
+        rec(c);
     }
 
     public static void panic(String msg) {
