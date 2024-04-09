@@ -231,7 +231,7 @@ public class Key {
             case Key.F12:
                 return "F12";
             default:
-                return "UNKNOWN";
+                return "UNKNOWN (".append(Integer.toString(key, 10)).append(")");
         }
     }
 }

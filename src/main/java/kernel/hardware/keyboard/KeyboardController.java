@@ -1,11 +1,6 @@
 package kernel.hardware.keyboard;
 
-import gui.GUI;
 import kernel.Logger;
-import kernel.bios.BIOS;
-import kernel.display.text.TM3;
-import kernel.display.text.TM3Color;
-import kernel.display.video.VM13;
 import kernel.hardware.keyboard.layout.ALayout;
 import util.BitHelper;
 
@@ -66,7 +61,6 @@ public class KeyboardController {
 
         boolean isBreak = BitHelper.getFlag(keyCode, 7);
         if (isBreak) {
-            Logger.info("KeyB: Break");
             // sets the break flag to false
             keyCode &= 0x7F; // 01111111
         }
@@ -78,7 +72,7 @@ public class KeyboardController {
         } else {
             Logger.info("KeyB: "
                     .append(Key.name(logicalKey))
-                    .append(" released"));
+                    .append(" release"));
         }
 
         switch (logicalKey) {

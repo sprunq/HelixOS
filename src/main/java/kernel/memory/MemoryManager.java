@@ -152,9 +152,9 @@ public class MemoryManager {
         MAGIC.assign(obj._r_relocEntries, relocEntries);
 
         allocationChunk += lengthOfObject;
-        if (allocationChunk > 4 * 1024) {
+        if (allocationChunk > 64 * 1024) {
             allocationChunk = 0;
-            Logger.debug("Alloc 4kb - no GC /('o.o)\\");
+            Logger.warning("Alloc 64kb - no GC /('o.o)\\");
         }
 
         return obj;

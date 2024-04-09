@@ -29,7 +29,7 @@ public class LogTextField extends TextField {
                     byte level = (byte) log.getPriority();
                     byte color = 0;
                     switch (level) {
-                        case Logger.DEBUG:
+                        case Logger.TRACE:
                             color = VM13.frgb(0.4, 0.8, 0.4);
                             break;
                         case Logger.INFO:

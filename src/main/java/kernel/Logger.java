@@ -8,7 +8,7 @@ public class Logger {
     private static boolean initialized = false;
 
     public static final byte NONE = 0;
-    public static final byte DEBUG = 1;
+    public static final byte TRACE = 1;
     public static final byte INFO = 2;
     public static final byte WARNING = 3;
     public static final byte ERROR = 4;
@@ -26,8 +26,8 @@ public class Logger {
     }
 
     @SJC.Inline
-    public static void debug(String message) {
-        log(message, DEBUG);
+    public static void trace(String message) {
+        log(message, TRACE);
     }
 
     @SJC.Inline

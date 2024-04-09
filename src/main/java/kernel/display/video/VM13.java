@@ -32,7 +32,6 @@ public class VM13 {
 
         int ptrToBackBuffer = MAGIC.cast2Ref(backBuffer) + SArray.getScalarSize();
         Memory.copyBytes(ptrToBackBuffer, ptrToVidMem, WIDTH * HEIGHT);
-        Logger.debug("VGA: Swap buffer");
     }
 
     @SJC.Inline

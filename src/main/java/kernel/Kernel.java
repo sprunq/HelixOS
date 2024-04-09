@@ -18,7 +18,7 @@ public class Kernel {
 
     public static void main() {
         MemoryManager.initialize();
-        Logger.initialize(Logger.INFO, 20);
+        Logger.initialize(Logger.TRACE, 200);
         KeyboardController.initialize(QWERTZ.Instance);
         PIT.initialize();
         IDT.initialize();
