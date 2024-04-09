@@ -1,4 +1,4 @@
-package kernel.display.textmode;
+package kernel.display.text;
 
 import util.BitHelper;
 
@@ -10,7 +10,7 @@ import util.BitHelper;
 //      ^--------back colour bright bit OR enables blinking Text.
 ///
 /// Blinking can be set via https://www.reddit.com/r/osdev/comments/70fcig/blinking_text/?rdt=51833
-public class TmColor {
+public class TM3Color {
     public static final byte BLACK = 0;
     public static final byte BLUE = 1;
     public static final byte GREEN = 2;

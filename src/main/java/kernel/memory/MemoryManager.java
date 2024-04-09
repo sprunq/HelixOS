@@ -2,6 +2,7 @@ package kernel.memory;
 
 import kernel.Env;
 import kernel.Kernel;
+import kernel.Logger;
 import rte.SClassDesc;
 import util.BitHelper;
 
@@ -32,7 +33,7 @@ public class MemoryManager {
      * Initializes the memory manager. This method is called once at the start of
      * the system and has to be called before any dynamic allocations are done.
      */
-    public static void init() {
+    public static void initialize() {
         int dynHeapStart = getDynamicHeapStart();
         int rootScalarSize = MAGIC.getInstScalarSize("DynamicAllocRoot");
         int rootRelocsEntries = MAGIC.getInstRelocEntries("DynamicAllocRoot");
@@ -149,8 +150,17 @@ public class MemoryManager {
         MAGIC.assign(obj._r_type, type);
         MAGIC.assign(obj._r_scalarSize, scalarSize);
         MAGIC.assign(obj._r_relocEntries, relocEntries);
+
+        allocationChunk += lengthOfObject;
+        if (allocationChunk > 4 * 1024) {
+            allocationChunk = 0;
+            Logger.warning("Alloc 4kb - no GC /('o.o)\\");
+        }
+
         return obj;
     }
+
+    private static int allocationChunk = 0;
 
     @SJC.Inline
     private static int getDynamicHeapStart() {

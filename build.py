@@ -22,11 +22,21 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         exit()
 
     clean_dir(BUILD_DIR)
-    shutil.copy("bootconf.txt", BUILD_DIR)
-    shutil.copy("bts_dsk.bin", BUILD_DIR)
+    # copy content in res/
+    for file in os.listdir(RESOURCE_DIR):
+        shutil.copy(os.path.join(RESOURCE_DIR, file), BUILD_DIR)
+
     os.chdir(BUILD_DIR)
 
-    output = subprocess.run(["java", "-jar", sjc_jar_absolute, "../src/main", "-o", "boot", "-D", "code", "x"],
+    output = subprocess.run([
+                            "java", 
+                            "-jar", sjc_jar_absolute, 
+                            "../src/main",
+                            "-o", "boot", 
+                            "-y", 
+                            "-t", "ia32", "-T", "sse3", 
+                            "-x"
+                            ],
                        capture_output=True,
                        text=True) 
     
@@ -38,7 +48,13 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         print("Detected errors during compilation. Aborting build..")
         exit()
     
-    subprocess.run(["qemu-system-i386", "-m", "1024", "-boot", "a", "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy"])
+    subprocess.run([
+        "qemu-system-i386", 
+        "-m", "1024", 
+        "-boot", "a", 
+        "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy", 
+        "-rtc", "base=localtime"
+        ])
 
     # Cleanup
     os.chdir(START_DIR)

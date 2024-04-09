@@ -1,7 +1,6 @@
 package kernel.memory;
 
 public class Memory {
-    @SJC.Inline
     public static void setBytes(int addr, int len, byte value) {
         int end = addr + len;
         if (len % 8 == 0) {
@@ -23,7 +22,10 @@ public class Memory {
         }
     }
 
-    @SJC.Inline
+    /*
+     * Copy bytes from one memory location to another.
+     * Bigger batches are faster even on 32-bit systems.
+     */
     public static void copyBytes(int src, int dest, int len) {
         if (len % 8 == 0) {
             while (len > 0) {

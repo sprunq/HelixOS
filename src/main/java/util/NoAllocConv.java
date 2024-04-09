@@ -1,7 +1,6 @@
-package kernel.lib;
+package util;
 
 import kernel.Kernel;
-import util.MathH;
 
 /*
  * A utility class for various conversions.
@@ -66,4 +65,32 @@ public class NoAllocConv {
             return '\0';
         }
     }
+
+    public static int itoa(byte[] buffer, int max_len, long n, int base) {
+        if (base < 2 || base > 36) {
+            Kernel.panic("ConversionHelper: requested base out of range");
+        }
+
+        // Special case for 0
+        if (n == 0) {
+            buffer[0] = (byte) '0';
+            return 1;
+        }
+        n = MathH.abs(n);
+        max_len = MathH.clamp(max_len, 0, max_len);
+
+        // Prints each digit of the number but in reverse order
+        int digit_count = 0;
+        while (n > 0 && digit_count < max_len) {
+            int digit = (int) (n % base);
+            byte c = ALPHABET[digit];
+            n /= base;
+            buffer[digit_count] = c;
+            digit_count++;
+        }
+
+        Array.reverseByteBuffer(buffer);
+        return digit_count;
+    }
+
 }

@@ -13,6 +13,10 @@ public class MathH {
         return n < 0 ? -n : n;
     }
 
+    public static long abs(long n) {
+        return n < 0 ? -n : n;
+    }
+
     public static int min(int a, int b) {
         return a < b ? a : b;
     }
@@ -23,6 +27,10 @@ public class MathH {
 
     public static int clamp(int n, int min, int max) {
         return n < min ? min : n > max ? max : n;
+    }
+
+    public static int compress(int n, int min, int max, int newMin, int newMax) {
+        return (n - min) * (newMax - newMin) / (max - min) + newMin;
     }
 
     // Returns -1 if n is negative, 1 if n is positive, and 0 if n is zero

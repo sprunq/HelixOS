@@ -1,4 +1,4 @@
-package kernel.lib;
+package util;
 
 public class Array {
     public static void reverse(char[] a) {
@@ -20,6 +20,18 @@ public class Array {
             byte temp = MAGIC.rMem8(buffer + i * byte_offset);
             MAGIC.wMem8(buffer + i * byte_offset, MAGIC.rMem8(buffer + j * byte_offset));
             MAGIC.wMem8(buffer + j * byte_offset, temp);
+            i--;
+            j++;
+        }
+    }
+
+    public static void reverseByteBuffer(byte[] buffer) {
+        int i = buffer.length - 1;
+        int j = 0;
+        while (i > j) {
+            byte temp = buffer[i];
+            buffer[i] = buffer[j];
+            buffer[j] = temp;
             i--;
             j++;
         }

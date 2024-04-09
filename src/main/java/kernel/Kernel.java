@@ -1,125 +1,98 @@
 package kernel;
 
-import kernel.display.textmode.TmColor;
-import kernel.display.textmode.TmWriter;
+import gui.GUI;
+import kernel.bios.BIOS;
+import kernel.display.text.TM3Color;
+import kernel.display.video.VM13;
+import kernel.display.text.TM3;
+import kernel.hardware.PIT;
+import kernel.hardware.Timer;
+import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
 
 public class Kernel {
-    public static TmWriter out;
+    public static TM3 tmOut;
+    public static GUI gui;
 
     public static void main() {
-        MemoryManager.init();
-        Kernel.out = new TmWriter();
-        out.clearScreen();
-        show_alloc_functionality();
-        out.println();
-        test_memory_limit();
-    }
+        MemoryManager.initialize();
+        Logger.initialize(Logger.DEBUG, 20);
+        IDT.initialize();
+        IDT.enable();
+        PIT.init();
 
-    private static void show_alloc_functionality() {
-        TestAllocA a = new TestAllocA(5, 7, 9, true, "hello from a");
-        TestAllocB b = new TestAllocB(a);
+        Kernel.tmOut = new TM3();
+        tmOut.clearScreen();
 
-        int[] addrs = new int[20];
-        addrs[0] = MAGIC.cast2Ref(a);
+        BIOS.activateGraphicsMode();
+        Logger.info("Activated VGA Mode 13h");
 
-        Object obj = MemoryManager.getDynamicAllocRoot();
-        int foundObjects = 0;
-        while (obj != null) {
-            int addr = MAGIC.cast2Ref(obj);
+        // The palette has to be set after graphics mode is activated
+        VM13.setPalette();
 
-            boolean found = false;
-            for (int i = 0; i < addrs.length; i++) {
-                if (addrs[i] == addr) {
-                    found = true;
-                    break;
-                }
-            }
+        gui = new GUI();
+        gui.tfMain.addString("  ## Welcome TO TOOS ##");
+        gui.tfMain.newLine();
+        gui.tfMain.newLine();
+        gui.tfMain.addString("Features:");
+        gui.tfMain.newLine();
+        gui.tfMain.addString(" - Interrupts");
+        gui.tfMain.newLine();
+        gui.tfMain.addString(" - Timer");
+        gui.tfMain.newLine();
+        gui.tfMain.addString(" - Real Time Clock");
+        gui.tfMain.newLine();
+        gui.tfMain.addString(" - Logging");
+        gui.tfMain.newLine();
+        gui.tfMain.addString(" - GUI in VGA Mode 13h");
+        gui.tfMain.newLine();
+        gui.tfMain.addString(" - Fonts");
+        gui.tfMain.newLine();
+        gui.tfMain.newLine();
+        gui.tfMain.newLine();
+        gui.tfMain.newLine();
+        gui.tfMain.newLine();
+        gui.tfMain.newLine();
+        gui.tfMain.newLine();
+        gui.tfMain.addString("Um Interrupts zu sehen");
+        gui.tfMain.newLine();
+        gui.tfMain.addString("bitte eine Taste druecken");
 
-            if (found) {
-                out.brush.setFg(TmColor.LIGHT_GREEN);
-            } else {
-                out.brush.setFg(TmColor.LIGHT_RED);
-            }
-
-            out.print("0x");
-            out.print(addr, 16);
-            out.print(": ");
-            out.print("object(relocEntries=");
-            out.print(obj._r_relocEntries);
-            out.print(", scalarSize=");
-            out.print(obj._r_scalarSize);
-            out.println(")");
-            obj = obj._r_next;
-            foundObjects++;
-        }
-
-        out.brush.setFg(TmColor.WHITE);
-        out.print("Found ");
-        out.print(foundObjects);
-        out.println(" objects.");
-
-        out.print("Consumed memory: ");
-        out.print(getDynamicAllocationSize());
-        out.println(" bytes");
-
-        // Show that the objects are not overwritten
-        TestAllocA c = new TestAllocA(11, 13, 15, false, "hello from c");
-        TestAllocB d = new TestAllocB(c);
-
-        b.print();
-        out.println();
-        d.print();
-
-        out.println();
-    }
-
-    private static void test_memory_limit() {
-        out.println("Testing memory limit. Allocating until failure...");
-
-        int i = 0;
         while (true) {
-            byte[] b = new byte[1024];
+            gui.clearDrawing();
+            gui.draw();
+            VM13.swap();
+            Timer.sleep(1000 / 4);
+            rec(1000000);
 
-            if (i % 100000 == 0) {
-                out.print("Allocation #");
-                out.print(i);
-                out.print(" at ADR ");
-                out.println(MAGIC.cast2Ref(b));
-            }
-            i++;
         }
     }
 
-    private static int getDynamicAllocationSize() {
-        int consumed = 0;
-        Object obj = MemoryManager.getDynamicAllocRoot();
-        while (obj != null) {
-            consumed += obj._r_scalarSize;
-            obj = obj._r_next;
-        }
-        return consumed;
+    private static void rec(int i) {
+        int c = i / 2;
+        rec(c);
     }
 
     public static void panic(String msg) {
-        final byte colBorder = TmColor.set(TmColor.BLACK, TmColor.RED);
-        final byte colTextMsg = TmColor.set(TmColor.LIGHT_RED, TmColor.BLACK);
-        final byte colTextPanic = TmColor.set(TmColor.RED, TmColor.BLACK);
-        final byte clearCol = TmColor.set(TmColor.GREY, TmColor.BLACK);
+        BIOS.activateTextMode();
+        final byte colBorder = TM3Color.set(TM3Color.BLACK, TM3Color.RED);
+        final byte colTextMsg = TM3Color.set(TM3Color.LIGHT_RED, TM3Color.BLACK);
+        final byte colTextPanic = TM3Color.set(TM3Color.RED, TM3Color.BLACK);
+        final byte clearCol = TM3Color.set(TM3Color.GREY, TM3Color.BLACK);
 
-        TmWriter.setLine(0, (byte) ' ', clearCol);
-        TmWriter.setLine(1, (byte) ' ', clearCol);
-        TmWriter.setLine(2, (byte) ' ', clearCol);
+        TM3.setLine(0, (byte) ' ', clearCol);
+        TM3.setLine(1, (byte) ' ', clearCol);
+        TM3.setLine(2, (byte) ' ', clearCol);
 
         int pos = 0;
-        pos = TmWriter.directPrint(' ', pos, colBorder);
-        pos = TmWriter.newLinePos(pos);
-        pos = TmWriter.directPrint(' ', pos, colBorder);
-        pos = TmWriter.directPrint(" PANIC: ", pos, colTextPanic);
-        pos = TmWriter.directPrint(msg, pos, colTextMsg);
-        pos = TmWriter.newLinePos(pos);
-        pos = TmWriter.directPrint(' ', pos, colBorder);
-        pos = TmWriter.newLinePos(pos);
+        pos = TM3.directPrint(' ', pos, colBorder);
+        pos = TM3.newLinePos(pos);
+        pos = TM3.directPrint(' ', pos, colBorder);
+        pos = TM3.directPrint(" PANIC: ", pos, colTextPanic);
+        pos = TM3.directPrint(msg, pos, colTextMsg);
+        pos = TM3.newLinePos(pos);
+        pos = TM3.directPrint(' ', pos, colBorder);
+        pos = TM3.newLinePos(pos);
         while (true) {
         }
     }

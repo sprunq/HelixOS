@@ -1,11 +1,11 @@
-package kernel.display.textmode;
+package kernel.display.text;
 
 import kernel.Env;
-import kernel.lib.NoAllocConv;
 import kernel.memory.Memory;
+import util.NoAllocConv;
 
-public class TmWriter {
-    private static final TmDisplayMemory vidMem = (TmDisplayMemory) MAGIC.cast2Struct(Env.VGA_TM3_BUFFER);
+public class TM3 {
+    public static final TMMemory vidMem = (TMMemory) MAGIC.cast2Struct(Env.VGA_TM3_BUFFER);
 
     public static final int LINE_LENGTH = 80;
     public static final int LINE_COUNT = 25;
@@ -19,11 +19,11 @@ public class TmWriter {
     private int cursorPos;
     private static int onScreenCursorPos;
 
-    public Brush brush;
+    public TM3Brush brush;
 
-    public TmWriter() {
+    public TM3() {
         this.cursorPos = 0;
-        this.brush = new Brush();
+        this.brush = new TM3Brush();
     }
 
     public void setCursor(int line, int column) {
@@ -125,6 +125,7 @@ public class TmWriter {
         println();
     }
 
+    @SJC.Inline
     public static int directPrint(char c, int position, int color) {
         vidMem.cells[position].character = (byte) c;
         vidMem.cells[position].color = (byte) color;
@@ -133,7 +134,7 @@ public class TmWriter {
 
     public static int directPrint(String s, int position, int color) {
         for (int i = 0; i < s.length(); i++) {
-            directPrint(s.charAt(i), position + i, color);
+            directPrint((char) s.charAt(i), position + i, color);
         }
         return position + s.length();
     }
@@ -163,11 +164,15 @@ public class TmWriter {
     }
 
     public void clearScreen() {
-        byte colClear = TmColor.set(TmColor.GREY, TmColor.BLACK);
+        clearScreenS();
+        cursorPos = 0;
+    }
+
+    public static void clearScreenS() {
+        byte colClear = TM3Color.set(TM3Color.GREY, TM3Color.BLACK);
         for (int i = 0; i < LINE_COUNT; i++) {
             setLine(i, (byte) ' ', colClear);
         }
-        cursorPos = 0;
     }
 
     public static void shift_lines() {
@@ -175,7 +180,7 @@ public class TmWriter {
             Memory.copyBytes(line + LINE_SIZE_BYTES, line, LINE_SIZE_BYTES);
         }
 
-        byte clearColor = TmColor.set(TmColor.GREY, TmColor.BLACK);
+        byte clearColor = TM3Color.set(TM3Color.GREY, TM3Color.BLACK);
         setLine(LINE_COUNT - 1, (byte) ' ', clearColor);
     }
 
@@ -186,6 +191,10 @@ public class TmWriter {
             vidMem.cells[i].character = character;
             vidMem.cells[i].color = color;
         }
+    }
+
+    public static int getLineStart(int line) {
+        return line * LINE_LENGTH;
     }
 
     /**
@@ -228,6 +237,7 @@ public class TmWriter {
             shift_lines();
             cursorPos -= LINE_LENGTH;
             updateCursorCaretDisplay();
+
             return true;
         }
         return false;
