@@ -2,7 +2,6 @@ package rte;
 
 import kernel.Kernel;
 import kernel.bios.BIOS;
-import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
 
 public class DynamicRuntime {
