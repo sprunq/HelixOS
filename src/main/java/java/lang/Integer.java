@@ -3,6 +3,13 @@ package java.lang;
 import util.NoAllocConv;
 
 public class Integer {
+    /*
+     * I hate you Java.
+     */
+    @SJC.Inline
+    public static int ubyte(int i) {
+        return i & 0xFF;
+    }
 
     public static byte[] BUFFER = MAGIC.toByteArray("0000000000000000000000000000", true);
 

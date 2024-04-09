@@ -1,6 +1,9 @@
 package kernel.hardware.keyboard;
 
+import kernel.Kernel;
 import kernel.Logger;
+import kernel.bios.BIOS;
+import kernel.display.text.TM3;
 import kernel.hardware.keyboard.layout.ALayout;
 import util.BitHelper;
 
@@ -40,30 +43,42 @@ public class KeyboardController {
         if (!inputBuffer.containsNewElements())
             return;
 
-        byte c0 = inputBuffer.get();
+        int c0 = Integer.ubyte(inputBuffer.get());
         int keyCode = 0;
+        boolean isBreak = false;
         if (c0 == KEYCODE_EXTEND1) {
-            byte c1 = inputBuffer.get();
             // 0xE0_2A
+            int c1 = Integer.ubyte(inputBuffer.get());
+
+            if (isBreakCode(c1)) {
+                c1 = clearBreakCode(c1);
+                isBreak = true;
+            }
             keyCode = BitHelper.setRange(keyCode, 8, 8, c0);
             keyCode = BitHelper.setRange(keyCode, 0, 8, c1);
         } else if (c0 == KEYCODE_EXTEND2) {
-            byte c1 = inputBuffer.get();
-            byte c2 = inputBuffer.get();
             // 0xE1_2A_2A
+            int c1 = Integer.ubyte(inputBuffer.get());
+            int c2 = Integer.ubyte(inputBuffer.get());
+
+            if (isBreakCode(c2)) {
+                c1 = clearBreakCode(c1);
+                c2 = clearBreakCode(c2);
+                isBreak = true;
+            }
+
             keyCode = BitHelper.setRange(keyCode, 16, 8, c0);
             keyCode = BitHelper.setRange(keyCode, 8, 8, c1);
             keyCode = BitHelper.setRange(keyCode, 0, 8, c2);
         } else {
             // 0x2A
-            keyCode = c0;
+            if (isBreakCode(c0)) {
+                c0 = clearBreakCode(c0);
+                isBreak = true;
+            }
+            keyCode = Integer.ubyte(c0);
         }
 
-        boolean isBreak = BitHelper.getFlag(keyCode, 7);
-        if (isBreak) {
-            // sets the break flag to false
-            keyCode &= 0x7F; // 01111111
-        }
         int logicalKey = layout.logicalKey(keyCode, shift, alt);
 
         if (!isBreak) {
@@ -113,6 +128,17 @@ public class KeyboardController {
         }
     }
 
+    @SJC.Inline
+    private static int clearBreakCode(int c1) {
+        return BitHelper.setFlag(c1, 7, false);
+    }
+
+    @SJC.Inline
+    private static boolean isBreakCode(int c2) {
+        return BitHelper.getFlag(c2, 7);
+    }
+
+    @SJC.Inline
     public static boolean hasNewEvent() {
         return inputBuffer.containsNewElements();
     }

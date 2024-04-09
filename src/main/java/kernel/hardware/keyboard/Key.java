@@ -124,7 +124,7 @@ public class Key {
     public static final int SCROLLLOCK = 0x117;
     public static final int PAUSE = 0x118;
     public static final int NUMLOCK = 0x119;
-    public static final int ALT_GR = 0x11A;
+    // public static final int ALT_GR = 0x11A;
     public static final int MENU = 0x11B;
     public static final int F1 = 0x140;
     public static final int F2 = 0x141;
@@ -202,10 +202,11 @@ public class Key {
                 return "PAUSE";
             case Key.NUMLOCK:
                 return "NUMLOCK";
-            case Key.ALT_GR:
-                return "ALT_GR";
+            // case Key.ALT_GR: return "ALT_GR";
             case Key.MENU:
                 return "MENU";
+            case Key.DELETE:
+                return "DELETE";
             case Key.F1:
                 return "F1";
             case Key.F2:
