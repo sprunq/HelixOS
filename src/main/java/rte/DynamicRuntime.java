@@ -8,6 +8,10 @@ public class DynamicRuntime {
     static final int SIZE_FOR_PANIC_CALL = 512;
     static int stackExtreme = BIOS.BIOS_STKEND + SIZE_FOR_PANIC_CALL;
 
+    /*
+     * Gets called if the function to be called would exceed stackExtreme.
+     * Panics since unrecoverable stack overflow.
+     */
     @SJC.StackExtreme
     static void stackExtremeError() {
         // make space for panic call
