@@ -4,7 +4,7 @@ import util.NoAllocConv;
 
 public class Integer {
 
-    public static byte[] BUFFER = MAGIC.toByteArray("0000000000000000000000000000", false);
+    public static byte[] BUFFER = MAGIC.toByteArray("0000000000000000000000000000", true);
 
     public static String toString(int i, int base) {
         for (int j = 0; j < BUFFER.length; j++) {

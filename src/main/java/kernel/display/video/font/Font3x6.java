@@ -4,7 +4,7 @@ package kernel.display.video.font;
  * Bitmap from:
  * https://github.com/BaronWilliams/Vertical-Fonts/blob/master/font3x6.c
  */
-public class Font3x6 implements IFont {
+public class Font3x6 extends AFont {
     public static final int FONT_WIDTH = 3;
     public static final int FONT_HEIGHT = 6;
     public static final int FONT_CHARACHTERS_START = 32;

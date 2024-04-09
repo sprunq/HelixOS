@@ -56,25 +56,31 @@ public class IDT {
         for (int j = 48; j < IDT_ENTRIES; j++) {
             writeTableEntry(j, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ignoreHandler"))); // IRQ 16-255
         }
-        Logger.info("Initialized IDT");
+        Logger.info("IDT: Initialized");
     }
 
     @SJC.Inline
     public static void enable() {
         x86.sti();
-        Logger.info("Enabled IDT");
+        Logger.info("IDT: Enabled");
     }
 
     @SJC.Inline
     public static void disable() {
         x86.cli();
-        Logger.info("Disabled IDT");
+        Logger.info("IDT: Disabled");
     }
 
     @SJC.Inline
     public static void loadTable() {
         x86.ldit(IDT_BASE, IDT_ENTRIES * IDT_ENTRY_SIZE - 1);
-        Logger.info("Load IDT (protected)");
+        Logger.info("IDT: Load (protected)");
+    }
+
+    @SJC.Inline
+    public static void loadTableRealMode() {
+        x86.ldit(0, 1023);
+        Logger.info("IDT: Load (real)");
     }
 
     private static int codeOffset(int classDesc, int mthdOff) {

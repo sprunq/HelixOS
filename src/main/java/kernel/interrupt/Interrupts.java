@@ -75,5 +75,6 @@ public class Interrupts {
     @SJC.Interrupt
     public static void keyboardHandler() {
         KeyboardController.handle();
+        PIC.acknowledge(1);
     }
 }

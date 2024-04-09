@@ -13,9 +13,9 @@ public class PIT {
     private static final double INTERNAL_CLOCK_SPEED = 1193131.666;
     private static double rateHz = 18.2;
 
-    public static void init() {
+    public static void initialize() {
         setRate(250);
-        Logger.info("Set PIT rate to 250Hz");
+        Logger.info("PIT: set rate to 250Hz");
     }
 
     /**

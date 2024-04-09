@@ -1,7 +1,7 @@
 package gui;
 
 import kernel.display.video.VM13;
-import kernel.display.video.font.IFont;
+import kernel.display.video.font.AFont;
 
 public class TextField implements IUiElement {
 
@@ -18,7 +18,7 @@ public class TextField implements IUiElement {
     private byte[][] characterColors;
     private int cursorX;
     private int cursorY;
-    private IFont font;
+    private AFont font;
     private byte backGroundColor;
     private byte brush;
 
@@ -32,7 +32,7 @@ public class TextField implements IUiElement {
             int lineSpacing,
             byte backGroundColor,
             byte defaultBrushColor,
-            IFont font) {
+            AFont font) {
         this.x = x;
         this.y = y;
         this.cursorX = 0;

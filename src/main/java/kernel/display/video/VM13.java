@@ -2,7 +2,7 @@ package kernel.display.video;
 
 import kernel.Env;
 import kernel.Logger;
-import kernel.display.video.font.IFont;
+import kernel.display.video.font.AFont;
 import kernel.memory.Memory;
 import rte.SArray;
 import util.BitHelper;
@@ -32,7 +32,7 @@ public class VM13 {
 
         int ptrToBackBuffer = MAGIC.cast2Ref(backBuffer) + SArray.getScalarSize();
         Memory.copyBytes(ptrToBackBuffer, ptrToVidMem, WIDTH * HEIGHT);
-        Logger.debug("VGA Swap buffer");
+        Logger.debug("VGA: Swap buffer");
     }
 
     @SJC.Inline
@@ -45,7 +45,7 @@ public class VM13 {
         return WIDTH * y + x;
     }
 
-    public static void putChar(byte c, int x, int y, IFont font, byte color) {
+    public static void putChar(byte c, int x, int y, AFont font, byte color) {
         for (int charLine = 0; charLine < font.getHeight(); charLine++) {
             byte b = font.getCharacterBitmapLine(c, charLine);
             for (int lineBit = 0; lineBit < font.getWidth(); lineBit++) {
@@ -73,6 +73,11 @@ public class VM13 {
         }
     }
 
+    public static void clearScreen(byte color) {
+        setRegion(0, 0, WIDTH, HEIGHT, color);
+        VM13.swap();
+    }
+
     /*
      * Has to be called after activating graphics mode.
      */
@@ -87,7 +92,7 @@ public class VM13 {
         MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
         MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
         MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
-        Logger.info("Set VGA palette");
+        Logger.info("VGA: set palette");
     }
 
     /*

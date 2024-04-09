@@ -7,6 +7,8 @@ import kernel.display.video.VM13;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
+import kernel.hardware.keyboard.KeyboardController;
+import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
 
@@ -17,15 +19,15 @@ public class Kernel {
     public static void main() {
         MemoryManager.initialize();
         Logger.initialize(Logger.INFO, 20);
+        KeyboardController.initialize(QWERTZ.Instance);
+        PIT.initialize();
         IDT.initialize();
         IDT.enable();
-        PIT.init();
 
         Kernel.tmOut = new TM3();
         tmOut.clearScreen();
 
         BIOS.activateGraphicsMode();
-        Logger.info("Activated VGA Mode 13h");
 
         // The palette has to be set after graphics mode is activated
         VM13.setPalette();
@@ -59,10 +61,13 @@ public class Kernel {
         gui.tfMain.addString("bitte eine Taste druecken");
 
         while (true) {
+            while (KeyboardController.hasNewEvent()) {
+                KeyboardController.readEvent();
+            }
             gui.clearDrawing();
             gui.draw();
             VM13.swap();
-            Timer.sleep(1000 / 4);
+            Timer.sleep(1000 / 100);
         }
     }
 

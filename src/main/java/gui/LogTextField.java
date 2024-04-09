@@ -3,7 +3,7 @@ package gui;
 import kernel.LogEntry;
 import kernel.Logger;
 import kernel.display.video.VM13;
-import kernel.display.video.font.IFont;
+import kernel.display.video.font.AFont;
 
 public class LogTextField extends TextField {
     public LogTextField(
@@ -12,7 +12,7 @@ public class LogTextField extends TextField {
             int width,
             int height,
             int border,
-            IFont font,
+            AFont font,
             int charSpacing,
             int lineSpacing,
             byte backGroundColor) {

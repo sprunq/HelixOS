@@ -4,7 +4,7 @@ package kernel.display.video.font;
 * Bitmap from:
 * https://github.com/lucianoforks/tetris-os/blob/master/src/font.c
 */
-public class Font8x8 implements IFont {
+public class Font8x8 extends AFont {
     public static final int FONT_WIDTH = 8;
     public static final int FONT_HEIGHT = 8;
     public static final int FONT_CHARACHTERS = 128;

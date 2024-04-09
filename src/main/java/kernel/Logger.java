@@ -21,6 +21,8 @@ public class Logger {
         }
         initialized = true;
         minimumLogLevel = logLevel;
+
+        Logger.info("Logger: initialized");
     }
 
     @SJC.Inline

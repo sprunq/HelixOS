@@ -69,4 +69,13 @@ public class String {
         return new String(appended);
     }
 
+    public String append(char c) {
+        byte[] appended = new byte[count + 1];
+        for (int i = 0; i < count; i++) {
+            appended[i] = value[i];
+        }
+        appended[count] = (byte) c;
+        return new String(appended);
+    }
+
 }
