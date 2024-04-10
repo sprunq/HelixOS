@@ -1,6 +1,6 @@
 package kernel.hardware.pci;
 
-public class LazyPciDeviceReader extends Pci {
+public class LazyPciDeviceReader extends PCI {
     private int currentBus;
     private int currentDevice;
     private int currentFunction;
