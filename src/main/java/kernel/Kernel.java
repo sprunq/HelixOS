@@ -43,9 +43,9 @@ public class Kernel {
 
         StrBuilder sb = new StrBuilder();
         sb.appendLine("Phase 4")
-                .appendLine().appendLine("- Next win: R_CTRL + PAGE UP")
-                .appendLine("- Prev win: R_CTRL + PAGE DOWN")
-                .appendLine("- Break: R_CTRL + L_ALT")
+                .appendLine().appendLine("- Next win: Left CTRL + PAGE UP")
+                .appendLine("- Prev win: Left CTRL + PAGE DOWN")
+                .appendLine("- Break: Left CTRL + Left ALT")
                 .appendLine()
                 .appendLine("Pages")
                 .appendLine("0: Logs")
