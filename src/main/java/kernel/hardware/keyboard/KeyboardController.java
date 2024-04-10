@@ -30,7 +30,7 @@ public class KeyboardController {
         inputBuffer = new RingBuffer(256);
         layout = keyBoardLayout;
         listeners = new ListenerPriorityMap(19);
-        Logger.info("KeyB", "Initialized");
+        Logger.info("Key", "Initialized");
     }
 
     public static void addListener(IKeyboardEventListener listener, int priority) {
@@ -45,7 +45,7 @@ public class KeyboardController {
     public static void handle() {
         byte code = MAGIC.rIOs8(PORT_KEYCODE);
         if (code >= 0xE2) {
-            Logger.warning("KeyB", "Ignoring ScanCode >0xE2");
+            Logger.warning("Key", "Ignoring ScanCode >0xE2");
             return;
         }
         inputBuffer.put(code);
@@ -64,9 +64,9 @@ public class KeyboardController {
         int logicalKey = layout.logicalKey(keyCode, isUpper(), altPressed);
 
         if (!isBreak) {
-            Logger.trace("KeyB", "Pressed ".append(Key.name(logicalKey)));
+            Logger.trace("Key", "Pressed ".append(Key.name(logicalKey)));
         } else {
-            Logger.trace("KeyB", "Release ".append(Key.name(logicalKey)));
+            Logger.trace("Key", "Release ".append(Key.name(logicalKey)));
         }
 
         updateKeyboardState(logicalKey, isBreak);
@@ -86,7 +86,7 @@ public class KeyboardController {
                 consumed = listener.onKeyPressed((char) logicalKey);
             }
             if (consumed) {
-                Logger.trace("KeyB", "Event consumed by ".append(Integer.toString(i, 10)));
+                Logger.trace("Key", "Event consumed by ".append(Integer.toString(i, 10)));
                 break;
             }
         }
