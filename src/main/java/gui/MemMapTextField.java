@@ -4,6 +4,7 @@ import kernel.bios.BIOS;
 import kernel.bios.MemMapEntry;
 import kernel.display.video.VM13;
 import kernel.display.video.font.AFont;
+import util.StrBuilder;
 
 public class MemMapTextField extends TextField {
     public MemMapTextField(
@@ -21,25 +22,25 @@ public class MemMapTextField extends TextField {
 
     public void draw() {
         clearText();
-        addString("System Memory Map");
-        newLine();
+        StrBuilder sb = new StrBuilder();
+        sb.appendLine("System Memory Map");
         int idx = 0;
         do {
             MemMapEntry entry = BIOS.memMap(idx);
 
-            addString("Entry ");
-            addString(Integer.toString(idx, 10));
-            addString(entry.type == 1 ? " (free)" : " (reserved)");
-            newLine();
-            addString("  - BASE: 0x");
-            addString(Long.toString(entry.base, 16));
-            newLine();
-            addString("  - LEN: 0x");
-            addString(Long.toString(entry.length, 16));
-            newLine();
+            sb.append("Entry ")
+                    .append(idx, 10)
+                    .appendLine(entry.type == 1 ? " (free)" : " (reserved)")
+                    .append("  - BASE: ")
+                    .append("0x")
+                    .appendLine(entry.base, 16)
+                    .append("  - LEN: ")
+                    .append("0x")
+                    .appendLine(entry.length, 16);
 
             idx = BIOS.getMemMapContinuationIndex();
         } while (idx != 0);
+        addString(sb.toString());
         super.draw();
     }
 }

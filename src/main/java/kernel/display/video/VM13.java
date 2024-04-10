@@ -12,6 +12,7 @@ public class VM13 {
 
     public static final int WIDTH = 320;
     public static final int HEIGHT = 200;
+    public static final int SIZE = WIDTH * HEIGHT;
 
     public static final int PALETTE_MASK = 0x3C6;
     public static final int PALETTE_WRITE = 0x3C8;
@@ -31,6 +32,10 @@ public class VM13 {
                 MAGIC.addr(backBuffer[0]),
                 MAGIC.addr(vidMem.color[0]),
                 WIDTH * HEIGHT);
+    }
+
+    public static void clearBackBuffer() {
+        Memory.setBytes(MAGIC.addr(backBuffer[0]), SIZE, (byte) 0);
     }
 
     @SJC.Inline
@@ -63,16 +68,16 @@ public class VM13 {
         }
     }
 
-    public static void setRegion(int x, int y, int width, int height, byte color) {
-        for (int yy = y; yy < y + height; yy++) {
-            for (int xx = x; xx < x + width; xx++) {
-                putPixel(xx, yy, color);
+    public static void fillrect(int x, int y, int width, int height, byte color) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                putPixel(x + j, y + i, color);
             }
         }
     }
 
     public static void clearScreen(byte color) {
-        setRegion(0, 0, WIDTH, HEIGHT, color);
+        fillrect(0, 0, WIDTH, HEIGHT, color);
         VM13.swap();
     }
 

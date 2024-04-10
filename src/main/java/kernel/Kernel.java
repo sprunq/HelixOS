@@ -12,6 +12,7 @@ import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
+import util.StrBuilder;
 
 public class Kernel {
     public static TM3 tmOut;
@@ -40,30 +41,31 @@ public class Kernel {
         KeyboardController.addListener(gui.pciDeviceReader, 2);
         KeyboardController.addListener(gui.tfMain, 1);
 
-        gui.tfMain.addStringln("Phase 4");
-        gui.tfMain.newLine();
-        gui.tfMain.addStringln("- Next win: R_CTRL + PAGE UP");
-        gui.tfMain.addStringln("- Prev win: R_CTRL + PAGE DOWN");
-        gui.tfMain.addStringln("- Break: R_CTRL + L_ALT");
+        StrBuilder sb = new StrBuilder();
+        sb.appendLine("Phase 4")
+                .appendLine().appendLine("- Next win: R_CTRL + PAGE UP")
+                .appendLine("- Prev win: R_CTRL + PAGE DOWN")
+                .appendLine("- Break: R_CTRL + L_ALT")
+                .appendLine()
+                .appendLine("Pages")
+                .appendLine("0: Logs")
+                .appendLine("1: System MemMap")
+                .appendLine("2: PCI Devices")
+                .appendLine("  - Right Arrow: Next device")
+                .appendLine("3: Color Palette")
+                .appendLine()
+                .appendLine("Man kann hier auch schreiben!");
 
-        gui.tfMain.newLine();
-
-        gui.tfMain.addStringln("Pages");
-        gui.tfMain.addStringln("0: Logs");
-        gui.tfMain.addStringln("1: System MemMap");
-        gui.tfMain.addStringln("2: PCI Devices");
-        gui.tfMain.addStringln("  - Left  Arrow: Prev device");
-        gui.tfMain.addStringln("  - Right Arrow: Next device");
-        gui.tfMain.addStringln("3: Color Palette");
+        gui.tfMain.addString(sb.toString());
 
         while (true) {
             while (KeyboardController.hasNewEvent()) {
                 KeyboardController.readEvent();
             }
-            gui.clearDrawing();
+            VM13.clearBackBuffer();
             gui.draw();
             VM13.swap();
-            Timer.sleep(1000 / 100);
+            Timer.sleep(1000 / 20);
         }
     }
 

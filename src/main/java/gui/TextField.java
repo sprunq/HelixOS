@@ -50,11 +50,9 @@ public class TextField implements IUiElement {
         this.brush = defaultBrushColor;
     }
 
-    public void clearDrawing() {
-        VM13.setRegion(x, y, width, height, backGroundColor);
-    }
-
     public void draw() {
+        VM13.fillrect(x, y, width, height, backGroundColor);
+
         for (int i = 0; i < lines; i++) {
             for (int j = 0; j < lineLength; j++) {
                 int x = this.x + j * (font.getWidth() + spacingW) + spacingBorder;
@@ -91,7 +89,12 @@ public class TextField implements IUiElement {
 
     public void addString(String s) {
         for (int i = 0; i < s.length(); i++) {
-            addChar((byte) s.charAt(i));
+            byte c = (byte) s.charAt(i);
+            if (c == '\n') {
+                newLine();
+            } else {
+                addChar(c);
+            }
         }
     }
 
@@ -136,5 +139,4 @@ public class TextField implements IUiElement {
             cursorY--;
         }
     }
-
 }

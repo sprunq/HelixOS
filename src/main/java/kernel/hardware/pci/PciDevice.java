@@ -1,6 +1,9 @@
 package kernel.hardware.pci;
 
-public class PciDevice {
+import util.IDebug;
+import util.StrBuilder;
+
+public class PciDevice implements IDebug {
     public final int VendorId;
     public final int DeviceId;
     public final int Command;
@@ -74,5 +77,18 @@ public class PciDevice {
                 return "Satellite Communication Controller";
         }
         return "Unknown";
+    }
+
+    @Override
+    public String dbg() {
+        StrBuilder sb = new StrBuilder();
+        sb.append("PCI(B=")
+                .append(Bus, 10)
+                .append("|D=")
+                .append(Device, 10)
+                .append("|F=")
+                .append(Function, 10)
+                .append(")");
+        return sb.toString();
     }
 }

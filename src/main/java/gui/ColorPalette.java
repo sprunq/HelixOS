@@ -40,11 +40,5 @@ public class ColorPalette implements IUiElement {
                 break;
             }
         }
-
-    }
-
-    @Override
-    public void clearDrawing() {
-        VM13.setRegion(x, y, width, height, (byte) 0);
     }
 }

@@ -18,12 +18,18 @@ public class KeyboardController {
     private static boolean altPressed;
     private static boolean capsLocked;
 
-    private static ListnerPriorityMap listeners;
+    /*
+     * Listeners can register to receive keyboard events.
+     * They are called in order of priority.
+     * A listener can consume an event, preventing other listeners from receiving
+     * it.
+     */
+    private static ListenerPriorityMap listeners;
 
     public static void initialize(ALayout keyBoardLayout) {
         inputBuffer = new RingBuffer(256);
         layout = keyBoardLayout;
-        listeners = new ListnerPriorityMap(19);
+        listeners = new ListenerPriorityMap(19);
         Logger.info("KeyB: Initialized");
     }
 
@@ -80,7 +86,7 @@ public class KeyboardController {
                 consumed = listener.onKeyPressed((char) logicalKey);
             }
             if (consumed) {
-                Logger.info("KeyB: Event consumed by ".append(Integer.toString(i, 10)));
+                Logger.trace("KeyB: Event consumed by ".append(Integer.toString(i, 10)));
                 break;
             }
         }
@@ -181,5 +187,4 @@ public class KeyboardController {
         }
         return false;
     }
-
 }

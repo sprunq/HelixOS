@@ -1,6 +1,6 @@
 package kernel.hardware.pci;
 
-public class LazyPciDeviceReader extends PCI {
+public class LazyPciDeviceReader extends Pci {
     private int currentBus;
     private int currentDevice;
     private int currentFunction;
@@ -31,24 +31,7 @@ public class LazyPciDeviceReader extends PCI {
         return device;
     }
 
-    public PciDevice previous() {
-        currentFunction--;
-        if (currentFunction < 0) {
-            currentFunction = MAX_FUNCTIONS - 1;
-            currentDevice--;
-            if (currentDevice < 0) {
-                currentDevice = MAX_DEVICES - 1;
-                currentBus--;
-                if (currentBus < 0) {
-                    currentBus = 0;
-                    isFinished = true;
-                }
-            }
-        }
-        PciDevice device = read(currentBus, currentDevice, currentFunction);
-        return device;
-    }
-
+    @SJC.Inline
     public boolean hasNext() {
         return !isFinished;
     }

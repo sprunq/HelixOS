@@ -1,9 +1,11 @@
 package kernel.hardware.pci;
 
 import kernel.Kernel;
+import kernel.Logger;
 import util.BitHelper;
+import util.StrBuilder;
 
-public class PCI {
+public class Pci {
     public static final int MAX_DEVICES = 32;
     public static final int MAX_BUS = 256;
     public static final int MAX_FUNCTIONS = 8;
@@ -21,6 +23,7 @@ public class PCI {
         int dataReg0 = MAGIC.rIOs32(CONFIG_DATA);
 
         if (dataReg0 == 0 || dataReg0 == -1) {
+            Logger.warning("PCI: Device invalid");
             return null;
         }
 
@@ -46,11 +49,10 @@ public class PCI {
 
         PciDevice device = new PciDevice(
                 busIdx, deviceIdx, functionIdx,
-                vendorId, deviceId,
-                command, status,
+                vendorId, deviceId, command, status,
                 revision, itf, subclasscode, baseclasscode,
                 cls, latency, header, bist);
-
+        Logger.info(new StrBuilder().append("PCI: Found ").dbg(device).append(")").toString());
         return device;
     }
 

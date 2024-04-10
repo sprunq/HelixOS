@@ -69,6 +69,10 @@ public class String {
         return new String(appended);
     }
 
+    public String append(int i) {
+        return append(Integer.toString(i, 10));
+    }
+
     public String append(char c) {
         byte[] appended = new byte[count + 1];
         for (int i = 0; i < count; i++) {

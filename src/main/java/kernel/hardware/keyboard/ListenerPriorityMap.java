@@ -1,10 +1,10 @@
 package kernel.hardware.keyboard;
 
-public class ListnerPriorityMap {
+public class ListenerPriorityMap {
     private IKeyboardEventListener[] listeners;
     private int[] priorities;
 
-    public ListnerPriorityMap(int size) {
+    public ListenerPriorityMap(int size) {
         listeners = new IKeyboardEventListener[size];
         priorities = new int[size];
     }

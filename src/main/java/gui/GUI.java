@@ -92,11 +92,4 @@ public class GUI implements IUiElement {
         multiWindow.draw();
         homebar.draw();
     }
-
-    @Override
-    public void clearDrawing() {
-        homebar.clearDrawing();
-        tfMain.clearDrawing();
-        multiWindow.clearDrawing();
-    }
 }

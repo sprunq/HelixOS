@@ -25,11 +25,6 @@ public class MultiWindow implements IUiElement, IKeyboardEventListener {
         }
     }
 
-    public void clearDrawing() {
-        int i = MathH.abs(displayIndex) % windows.length;
-        windows[i].clearDrawing();
-    }
-
     public void draw() {
         int i = MathH.abs(displayIndex) % windows.length;
         windows[i].draw();
@@ -64,4 +59,5 @@ public class MultiWindow implements IUiElement, IKeyboardEventListener {
         }
         return false;
     }
+
 }

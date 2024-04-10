@@ -2,6 +2,9 @@ package kernel.hardware.keyboard;
 
 import assembler.x86;
 
+/*
+ * Halts the system when the user presses Ctrl + Alt.
+ */
 public class Breaker implements IKeyboardEventListener {
     private boolean ctrlDown = false;
     private boolean altDown = false;

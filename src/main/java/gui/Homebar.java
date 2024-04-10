@@ -4,6 +4,7 @@ import kernel.display.video.VM13;
 import kernel.display.video.font.Font5x7;
 import kernel.display.video.font.Font8x8;
 import kernel.hardware.RTC;
+import util.StrBuilder;
 
 public class Homebar implements IUiElement {
     public final int x;
@@ -49,56 +50,34 @@ public class Homebar implements IUiElement {
 
     @Override
     public void draw() {
-        VM13.setRegion(x, y, width, height, backgroundColor);
+        VM13.fillrect(x, y, width, height, backgroundColor);
         nameVersion.draw();
         drawClock();
     }
 
-    @Override
-    public void clearDrawing() {
-        clock.clearDrawing();
-        nameVersion.clearDrawing();
-        VM13.setRegion(x, y, width, height, (byte) 0);
-    }
-
     private void drawClock() {
-
         int day = RTC.readDay();
-        String dayStr = Integer.toString(day, 10);
-        String paddedDay = dayStr.leftPad(2, '0');
-
         int month = RTC.readMonthOfYear();
-        String monthStr = Integer.toString(month, 10);
-        String paddedMonth = monthStr.leftPad(2, '0');
-
         int year = RTC.readYearOfCentury();
-        String yearStr = Integer.toString(year, 10);
-        String paddedYear = yearStr.leftPad(2, '0');
-
         int hours = RTC.readHour();
-        String hoursStr = Integer.toString(hours, 10);
-        String paddedHours = hoursStr.leftPad(2, '0');
-
         int minutes = RTC.readMinute();
-        String minutesStr = Integer.toString(minutes, 10);
-        String paddedMinutes = minutesStr.leftPad(2, '0');
-
         int seconds = RTC.readSecond();
-        String secondsStr = Integer.toString(seconds, 10);
-        String paddedSeconds = secondsStr.leftPad(2, '0');
+
+        StrBuilder sb = new StrBuilder()
+                .append(Integer.toString(day, 10).leftPad(2, '0'))
+                .append("/")
+                .append(Integer.toString(month, 10).leftPad(2, '0'))
+                .append("/")
+                .append(Integer.toString(year, 10).leftPad(2, '0'))
+                .append(" ")
+                .append(Integer.toString(hours, 10).leftPad(2, '0'))
+                .append(":")
+                .append(Integer.toString(minutes, 10).leftPad(2, '0'))
+                .append(":")
+                .append(Integer.toString(seconds, 10).leftPad(2, '0'));
 
         clock.clearText();
-        clock.addString(paddedDay);
-        clock.addString("/");
-        clock.addString(paddedMonth);
-        clock.addString("/");
-        clock.addString(paddedYear);
-        clock.addString(" ");
-        clock.addString(paddedHours);
-        clock.addString(":");
-        clock.addString(paddedMinutes);
-        clock.addString(":");
-        clock.addString(paddedSeconds);
+        clock.addString(sb.toString());
         clock.draw();
     }
 }
