@@ -8,7 +8,7 @@ import kernel.hardware.keyboard.KeyboardController;
 public class Interrupts {
     @SJC.Interrupt
     public static void ignoreHandler() {
-        Logger.warning("INTR: ignoreHandler");
+        Logger.warning("INTR", "ignoreHandler");
     }
 
     @SJC.Interrupt

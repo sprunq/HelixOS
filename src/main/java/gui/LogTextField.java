@@ -4,6 +4,7 @@ import kernel.LogEntry;
 import kernel.Logger;
 import kernel.display.video.VM13;
 import kernel.display.video.font.AFont;
+import util.StrBuilder;
 
 public class LogTextField extends TextField {
     public LogTextField(
@@ -26,6 +27,7 @@ public class LogTextField extends TextField {
             LogEntry log = Logger.getChronologicalLog(i);
             if (log != null) {
                 String msg = log.getMessage();
+                String cat = log.getCategory();
                 if (msg.length() != 0) {
                     byte level = (byte) log.getPriority();
                     byte color = 0;
@@ -50,7 +52,9 @@ public class LogTextField extends TextField {
                             break;
                     }
                     setBrushColor(color);
-                    addString("- ");
+                    addString("<");
+                    addString(cat);
+                    addString("> ");
                     addString(msg);
                     newLine();
                 }

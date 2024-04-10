@@ -95,7 +95,7 @@ public class VM13 {
         MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
         MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
         MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
-        Logger.info("VGA: set palette");
+        Logger.info("VGA", "Set palette");
     }
 
     /*

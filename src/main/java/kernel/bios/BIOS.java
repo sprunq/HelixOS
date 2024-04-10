@@ -39,7 +39,7 @@ public class BIOS {
     public static final int BUFFER_MEMMAP_SIZE = 20;
 
     public static MemMapEntry memMap(int idx) {
-        Logger.trace(new StrBuilder().append("BIOS.memMap(").append(idx).append(")").toString());
+        Logger.trace("BIOS", new StrBuilder().append("memMap(").append(idx).append(")").toString());
         execMemMap(idx);
         return readMemMap();
     }

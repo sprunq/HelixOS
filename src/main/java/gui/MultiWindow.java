@@ -39,11 +39,11 @@ public class MultiWindow implements IUiElement, IKeyboardEventListener {
         if (ctrlDown) {
             switch ((int) keyCode) {
                 case Key.PAGE_UP:
-                    Logger.trace("MultiWindow: Next window");
+                    Logger.trace("MultiWin", "Next window");
                     displayIndex++;
                     return true;
                 case Key.PAGE_DOWN:
-                    Logger.trace("MultiWindow: Prev window");
+                    Logger.trace("MultiWin", "Prev window");
                     displayIndex--;
                     return true;
             }

@@ -15,7 +15,7 @@ public class PIT {
 
     public static void initialize() {
         setRate(250);
-        Logger.info("PIT: set rate to 250Hz");
+        Logger.info("PIT", "Set rate to 250Hz");
     }
 
     /**

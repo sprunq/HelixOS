@@ -23,7 +23,7 @@ public class Pci {
         int dataReg0 = MAGIC.rIOs32(CONFIG_DATA);
 
         if (dataReg0 == 0 || dataReg0 == -1) {
-            Logger.warning("PCI: Device invalid");
+            Logger.warning("PCI", "Device invalid");
             return null;
         }
 
@@ -52,7 +52,7 @@ public class Pci {
                 vendorId, deviceId, command, status,
                 revision, itf, subclasscode, baseclasscode,
                 cls, latency, header, bist);
-        Logger.info(new StrBuilder().append("PCI: Found ").dbg(device).append(")").toString());
+        Logger.info("PCI", new StrBuilder().append("Found ").dbg(device).append(")").toString());
         return device;
     }
 
