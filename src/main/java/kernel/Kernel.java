@@ -2,7 +2,6 @@ package kernel;
 
 import gui.GUI;
 import kernel.bios.BIOS;
-import kernel.bios.MemMapEntry;
 import kernel.display.text.TM3Color;
 import kernel.display.video.VM13;
 import kernel.display.text.TM3;
@@ -26,7 +25,7 @@ public class Kernel {
         IDT.initialize();
         IDT.enable();
 
-        KeyboardController.addListener(new Breaker(), 111);
+        KeyboardController.addListener(new Breaker(), 4);
 
         Kernel.tmOut = new TM3();
         tmOut.clearScreen();
@@ -37,8 +36,25 @@ public class Kernel {
         VM13.setPalette();
 
         gui = new GUI();
-        KeyboardController.addListener(gui.multiWindow, 20);
-        KeyboardController.addListener(gui.tfMain, 3);
+        KeyboardController.addListener(gui.multiWindow, 3);
+        KeyboardController.addListener(gui.pciDeviceReader, 2);
+        KeyboardController.addListener(gui.tfMain, 1);
+
+        gui.tfMain.addStringln("Phase 4");
+        gui.tfMain.newLine();
+        gui.tfMain.addStringln("- Next win: R_CTRL + PAGE UP");
+        gui.tfMain.addStringln("- Prev win: R_CTRL + PAGE DOWN");
+        gui.tfMain.addStringln("- Break: R_CTRL + L_ALT");
+
+        gui.tfMain.newLine();
+
+        gui.tfMain.addStringln("Pages");
+        gui.tfMain.addStringln("0: Logs");
+        gui.tfMain.addStringln("1: System MemMap");
+        gui.tfMain.addStringln("2: PCI Devices");
+        gui.tfMain.addStringln("  - Left  Arrow: Prev device");
+        gui.tfMain.addStringln("  - Right Arrow: Next device");
+        gui.tfMain.addStringln("3: Color Palette");
 
         while (true) {
             while (KeyboardController.hasNewEvent()) {

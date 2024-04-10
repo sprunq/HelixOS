@@ -20,11 +20,11 @@ public class BitHelper {
     }
 
     @SJC.Inline
-    public static int setRange(int value, int start, int length, int newValue) {
+    public static int setRange(int base, int start, int length, int value) {
         int highBits = (1 << length) - 1;
         int loadMask = highBits << start;
-        int storeMask = (newValue & highBits) << start;
-        return (~loadMask & value) | storeMask;
+        int storeMask = (value & highBits) << start;
+        return (~loadMask & base) | storeMask;
     }
 
     @SJC.Inline

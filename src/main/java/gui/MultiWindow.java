@@ -1,5 +1,6 @@
 package gui;
 
+import kernel.Logger;
 import kernel.hardware.keyboard.IKeyboardEventListener;
 import kernel.hardware.keyboard.Key;
 import util.MathH;
@@ -43,9 +44,11 @@ public class MultiWindow implements IUiElement, IKeyboardEventListener {
         if (ctrlDown) {
             switch ((int) keyCode) {
                 case Key.PAGE_UP:
+                    Logger.trace("MultiWindow: Next window");
                     displayIndex++;
                     return true;
                 case Key.PAGE_DOWN:
+                    Logger.trace("MultiWindow: Prev window");
                     displayIndex--;
                     return true;
             }

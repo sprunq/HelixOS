@@ -2,11 +2,8 @@ package gui;
 
 import kernel.display.video.VM13;
 import kernel.display.video.font.AFont;
-import kernel.hardware.keyboard.IKeyboardEventListener;
-import kernel.hardware.keyboard.Key;
 
-public class TextField implements IUiElement, IKeyboardEventListener {
-
+public class TextField implements IUiElement {
     public int x;
     public int y;
     public int width;
@@ -98,6 +95,11 @@ public class TextField implements IUiElement, IKeyboardEventListener {
         }
     }
 
+    public void addStringln(String s) {
+        addString(s);
+        newLine();
+    }
+
     public void scroll() {
         for (int i = 0; i < lines - 1; i++) {
             for (int j = 0; j < lineLength; j++) {
@@ -135,26 +137,4 @@ public class TextField implements IUiElement, IKeyboardEventListener {
         }
     }
 
-    @Override
-    public boolean onKeyPressed(char keyCode) {
-        if (keyCode != 0) {
-            switch ((int) keyCode) {
-                case Key.ENTER:
-                    newLine();
-                    break;
-                default:
-                    int x = Key.ascii(keyCode);
-                    addChar((byte) x);
-                    break;
-            }
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean onKeyReleased(char keyCode) {
-        // do nothing
-        return false;
-    }
 }

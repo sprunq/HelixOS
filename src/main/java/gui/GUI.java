@@ -2,14 +2,14 @@ package gui;
 
 import kernel.display.video.VM13;
 import kernel.display.video.font.Font3x6;
-import kernel.display.video.font.Font5x7;
 
 public class GUI implements IUiElement {
-    public TextField tfMain;
+    public Editor tfMain;
     public Homebar homebar;
     public ColorPalette colorPalette;
-    public TextField tfLogs;
-    public TextField tfMemMap;
+    public LogTextField tfLogs;
+    public MemMapTextField tfMemMap;
+    public PCIDeviceReader pciDeviceReader;
     public MultiWindow multiWindow;
 
     public GUI() {
@@ -20,16 +20,17 @@ public class GUI implements IUiElement {
                 320,
                 16);
 
-        tfMain = new TextField(
+        tfMain = new Editor(
                 border,
                 border,
-                200,
+                170,
                 200 - homebar.height,
                 2,
-                0, 2,
+                Font3x6.Instance,
+                0,
+                2,
                 VM13.frgb(0.7, 0.7, 0.7),
-                VM13.frgb(1.0, 1.0, 1.0),
-                Font5x7.Instance);
+                VM13.frgb(1.0, 1.0, 1.0));
 
         int tfMainEndX = tfMain.x + tfMain.width + border;
 
@@ -60,6 +61,17 @@ public class GUI implements IUiElement {
                 2,
                 VM13.frgb(0.4, 0.4, 0.4));
 
+        pciDeviceReader = new PCIDeviceReader(
+                multiWindowX,
+                multiWindowY,
+                multiWindowWidth,
+                multiWindowHeight,
+                2,
+                Font3x6.Instance,
+                0,
+                2,
+                VM13.frgb(0.4, 0.4, 0.4));
+
         colorPalette = new ColorPalette(
                 multiWindowX,
                 multiWindowY,
@@ -67,9 +79,10 @@ public class GUI implements IUiElement {
                 multiWindowHeight,
                 8);
 
-        multiWindow = new MultiWindow(3);
+        multiWindow = new MultiWindow(4);
         multiWindow.addWindow(tfLogs);
         multiWindow.addWindow(tfMemMap);
+        multiWindow.addWindow(pciDeviceReader);
         multiWindow.addWindow(colorPalette);
     }
 
