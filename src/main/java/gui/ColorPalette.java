@@ -32,11 +32,11 @@ public class ColorPalette implements IUiElement {
             }
 
             x2 += boxSize;
-            if (x2 >= x + width) {
+            if (x2 + boxSize >= x + width) {
                 x2 = x;
                 y2 += boxSize;
             }
-            if (y2 >= y + height) {
+            if (y2 + boxSize >= y + height) {
                 break;
             }
         }
@@ -45,5 +45,6 @@ public class ColorPalette implements IUiElement {
 
     @Override
     public void clearDrawing() {
+        VM13.setRegion(x, y, width, height, (byte) 0);
     }
 }

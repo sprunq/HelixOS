@@ -120,6 +120,12 @@ public class TextField implements IUiElement, IKeyboardEventListener {
         setCursor(0, 0);
     }
 
+    public void clearLine(int line) {
+        for (int j = 0; j < lineLength; j++) {
+            characters[line][j] = (byte) 0;
+        }
+    }
+
     public void newLine() {
         cursorX = 0;
         cursorY++;
@@ -131,7 +137,7 @@ public class TextField implements IUiElement, IKeyboardEventListener {
 
     @Override
     public boolean onKeyPressed(char keyCode) {
-        if (x != 0) {
+        if (keyCode != 0) {
             switch ((int) keyCode) {
                 case Key.ENTER:
                     newLine();

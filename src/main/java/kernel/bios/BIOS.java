@@ -33,6 +33,34 @@ public class BIOS {
         BIOS.rint(0x10);
     }
 
+    public static final int BUFFER_MEMMAP = IDT.IDT_END + 24;
+    public static final int BUFFER_MEMMAP_SIZE = 20;
+
+    public static MemMapEntry memMap(int idx) {
+        execMemMap(idx);
+        return readMemMap();
+    }
+
+    public static int getMemMapContinuationIndex() {
+        return regs.EBX;
+    }
+
+    private static void execMemMap(int idx) {
+        regs.EAX = 0x0000E820;
+        regs.EDX = 0x534D4150;
+        regs.EBX = idx;
+        regs.EDI = BUFFER_MEMMAP;
+        regs.ECX = BUFFER_MEMMAP_SIZE;
+        rint(0x15);
+    }
+
+    private static MemMapEntry readMemMap() {
+        long base = MAGIC.rMem64(BUFFER_MEMMAP);
+        long length = MAGIC.rMem64(BUFFER_MEMMAP + 8);
+        int type = MAGIC.rMem32(BUFFER_MEMMAP + 16);
+        return new MemMapEntry(base, length, type);
+    }
+
     // -------------------------------------------------------- call BIOS-IRQ
     // ------------------------------------
     public static void rint(int inter) {

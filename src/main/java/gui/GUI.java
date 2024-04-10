@@ -9,6 +9,8 @@ public class GUI implements IUiElement {
     public Homebar homebar;
     public ColorPalette colorPalette;
     public TextField tfLogs;
+    public TextField tfMemMap;
+    public MultiWindow multiWindow;
 
     public GUI() {
         int border = 4;
@@ -21,7 +23,7 @@ public class GUI implements IUiElement {
         tfMain = new TextField(
                 border,
                 border,
-                180,
+                200,
                 200 - homebar.height,
                 2,
                 0, 2,
@@ -30,33 +32,51 @@ public class GUI implements IUiElement {
                 Font5x7.Instance);
 
         int tfMainEndX = tfMain.x + tfMain.width + border;
-        /*
-         * 
-         * colorPalette = new ColorPalette(
-         * tfMainEndX,
-         * tfMain.y,
-         * 320 - tfMainEndX - border,
-         * 20,
-         * 3);
-         */
+
+        int multiWindowX = tfMainEndX;
+        int multiWindowY = tfMain.y;
+        int multiWindowWidth = 320 - tfMainEndX - border;
+        int multiWindowHeight = 200 - homebar.height - border;
 
         tfLogs = new LogTextField(
-                tfMainEndX,
-                tfMain.y,
-                320 - tfMainEndX - border,
-                tfMain.height - border,
+                multiWindowX,
+                multiWindowY,
+                multiWindowWidth,
+                multiWindowHeight,
                 2,
                 Font3x6.Instance,
                 0,
                 2,
                 VM13.frgb(0.4, 0.4, 0.4));
+
+        tfMemMap = new MemMapTextField(
+                multiWindowX,
+                multiWindowY,
+                multiWindowWidth,
+                multiWindowHeight,
+                2,
+                Font3x6.Instance,
+                0,
+                2,
+                VM13.frgb(0.4, 0.4, 0.4));
+
+        colorPalette = new ColorPalette(
+                multiWindowX,
+                multiWindowY,
+                multiWindowWidth,
+                multiWindowHeight,
+                8);
+
+        multiWindow = new MultiWindow(3);
+        multiWindow.addWindow(tfLogs);
+        multiWindow.addWindow(tfMemMap);
+        multiWindow.addWindow(colorPalette);
     }
 
     @Override
     public void draw() {
         tfMain.draw();
-        colorPalette.draw();
-        tfLogs.draw();
+        multiWindow.draw();
         homebar.draw();
     }
 
@@ -64,7 +84,6 @@ public class GUI implements IUiElement {
     public void clearDrawing() {
         homebar.clearDrawing();
         tfMain.clearDrawing();
-        colorPalette.clearDrawing();
-        tfLogs.clearDrawing();
+        multiWindow.clearDrawing();
     }
 }

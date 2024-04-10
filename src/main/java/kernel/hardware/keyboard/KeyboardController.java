@@ -13,6 +13,7 @@ public class KeyboardController {
     private static ALayout layout;
 
     private static boolean shiftPressed;
+    @SuppressWarnings("unused")
     private static boolean ctrlPressed;
     private static boolean altPressed;
     private static boolean capsLocked;
@@ -22,7 +23,7 @@ public class KeyboardController {
     public static void initialize(ALayout keyBoardLayout) {
         inputBuffer = new RingBuffer(256);
         layout = keyBoardLayout;
-        listeners = new ListnerPriorityMap(10);
+        listeners = new ListnerPriorityMap(19);
         Logger.info("KeyB: Initialized");
     }
 
@@ -79,7 +80,7 @@ public class KeyboardController {
                 consumed = listener.onKeyPressed((char) logicalKey);
             }
             if (consumed) {
-                Logger.info("KeyB: Event consumed by ".append(Integer.toString(i, 2)));
+                Logger.info("KeyB: Event consumed by ".append(Integer.toString(i, 10)));
                 break;
             }
         }

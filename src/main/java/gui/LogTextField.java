@@ -21,7 +21,8 @@ public class LogTextField extends TextField {
 
     public void draw() {
         clearText();
-        for (int i = Logger.getNumberOfLogs() - 1; i >= 0; i--) {
+        int amountToDisplay = lines - 1;
+        for (int i = amountToDisplay; i >= 0; i--) {
             LogEntry log = Logger.getChronologicalLog(i);
             if (log != null) {
                 String msg = log.getMessage();
@@ -51,10 +52,15 @@ public class LogTextField extends TextField {
                     setBrushColor(color);
                     addString("- ");
                     addString(msg);
+                    newLine();
                 }
-                newLine();
             }
         }
+        setCursor(0, 0);
+        clearLine(0);
+        setBrushColor(VM13.frgb(1.0, 1.0, 1.0));
+        addString("Log Entries");
+        newLine();
         super.draw();
     }
 

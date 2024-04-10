@@ -8,21 +8,18 @@ public class Breaker implements IKeyboardEventListener {
 
     @Override
     public boolean onKeyPressed(char keyCode) {
-        boolean consumed = false;
         switch ((int) keyCode) {
             case Key.LALT:
                 altDown = true;
-                consumed = true;
                 break;
             case Key.LCTRL:
                 ctrlDown = true;
-                consumed = true;
                 break;
         }
         if (ctrlDown && altDown) {
             x86.breakpoint();
         }
-        return consumed;
+        return false;
     }
 
     @Override
@@ -30,10 +27,10 @@ public class Breaker implements IKeyboardEventListener {
         switch ((int) keyCode) {
             case Key.LALT:
                 altDown = false;
-                return true;
+                return false;
             case Key.LCTRL:
                 ctrlDown = false;
-                return true;
+                return false;
             default:
                 return false;
         }

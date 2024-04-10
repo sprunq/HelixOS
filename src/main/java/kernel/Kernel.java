@@ -2,6 +2,7 @@ package kernel;
 
 import gui.GUI;
 import kernel.bios.BIOS;
+import kernel.bios.MemMapEntry;
 import kernel.display.text.TM3Color;
 import kernel.display.video.VM13;
 import kernel.display.text.TM3;
@@ -25,7 +26,7 @@ public class Kernel {
         IDT.initialize();
         IDT.enable();
 
-        KeyboardController.addListener(new Breaker(), 1);
+        KeyboardController.addListener(new Breaker(), 111);
 
         Kernel.tmOut = new TM3();
         tmOut.clearScreen();
@@ -36,33 +37,8 @@ public class Kernel {
         VM13.setPalette();
 
         gui = new GUI();
-        KeyboardController.addListener(gui.tfMain, 1);
-        gui.tfMain.addString("  ## Welcome TO TOOS ##");
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.addString("Features:");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - Interrupts");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - Timer");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - Real Time Clock");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - Logging");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - GUI in VGA Mode 13h");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - Fonts");
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.addString("Um Interrupts zu sehen");
-        gui.tfMain.newLine();
-        gui.tfMain.addString("bitte eine Taste druecken");
+        KeyboardController.addListener(gui.multiWindow, 20);
+        KeyboardController.addListener(gui.tfMain, 3);
 
         while (true) {
             while (KeyboardController.hasNewEvent()) {
