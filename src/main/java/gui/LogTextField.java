@@ -4,7 +4,6 @@ import kernel.LogEntry;
 import kernel.Logger;
 import kernel.display.video.VM13;
 import kernel.display.video.font.AFont;
-import util.StrBuilder;
 
 public class LogTextField extends TextField {
     public LogTextField(
