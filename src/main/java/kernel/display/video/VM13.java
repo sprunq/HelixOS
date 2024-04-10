@@ -4,7 +4,6 @@ import kernel.Env;
 import kernel.Logger;
 import kernel.display.video.font.AFont;
 import kernel.memory.Memory;
-import rte.SArray;
 import util.BitHelper;
 import util.MathH;
 
@@ -28,10 +27,10 @@ public class VM13 {
      * Swaps the back buffer with the video memory.
      */
     public static void swap() {
-        int ptrToVidMem = MAGIC.cast2Ref(vidMem.color);
-
-        int ptrToBackBuffer = MAGIC.cast2Ref(backBuffer) + SArray.getScalarSize();
-        Memory.copyBytes(ptrToBackBuffer, ptrToVidMem, WIDTH * HEIGHT);
+        Memory.copyBytes(
+                MAGIC.addr(backBuffer[0]),
+                MAGIC.addr(vidMem.color[0]),
+                WIDTH * HEIGHT);
     }
 
     @SJC.Inline
