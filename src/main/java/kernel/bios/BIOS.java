@@ -1,7 +1,5 @@
 package kernel.bios;
 
-import assembler.x86;
-import kernel.Logger;
 import kernel.interrupt.IDT;
 
 public class BIOS {

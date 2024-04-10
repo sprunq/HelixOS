@@ -21,7 +21,7 @@ public class GUI implements IUiElement {
         tfMain = new TextField(
                 border,
                 border,
-                40,
+                180,
                 200 - homebar.height,
                 2,
                 0, 2,

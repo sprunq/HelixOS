@@ -7,6 +7,7 @@ import kernel.display.video.VM13;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
+import kernel.hardware.keyboard.Breaker;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
@@ -24,6 +25,8 @@ public class Kernel {
         IDT.initialize();
         IDT.enable();
 
+        KeyboardController.addListener(new Breaker(), 1);
+
         Kernel.tmOut = new TM3();
         tmOut.clearScreen();
 
@@ -33,6 +36,7 @@ public class Kernel {
         VM13.setPalette();
 
         gui = new GUI();
+        KeyboardController.addListener(gui.tfMain, 1);
         gui.tfMain.addString("  ## Welcome TO TOOS ##");
         gui.tfMain.newLine();
         gui.tfMain.newLine();

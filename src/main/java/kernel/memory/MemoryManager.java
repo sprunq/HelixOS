@@ -2,7 +2,6 @@ package kernel.memory;
 
 import kernel.Env;
 import kernel.Kernel;
-import kernel.Logger;
 import rte.SClassDesc;
 import util.BitHelper;
 

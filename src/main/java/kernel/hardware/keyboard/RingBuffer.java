@@ -26,23 +26,28 @@ public class RingBuffer {
         return c;
     }
 
+    @SJC.Inline
     public int getCount() {
         return count;
     }
 
+    @SJC.Inline
     public boolean isEmpty() {
         return count == 0;
     }
 
+    @SJC.Inline
     public boolean containsNewElements() {
         return headIdx != tailIdx;
     }
 
+    @SJC.Inline
     private void incHead() {
         headIdx = (headIdx + 1) % size;
         count++;
     }
 
+    @SJC.Inline
     private void incTail() {
         tailIdx = (tailIdx + 1) % size;
         count--;

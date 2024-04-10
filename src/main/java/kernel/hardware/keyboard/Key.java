@@ -144,6 +144,13 @@ public class Key {
     public static final int EURO_SIGN = Key.DOLLAR_KEY;
     public static final int AGUE_ACCENT = Key.GRAVE_ACCENT;
 
+    public static int ascii(int key) {
+        if (key >= 0x20 && key <= 0x7E) {
+            return key;
+        }
+        return 0;
+    }
+
     public static String name(int key) {
         if (key >= 0x20 && key <= 0x7E) {
             char c = (char) key;

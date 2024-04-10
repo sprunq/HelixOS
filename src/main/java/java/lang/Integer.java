@@ -14,6 +14,10 @@ public class Integer {
     public static byte[] BUFFER = MAGIC.toByteArray("0000000000000000000000000000", true);
 
     public static String toString(int i, int base) {
+        if (i == 0) {
+            return "0";
+        }
+
         for (int j = 0; j < BUFFER.length; j++) {
             BUFFER[j] = (byte) 0;
         }

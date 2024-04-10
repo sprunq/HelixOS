@@ -15,6 +15,11 @@ public class BitHelper {
     }
 
     @SJC.Inline
+    public static int clearFlag(int value, int n) {
+        return value & ~(1 << n);
+    }
+
+    @SJC.Inline
     public static int setRange(int value, int start, int length, int newValue) {
         int highBits = (1 << length) - 1;
         int loadMask = highBits << start;

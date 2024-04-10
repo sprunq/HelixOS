@@ -2,8 +2,10 @@ package gui;
 
 import kernel.display.video.VM13;
 import kernel.display.video.font.AFont;
+import kernel.hardware.keyboard.IKeyboardEventListener;
+import kernel.hardware.keyboard.Key;
 
-public class TextField implements IUiElement {
+public class TextField implements IUiElement, IKeyboardEventListener {
 
     public int x;
     public int y;
@@ -125,5 +127,28 @@ public class TextField implements IUiElement {
             scroll();
             cursorY--;
         }
+    }
+
+    @Override
+    public boolean onKeyPressed(char keyCode) {
+        if (x != 0) {
+            switch ((int) keyCode) {
+                case Key.ENTER:
+                    newLine();
+                    break;
+                default:
+                    int x = Key.ascii(keyCode);
+                    addChar((byte) x);
+                    break;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onKeyReleased(char keyCode) {
+        // do nothing
+        return false;
     }
 }

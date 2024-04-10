@@ -50,8 +50,8 @@ public class QWERTZ extends ALayout {
             case 0x24:      return key(shift, alt, Key.j,           Key.J                                   );
             case 0x25:      return key(shift, alt, Key.k,           Key.K                                   );
             case 0x26:      return key(shift, alt, Key.l,           Key.L                                   );
-            case 0x27:      return key(shift, alt, Key.O,           Key.O                                   );
-            case 0x28:      return key(shift, alt, Key.A,           Key.a                                   );
+            case 0x27:      return key(shift, alt, Key.o,           Key.o                                   );
+            case 0x28:      return key(shift, alt, Key.a,           Key.A                                   );
             case 0x29:      return key(shift, alt, Key.CARET,       Key.NONE                                );
             case 0x2A:      return key(shift, alt, Key.LSHIFT                                               );
             case 0x2B:      return key(shift, alt, Key.POUND_KEY,   Key.SINGLE_QUOTE                        );
