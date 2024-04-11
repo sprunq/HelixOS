@@ -26,9 +26,18 @@ public class ByteVector {
         }
     }
 
+    @SJC.Inline
     public void add(byte element) {
         ensureCapacity(size + 1);
         elements[size++] = element;
+    }
+
+    public void addAll(byte[] toAdd) {
+        ensureCapacity(size + toAdd.length);
+        for (int i = 0; i < toAdd.length; i++) {
+            this.elements[size + i] = toAdd[i];
+        }
+        size += toAdd.length;
     }
 
     @SJC.Inline
@@ -43,18 +52,26 @@ public class ByteVector {
         return size;
     }
 
-    private void ensureCapacity(int minCapacity) {
-        if (minCapacity > elements.length) {
-            int newCapacity = elements.length * 2;
-            if (newCapacity < minCapacity) {
-                newCapacity = minCapacity;
-            }
+    @SJC.Inline
+    public int capacity() {
+        return elements.length;
+    }
 
-            byte[] newElements = new byte[newCapacity];
-            for (int i = 0; i < size; i++) {
-                newElements[i] = elements[i];
+    public byte[] toArray() {
+        byte[] array = new byte[size];
+        for (int i = 0; i < size; i++) {
+            array[i] = elements[i];
+        }
+        return array;
+    }
+
+    private void ensureCapacity(int minCapacity) {
+        if (minCapacity > capacity()) {
+            int newCapacity = MathH.max(capacity() * 2, minCapacity);
+            if (newCapacity < minCapacity) {
+                Kernel.panic("Vector capacity overflow");
             }
-            elements = newElements;
+            elements = Array.copyOf(elements, newCapacity);
         }
     }
 }

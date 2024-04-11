@@ -12,13 +12,18 @@ public class String {
     }
 
     @SJC.Inline
-    public byte charAt(int i) {
+    public byte get(int i) {
         return value[i];
     }
 
     public String(byte[] value) {
         this.value = value;
         this.count = value.length;
+    }
+
+    @SJC.Inline
+    public byte[] getBytes() {
+        return value;
     }
 
     public char[] toCharArray() {
@@ -81,5 +86,4 @@ public class String {
         appended[count] = (byte) c;
         return new String(appended);
     }
-
 }

@@ -89,7 +89,7 @@ public class TextField implements IUiElement {
 
     public void addString(String s) {
         for (int i = 0; i < s.length(); i++) {
-            byte c = (byte) s.charAt(i);
+            byte c = (byte) s.get(i);
             if (c == '\n') {
                 newLine();
             } else {

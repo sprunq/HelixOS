@@ -47,7 +47,7 @@ public class TM3 {
 
     public void print(String str) {
         for (int i = 0; i < str.length(); i++) {
-            setCharacterByte((byte) str.charAt(i));
+            setCharacterByte((byte) str.get(i));
         }
         updateCursorCaretDisplay();
     }
@@ -134,7 +134,7 @@ public class TM3 {
 
     public static int directPrint(String s, int position, int color) {
         for (int i = 0; i < s.length(); i++) {
-            directPrint((char) s.charAt(i), position + i, color);
+            directPrint((char) s.get(i), position + i, color);
         }
         return position + s.length();
     }

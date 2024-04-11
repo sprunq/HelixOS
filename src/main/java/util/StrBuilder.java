@@ -2,46 +2,44 @@ package util;
 
 public class StrBuilder {
     private ByteVector strBuffer;
-    private int size;
     private static final int DEFAULT_CAPACITY = 16;
 
     public StrBuilder() {
         this.strBuffer = new ByteVector(DEFAULT_CAPACITY);
-        this.size = 0;
     }
 
     public StrBuilder(int initialCapacity) {
         this.strBuffer = new ByteVector(initialCapacity);
-        this.size = 0;
     }
 
     public void clearKeepSize() {
         strBuffer.clearKeepSize();
-        size = 0;
     }
 
     @SJC.Inline
     public int length() {
-        return size;
+        return strBuffer.size();
     }
 
     public String toString() {
-        byte[] buffer = new byte[size];
-        for (int i = 0; i < size; i++) {
-            buffer[i] = (byte) strBuffer.get(i);
-        }
+        byte[] buffer = strBuffer.toArray();
         return new String(buffer);
     }
 
-    public StrBuilder append(String str) {
-        if (str == null)
-            str = "null";
+    @SJC.Inline
+    public StrBuilder appendLine() {
+        return append('\n');
+    }
 
-        int len = str.length();
-        for (int i = 0; i < len; i++) {
-            append(str.charAt(i));
-        }
+    @SJC.Inline
+    public StrBuilder append(byte c) {
+        strBuffer.add(c);
         return this;
+    }
+
+    @SJC.Inline
+    public StrBuilder appendLine(byte c) {
+        return append(c).appendLine();
     }
 
     @SJC.Inline
@@ -50,10 +48,22 @@ public class StrBuilder {
     }
 
     @SJC.Inline
-    public StrBuilder append(byte c) {
-        strBuffer.add(c);
-        size++;
+    public StrBuilder dbgLine(IDebug dbg) {
+        return append(dbg.dbg()).appendLine();
+    }
+
+    public StrBuilder append(String str) {
+        if (str == null)
+            str = "null";
+
+        byte[] bytes = str.getBytes();
+        strBuffer.addAll(bytes);
         return this;
+    }
+
+    @SJC.Inline
+    public StrBuilder appendLine(String str) {
+        return append(str).appendLine();
     }
 
     @SJC.Inline
@@ -62,55 +72,47 @@ public class StrBuilder {
     }
 
     @SJC.Inline
+    public StrBuilder appendLine(char c) {
+        return append(c).appendLine();
+    }
+
+    @SJC.Inline
     public StrBuilder append(int i, int base) {
-        append(Integer.toString(i, base));
-        return this;
-    }
-
-    @SJC.Inline
-    public StrBuilder append(int i) {
-        append(Integer.toString(i, 10));
-        return this;
-    }
-
-    @SJC.Inline
-    public StrBuilder append(long i, int base) {
-        append(Long.toString(i, base));
-        return this;
+        return append(Integer.toString(i, base));
     }
 
     @SJC.Inline
     public StrBuilder appendLine(int i, int base) {
-        return append(i, base).append('\n');
+        return append(i, base).appendLine();
+    }
+
+    @SJC.Inline
+    public StrBuilder append(int i) {
+        return append(Integer.toString(i, 10));
     }
 
     @SJC.Inline
     public StrBuilder appendLine(int i) {
-        return append(i, 10).append('\n');
+        return append(i, 10).appendLine();
+    }
+
+    @SJC.Inline
+    public StrBuilder append(long i, int base) {
+        return append(Long.toString(i, base));
     }
 
     @SJC.Inline
     public StrBuilder appendLine(long i, int base) {
-        return append(i, base).append('\n');
+        return append(i, base).appendLine();
     }
 
     @SJC.Inline
-    public StrBuilder appendLine(String str) {
-        return append(str).append('\n');
+    public StrBuilder append(boolean b) {
+        return append(b ? "true" : "false");
     }
 
     @SJC.Inline
-    public StrBuilder appendLine(char c) {
-        return append(c).append('\n');
-    }
-
-    @SJC.Inline
-    public StrBuilder appendLine(byte c) {
-        return append(c).append('\n');
-    }
-
-    @SJC.Inline
-    public StrBuilder appendLine() {
-        return append('\n');
+    public StrBuilder appendLine(boolean b) {
+        return append(b).appendLine();
     }
 }

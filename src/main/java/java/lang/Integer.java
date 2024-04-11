@@ -44,4 +44,9 @@ public class Integer {
 
         return new String(chars);
     }
+
+    @SJC.Inline
+    public static String toString(int i) {
+        return toString(i, 10);
+    }
 }

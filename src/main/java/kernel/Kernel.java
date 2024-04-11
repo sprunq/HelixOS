@@ -43,7 +43,8 @@ public class Kernel {
 
         StrBuilder sb = new StrBuilder();
         sb.appendLine("Phase 4")
-                .appendLine().appendLine("- Next win: Left CTRL + PAGE UP")
+                .appendLine()
+                .appendLine("- Next win: Left CTRL + PAGE UP")
                 .appendLine("- Prev win: Left CTRL + PAGE DOWN")
                 .appendLine("- Break: Left CTRL + Left ALT")
                 .appendLine()
@@ -55,6 +56,7 @@ public class Kernel {
                 .appendLine("3: Color Palette")
                 .appendLine()
                 .appendLine("Man kann hier auch schreiben!");
+        sb.appendLine((byte) 4);
 
         gui.tfMain.addString(sb.toString());
 
