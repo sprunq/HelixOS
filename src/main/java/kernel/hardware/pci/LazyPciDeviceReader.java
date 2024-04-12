@@ -1,29 +1,29 @@
 package kernel.hardware.pci;
 
 public class LazyPciDeviceReader extends PCI {
-    private int currentBus;
-    private int currentDevice;
-    private int currentFunction;
-    private boolean isFinished = false;
+    private int _currentBus;
+    private int _currentDevice;
+    private int _currentFunction;
+    private boolean _isFinished = false;
 
     public LazyPciDeviceReader() {
-        currentBus = 0;
-        currentDevice = 0;
-        currentFunction = 0;
+        _currentBus = 0;
+        _currentDevice = 0;
+        _currentFunction = 0;
     }
 
     public PciDevice next() {
-        PciDevice device = read(currentBus, currentDevice, currentFunction);
-        currentFunction++;
-        if (currentFunction >= MAX_FUNCTIONS) {
-            currentFunction = 0;
-            currentDevice++;
-            if (currentDevice >= MAX_DEVICES) {
-                currentDevice = 0;
-                currentBus++;
-                if (currentBus >= MAX_BUS) {
-                    currentBus = MAX_BUS;
-                    isFinished = true;
+        PciDevice device = read(_currentBus, _currentDevice, _currentFunction);
+        _currentFunction++;
+        if (_currentFunction >= MAX_FUNCTIONS) {
+            _currentFunction = 0;
+            _currentDevice++;
+            if (_currentDevice >= MAX_DEVICES) {
+                _currentDevice = 0;
+                _currentBus++;
+                if (_currentBus >= MAX_BUS) {
+                    _currentBus = MAX_BUS;
+                    _isFinished = true;
                 }
             }
         }
@@ -33,13 +33,13 @@ public class LazyPciDeviceReader extends PCI {
 
     @SJC.Inline
     public boolean hasNext() {
-        return !isFinished;
+        return !_isFinished;
     }
 
     public void reset() {
-        currentBus = 0;
-        currentDevice = 0;
-        currentFunction = 0;
-        isFinished = false;
+        _currentBus = 0;
+        _currentDevice = 0;
+        _currentFunction = 0;
+        _isFinished = false;
     }
 }

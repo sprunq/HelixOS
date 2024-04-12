@@ -6,6 +6,11 @@ public class String {
     private byte[] value;
     private int count;
 
+    public String(byte[] value) {
+        this.value = value;
+        this.count = value.length;
+    }
+
     @SJC.Inline
     public int length() {
         return count;
@@ -14,11 +19,6 @@ public class String {
     @SJC.Inline
     public byte get(int i) {
         return value[i];
-    }
-
-    public String(byte[] value) {
-        this.value = value;
-        this.count = value.length;
     }
 
     @SJC.Inline

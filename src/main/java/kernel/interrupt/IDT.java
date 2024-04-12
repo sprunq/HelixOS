@@ -2,6 +2,7 @@ package kernel.interrupt;
 
 import assembler.x86;
 import kernel.Logger;
+import kernel.MemoryLayout;
 import rte.SClassDesc;
 import util.BitHelper;
 
@@ -15,12 +16,6 @@ public class IDT {
      * region.
      * Question: Could this not lead to the IDT being overwritten by the stack?
      */
-    public final static int IDT_BASE = 0x07E00;
-    public final static int IDT_ENTRIES = 256;
-    public final static int IDT_ENTRY_SIZE = 8;
-    public final static int IDT_SIZE = IDT_ENTRIES * IDT_ENTRY_SIZE;
-    public final static int IDT_END = IDT_BASE + IDT_SIZE;
-
     private static final int SEGMENT_CODE = 1;
     private static final int REQUESTED_PRIV_LEVEL_OS = 0;
 
@@ -53,7 +48,7 @@ public class IDT {
         for (int j = 34; j < 48; j++) {
             writeTableEntry(j, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ignoreHandler"))); // IRQ 2-15
         }
-        for (int j = 48; j < IDT_ENTRIES; j++) {
+        for (int j = 48; j < MemoryLayout.IDT_ENTRIES; j++) {
             writeTableEntry(j, codeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ignoreHandler"))); // IRQ 16-255
         }
         Logger.info("IDT", "Initialized");
@@ -73,7 +68,7 @@ public class IDT {
 
     @SJC.Inline
     public static void loadTable() {
-        x86.ldit(IDT_BASE, IDT_ENTRIES * IDT_ENTRY_SIZE - 1);
+        x86.ldit(MemoryLayout.IDT_BASE, MemoryLayout.IDT_SIZE - 1);
         Logger.trace("IDT", "Load (protected)");
     }
 
@@ -89,7 +84,7 @@ public class IDT {
     }
 
     private static void writeTableEntry(int i, int handlerAddr) {
-        IDTEntry entry = (IDTEntry) MAGIC.cast2Struct(IDT_BASE + i * 8);
+        IDTEntry entry = (IDTEntry) MAGIC.cast2Struct(MemoryLayout.IDT_BASE + i * 8);
         entry.offsetLow = (short) BitHelper.getRange(handlerAddr, 0, 16);
         entry.selector = getSelector(SEGMENT_CODE, REQUESTED_PRIV_LEVEL_OS, false);
         entry.zero = 0;

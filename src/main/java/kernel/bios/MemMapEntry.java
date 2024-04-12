@@ -1,13 +1,13 @@
 package kernel.bios;
 
 public class MemMapEntry {
-    public final long base;
-    public final long length;
-    public final int type;
+    public final long Base;
+    public final long Length;
+    public final int Type;
 
     public MemMapEntry(long base, long length, int type) {
-        this.base = base;
-        this.length = length;
-        this.type = type;
+        this.Base = base;
+        this.Length = length;
+        this.Type = type;
     }
 }

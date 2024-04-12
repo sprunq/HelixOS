@@ -30,13 +30,13 @@ public class MemMapTextField extends TextField {
 
             sb.append("Entry ")
                     .append(idx, 10)
-                    .appendLine(entry.type == 1 ? " (free)" : " (reserved)")
+                    .appendLine(entry.Type == 1 ? " (free)" : " (reserved)")
                     .append("  - BASE: ")
                     .append("0x")
-                    .appendLine(entry.base, 16)
+                    .appendLine(entry.Base, 16)
                     .append("  - LEN: ")
                     .append("0x")
-                    .appendLine(entry.length, 16);
+                    .appendLine(entry.Length, 16);
 
             idx = BIOS.getMemMapContinuationIndex();
         } while (idx != 0);

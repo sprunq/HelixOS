@@ -9,9 +9,9 @@ import kernel.hardware.pci.PciDevice;
 import util.StrBuilder;
 
 public class PCIDeviceReader extends TextField implements IKeyboardEventListener {
-    private LazyPciDeviceReader pciDeviceReader;
-    private PciDevice device;
-    private StrBuilder sb;
+    private LazyPciDeviceReader _pciDeviceReader;
+    private PciDevice _selectedDevice;
+    private StrBuilder _sb;
 
     public PCIDeviceReader(
             int x,
@@ -24,41 +24,41 @@ public class PCIDeviceReader extends TextField implements IKeyboardEventListener
             int lineSpacing,
             byte backGroundColor) {
         super(x, y, width, height, border, charSpacing, lineSpacing, backGroundColor, VM13.frgb(1.0, 1.0, 1.0), font);
-        this.pciDeviceReader = new LazyPciDeviceReader();
-        this.device = pciDeviceReader.next();
-        this.sb = new StrBuilder(400);
+        this._pciDeviceReader = new LazyPciDeviceReader();
+        this._selectedDevice = _pciDeviceReader.next();
+        this._sb = new StrBuilder(400);
     }
 
     public void draw() {
         clearText();
-        sb.clearKeepSize();
-        sb.appendLine("PCI Devices")
+        _sb.clearKeepSize();
+        _sb.appendLine("PCI Devices")
                 .appendLine()
                 .appendLine("- right arrow -> next")
                 .appendLine();
 
-        if (device != null) {
-            sb.appendLine(device.baseClassName())
-                    .append("Bus: ").appendLine(device.Bus)
-                    .append("Device: ").appendLine(device.Device)
-                    .append("Function: ").appendLine(device.Function)
-                    .append("Vendor ID: ").appendLine(device.VendorId)
-                    .append("Device ID: ").appendLine(device.DeviceId)
-                    .append("Command: ").appendLine(device.Command)
-                    .append("Status: ").appendLine(device.Status)
-                    .append("Revision: ").appendLine(device.Revision)
-                    .append("Interface: ").appendLine(device.Itf)
-                    .append("Subclass Code: ").appendLine(device.SubClassCode)
-                    .append("Base Class Code: ").appendLine(device.BaseClassCode)
-                    .append("Class: ").appendLine(device.Cls)
-                    .append("Latency: ").appendLine(device.Latency)
-                    .append("Header: ").appendLine(device.Header)
-                    .append("Bist: ").appendLine(device.Bist);
+        if (_selectedDevice != null) {
+            _sb.appendLine(_selectedDevice.baseClassName())
+                    .append("Bus: ").appendLine(_selectedDevice.Bus)
+                    .append("Device: ").appendLine(_selectedDevice.Device)
+                    .append("Function: ").appendLine(_selectedDevice.Function)
+                    .append("Vendor ID: ").appendLine(_selectedDevice.VendorId)
+                    .append("Device ID: ").appendLine(_selectedDevice.DeviceId)
+                    .append("Command: ").appendLine(_selectedDevice.Command)
+                    .append("Status: ").appendLine(_selectedDevice.Status)
+                    .append("Revision: ").appendLine(_selectedDevice.Revision)
+                    .append("Interface: ").appendLine(_selectedDevice.Itf)
+                    .append("Subclass Code: ").appendLine(_selectedDevice.SubClassCode)
+                    .append("Base Class Code: ").appendLine(_selectedDevice.BaseClassCode)
+                    .append("Class: ").appendLine(_selectedDevice.Cls)
+                    .append("Latency: ").appendLine(_selectedDevice.Latency)
+                    .append("Header: ").appendLine(_selectedDevice.Header)
+                    .append("Bist: ").appendLine(_selectedDevice.Bist);
         } else {
-            sb.appendLine("null");
+            _sb.appendLine("null");
         }
 
-        addString(sb.toString());
+        addString(_sb.toString());
         super.draw();
     }
 
@@ -67,11 +67,11 @@ public class PCIDeviceReader extends TextField implements IKeyboardEventListener
         switch ((int) keyCode) {
             case Key.ARROW_RIGHT:
                 do {
-                    if (!pciDeviceReader.hasNext()) {
-                        pciDeviceReader.reset();
+                    if (!_pciDeviceReader.hasNext()) {
+                        _pciDeviceReader.reset();
                     }
-                    device = pciDeviceReader.next();
-                } while (device == null);
+                    _selectedDevice = _pciDeviceReader.next();
+                } while (_selectedDevice == null);
                 return true;
         }
         return false;

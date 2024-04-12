@@ -6,20 +6,20 @@ import assembler.x86;
  * Halts the system when the user presses Ctrl + Alt.
  */
 public class Breaker implements IKeyboardEventListener {
-    private boolean ctrlDown = false;
-    private boolean altDown = false;
+    private boolean _ctrlDown = false;
+    private boolean _altDown = false;
 
     @Override
     public boolean onKeyPressed(char keyCode) {
         switch ((int) keyCode) {
             case Key.LALT:
-                altDown = true;
+                _altDown = true;
                 break;
             case Key.LCTRL:
-                ctrlDown = true;
+                _ctrlDown = true;
                 break;
         }
-        if (ctrlDown && altDown) {
+        if (_ctrlDown && _altDown) {
             x86.breakpoint();
         }
         return false;
@@ -29,10 +29,10 @@ public class Breaker implements IKeyboardEventListener {
     public boolean onKeyReleased(char keyCode) {
         switch ((int) keyCode) {
             case Key.LALT:
-                altDown = false;
+                _altDown = false;
                 return false;
             case Key.LCTRL:
-                ctrlDown = false;
+                _ctrlDown = false;
                 return false;
             default:
                 return false;

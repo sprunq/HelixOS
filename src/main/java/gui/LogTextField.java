@@ -36,7 +36,7 @@ public class LogTextField extends TextField {
 
     public void draw() {
         clearText();
-        int amountToDisplay = lines - 1;
+        int amountToDisplay = LineCount - 1;
         for (int i = amountToDisplay; i >= 0; i--) {
             LogEntry log = Logger.getChronologicalLog(i);
             if (log != null) {

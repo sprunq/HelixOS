@@ -37,9 +37,9 @@ public class Kernel {
         VM13.setPalette();
 
         gui = new GUI();
-        KeyboardController.addListener(gui.multiWindow, 3);
-        KeyboardController.addListener(gui.pciDeviceReader, 2);
-        KeyboardController.addListener(gui.tfMain, 1);
+        KeyboardController.addListener(gui.MultiWindow, 3);
+        KeyboardController.addListener(gui.PciDeviceReader, 2);
+        KeyboardController.addListener(gui.TfMain, 1);
 
         StrBuilder sb = new StrBuilder();
         sb.appendLine("Phase 4")
@@ -58,7 +58,7 @@ public class Kernel {
                 .appendLine("Man kann hier auch schreiben!");
         sb.appendLine((byte) 4);
 
-        gui.tfMain.addString(sb.toString());
+        gui.TfMain.addString(sb.toString());
 
         while (true) {
             while (KeyboardController.hasNewEvent()) {

@@ -1,14 +1,14 @@
 package kernel.display.video;
 
-import kernel.Env;
 import kernel.Logger;
+import kernel.MemoryLayout;
 import kernel.display.video.font.AFont;
 import kernel.memory.Memory;
 import util.BitHelper;
 import util.MathH;
 
 public class VM13 {
-    private static VM13Memory vidMem = (VM13Memory) MAGIC.cast2Struct(Env.VGA_VID_BUFFER);
+    private static final VM13Memory VidMem = (VM13Memory) MAGIC.cast2Struct(MemoryLayout.VGA_VID_BUFFER_START);
 
     public static final int WIDTH = 320;
     public static final int HEIGHT = 200;
@@ -22,25 +22,25 @@ public class VM13 {
      * Back buffer for double buffering.
      * Without double buffering, the screen would flicker.
      */
-    private static byte[] backBuffer = new byte[WIDTH * HEIGHT];
+    private static byte[] _backBuffer = new byte[WIDTH * HEIGHT];
 
     /*
      * Swaps the back buffer with the video memory.
      */
     public static void swap() {
         Memory.copyBytes(
-                MAGIC.addr(backBuffer[0]),
-                MAGIC.addr(vidMem.color[0]),
+                MAGIC.addr(_backBuffer[0]),
+                MAGIC.addr(VidMem.Color[0]),
                 WIDTH * HEIGHT);
     }
 
     public static void clearBackBuffer() {
-        Memory.setBytes(MAGIC.addr(backBuffer[0]), SIZE, (byte) 0);
+        Memory.setBytes(MAGIC.addr(_backBuffer[0]), SIZE, (byte) 0);
     }
 
     @SJC.Inline
     public static void putPixel(int x, int y, byte color) {
-        backBuffer[offset(x, y)] = color;
+        _backBuffer[offset(x, y)] = color;
     }
 
     @SJC.Inline

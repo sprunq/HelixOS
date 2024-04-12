@@ -6,28 +6,28 @@ import kernel.hardware.keyboard.Key;
 import util.MathH;
 
 public class MultiWindow implements IUiElement, IKeyboardEventListener {
-    private IUiElement[] windows;
-    private int displayIndex;
-    private int windowsAmount;
+    private IUiElement[] _windows;
+    private int _displayIndex;
+    private int _windowsAmount;
 
     private boolean ctrlDown = false;
 
     public MultiWindow(int windowsCount) {
-        this.windows = new IUiElement[windowsCount];
-        this.displayIndex = 0;
-        this.windowsAmount = 0;
+        this._windows = new IUiElement[windowsCount];
+        this._displayIndex = 0;
+        this._windowsAmount = 0;
     }
 
     public void addWindow(IUiElement window) {
-        if (windowsAmount < windows.length) {
-            windows[windowsAmount] = window;
-            windowsAmount++;
+        if (_windowsAmount < _windows.length) {
+            _windows[_windowsAmount] = window;
+            _windowsAmount++;
         }
     }
 
     public void draw() {
-        int i = MathH.abs(displayIndex) % windows.length;
-        windows[i].draw();
+        int i = MathH.abs(_displayIndex) % _windows.length;
+        _windows[i].draw();
     }
 
     @Override
@@ -40,11 +40,11 @@ public class MultiWindow implements IUiElement, IKeyboardEventListener {
             switch ((int) keyCode) {
                 case Key.PAGE_UP:
                     Logger.trace("Win", "Next window");
-                    displayIndex++;
+                    _displayIndex++;
                     return true;
                 case Key.PAGE_DOWN:
                     Logger.trace("Win", "Prev window");
-                    displayIndex--;
+                    _displayIndex--;
                     return true;
             }
         }

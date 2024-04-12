@@ -9,14 +9,19 @@ public class KeyboardController {
     private static final int KEYCODE_EXTEND1 = 0xE0;
     private static final int KEYCODE_EXTEND2 = 0xE1;
 
-    private static RingBuffer inputBuffer;
-    private static ALayout layout;
+    private static final int MASK_10000000 = 1 << 7;
+    private static final int MASK_01111111 = ~MASK_10000000;
+    private static final int MASK_1000000010000000 = (1 << 7) | (1 << 15);
+    private static final int MASK_0111111101111111 = ~MASK_1000000010000000;
 
-    private static boolean shiftPressed;
+    private static RingBuffer _inputBuffer;
+    private static ALayout _layout;
+
+    private static boolean _shiftPressed;
     @SuppressWarnings("unused")
-    private static boolean ctrlPressed;
-    private static boolean altPressed;
-    private static boolean capsLocked;
+    private static boolean _ctrlPressed;
+    private static boolean _altPressed;
+    private static boolean _capsLocked;
 
     /*
      * Listeners can register to receive keyboard events.
@@ -24,22 +29,22 @@ public class KeyboardController {
      * A listener can consume an event, preventing other listeners from receiving
      * it.
      */
-    private static ListenerPriorityMap listeners;
+    private static ListenerPriorityMap _listeners;
 
     public static void initialize(ALayout keyBoardLayout) {
-        inputBuffer = new RingBuffer(256);
-        layout = keyBoardLayout;
-        listeners = new ListenerPriorityMap(19);
+        _inputBuffer = new RingBuffer(256);
+        _layout = keyBoardLayout;
+        _listeners = new ListenerPriorityMap(19);
         Logger.info("Key", "Initialized");
     }
 
     public static void addListener(IKeyboardEventListener listener, int priority) {
-        KeyboardController.listeners.addListener(listener, priority);
+        _listeners.addListener(listener, priority);
     }
 
     @SJC.Inline
     public static boolean hasNewEvent() {
-        return inputBuffer.containsNewElements();
+        return _inputBuffer.containsNewElements();
     }
 
     public static void handle() {
@@ -48,11 +53,11 @@ public class KeyboardController {
             Logger.warning("Key", "Ignoring ScanCode >0xE2");
             return;
         }
-        inputBuffer.put(code);
+        _inputBuffer.put(code);
     }
 
     public static void readEvent() {
-        if (!inputBuffer.containsNewElements())
+        if (!_inputBuffer.containsNewElements())
             return;
 
         int keyCode = readKeyCode();
@@ -61,7 +66,7 @@ public class KeyboardController {
             keyCode = unsetBreakCode(keyCode);
         }
 
-        int logicalKey = layout.logicalKey(keyCode, isUpper(), altPressed);
+        int logicalKey = _layout.logicalKey(keyCode, isUpper(), _altPressed);
 
         if (!isBreak) {
             Logger.trace("Key", "Pressed ".append(Key.name(logicalKey)));
@@ -74,8 +79,8 @@ public class KeyboardController {
     }
 
     private static void sendKeyEvent(int logicalKey, boolean isBreak) {
-        for (int i = 0; i < listeners.size(); i++) {
-            IKeyboardEventListener listener = listeners.get(i);
+        for (int i = 0; i < _listeners.size(); i++) {
+            IKeyboardEventListener listener = _listeners.get(i);
             if (listener == null) {
                 break;
             }
@@ -97,49 +102,49 @@ public class KeyboardController {
             case Key.LSHIFT:
             case Key.RSHIFT:
                 if (isBreak) {
-                    shiftPressed = false;
+                    _shiftPressed = false;
                 } else {
-                    shiftPressed = true;
+                    _shiftPressed = true;
                 }
                 break;
             case Key.LCTRL:
             case Key.RCTRL:
                 if (isBreak) {
-                    ctrlPressed = false;
+                    _ctrlPressed = false;
                 } else {
-                    ctrlPressed = true;
+                    _ctrlPressed = true;
                 }
                 break;
             case Key.LALT:
             case Key.RALT:
                 if (isBreak) {
-                    altPressed = false;
+                    _altPressed = false;
                 } else {
-                    altPressed = true;
+                    _altPressed = true;
                 }
                 break;
             case Key.CAPSLOCK:
                 if (isBreak) {
-                    capsLocked = false;
+                    _capsLocked = false;
                 } else {
-                    capsLocked = true;
+                    _capsLocked = true;
                 }
                 break;
         }
     }
 
     private static int readKeyCode() {
-        int c0 = Integer.ubyte(inputBuffer.get());
+        int c0 = Integer.ubyte(_inputBuffer.get());
         int keyCode = 0;
         if (c0 == KEYCODE_EXTEND1) {
-            int c1 = Integer.ubyte(inputBuffer.get());
+            int c1 = Integer.ubyte(_inputBuffer.get());
 
             // 0xE0_2A
             keyCode = BitHelper.setRange(keyCode, 8, 8, c0);
             keyCode = BitHelper.setRange(keyCode, 0, 8, c1);
         } else if (c0 == KEYCODE_EXTEND2) {
-            int c1 = Integer.ubyte(inputBuffer.get());
-            int c2 = Integer.ubyte(inputBuffer.get());
+            int c1 = Integer.ubyte(_inputBuffer.get());
+            int c2 = Integer.ubyte(_inputBuffer.get());
 
             // 0xE1_2A_2A
             keyCode = BitHelper.setRange(keyCode, 16, 8, c0);
@@ -151,11 +156,6 @@ public class KeyboardController {
         }
         return keyCode;
     }
-
-    private static final int MASK_10000000 = 1 << 7;
-    private static final int MASK_01111111 = ~MASK_10000000;
-    private static final int MASK_1000000010000000 = (1 << 7) | (1 << 15);
-    private static final int MASK_0111111101111111 = ~MASK_1000000010000000;
 
     /*
      * Unset the break code bits.
@@ -179,10 +179,10 @@ public class KeyboardController {
 
     @SJC.Inline
     private static boolean isUpper() {
-        if (shiftPressed) {
+        if (_shiftPressed) {
             return true;
         }
-        if (capsLocked) {
+        if (_capsLocked) {
             return true;
         }
         return false;

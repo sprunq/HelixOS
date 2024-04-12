@@ -4,22 +4,22 @@ import kernel.display.video.VM13;
 import kernel.display.video.font.AFont;
 
 public class TextField implements IUiElement {
-    public int x;
-    public int y;
-    public int width;
-    public int height;
-    private int spacingBorder;
-    public int spacingW;
-    public int spacingH;
-    public int lineLength;
-    public int lines;
-    private byte[][] characters;
-    private byte[][] characterColors;
-    private int cursorX;
-    private int cursorY;
-    private AFont font;
-    private byte backGroundColor;
-    private byte brush;
+    public final int X;
+    public final int Y;
+    public final int Width;
+    public final int Height;
+    public final int SpacingBorder;
+    public final int SpacingW;
+    public final int SpacingH;
+    public final int LineLength;
+    public final int LineCount;
+    private byte[][] _characters;
+    private byte[][] _characterColors;
+    private int _cursorX;
+    private int _cursorY;
+    private AFont _font;
+    private byte _backGroundColor;
+    private byte _brush;
 
     public TextField(
             int x,
@@ -32,59 +32,59 @@ public class TextField implements IUiElement {
             byte backGroundColor,
             byte defaultBrushColor,
             AFont font) {
-        this.x = x;
-        this.y = y;
-        this.cursorX = 0;
-        this.cursorY = 0;
-        this.backGroundColor = backGroundColor;
-        this.width = width;
-        this.height = height;
-        this.spacingBorder = borderSpacing;
-        this.font = font;
-        this.spacingW = charSpacing + font.getSpacingW();
-        this.spacingH = lineSpacing + font.getSpacingH();
-        this.lineLength = (width - borderSpacing * 2) / (font.getWidth() + spacingW);
-        this.lines = (height - borderSpacing * 2) / (font.getHeight() + spacingH);
-        this.characters = new byte[lines][lineLength];
-        this.characterColors = new byte[lines][lineLength];
-        this.brush = defaultBrushColor;
+        _cursorX = 0;
+        _cursorY = 0;
+        _backGroundColor = backGroundColor;
+        _font = font;
+        X = x;
+        Y = y;
+        Width = width;
+        Height = height;
+        SpacingBorder = borderSpacing;
+        SpacingW = charSpacing + font.getSpacingW();
+        SpacingH = lineSpacing + font.getSpacingH();
+        LineLength = (width - borderSpacing * 2) / (font.getWidth() + SpacingW);
+        LineCount = (height - borderSpacing * 2) / (font.getHeight() + SpacingH);
+        _characters = new byte[LineCount][LineLength];
+        _characterColors = new byte[LineCount][LineLength];
+        _brush = defaultBrushColor;
     }
 
     public void draw() {
-        VM13.fillrect(x, y, width, height, backGroundColor);
+        VM13.fillrect(X, Y, Width, Height, _backGroundColor);
 
-        for (int i = 0; i < lines; i++) {
-            for (int j = 0; j < lineLength; j++) {
-                int x = this.x + j * (font.getWidth() + spacingW) + spacingBorder;
-                int y = this.y + i * (font.getHeight() + spacingH) + spacingBorder;
-                byte character = characters[i][j];
-                byte characterColor = characterColors[i][j];
-                VM13.putChar(character, x, y, font, characterColor);
+        for (int i = 0; i < LineCount; i++) {
+            for (int j = 0; j < LineLength; j++) {
+                int x = this.X + j * (_font.getWidth() + SpacingW) + SpacingBorder;
+                int y = this.Y + i * (_font.getHeight() + SpacingH) + SpacingBorder;
+                byte character = _characters[i][j];
+                byte characterColor = _characterColors[i][j];
+                VM13.putChar(character, x, y, _font, characterColor);
             }
         }
     }
 
     public void setCursor(int x, int y) {
-        this.cursorX = x;
-        this.cursorY = y;
+        this._cursorX = x;
+        this._cursorY = y;
     }
 
     public void setBrushColor(byte color) {
-        this.brush = color;
+        this._brush = color;
     }
 
     public void addChar(byte c) {
-        if (cursorX >= lineLength) {
-            cursorX = 0;
-            cursorY++;
+        if (_cursorX >= LineLength) {
+            _cursorX = 0;
+            _cursorY++;
         }
-        if (cursorY >= lines) {
+        if (_cursorY >= LineCount) {
             scroll();
-            cursorY--;
+            _cursorY--;
         }
-        characters[cursorY][cursorX] = c;
-        characterColors[cursorY][cursorX] = brush;
-        cursorX++;
+        _characters[_cursorY][_cursorX] = c;
+        _characterColors[_cursorY][_cursorX] = _brush;
+        _cursorX++;
     }
 
     public void addString(String s) {
@@ -104,39 +104,39 @@ public class TextField implements IUiElement {
     }
 
     public void scroll() {
-        for (int i = 0; i < lines - 1; i++) {
-            for (int j = 0; j < lineLength; j++) {
-                characters[i][j] = characters[i + 1][j];
-                characterColors[i][j] = characterColors[i + 1][j];
+        for (int i = 0; i < LineCount - 1; i++) {
+            for (int j = 0; j < LineLength; j++) {
+                _characters[i][j] = _characters[i + 1][j];
+                _characterColors[i][j] = _characterColors[i + 1][j];
             }
         }
-        for (int j = 0; j < lineLength; j++) {
-            characters[lines - 1][j] = (byte) ' ';
-            characterColors[lines - 1][j] = backGroundColor;
+        for (int j = 0; j < LineLength; j++) {
+            _characters[LineCount - 1][j] = (byte) ' ';
+            _characterColors[LineCount - 1][j] = _backGroundColor;
         }
     }
 
     public void clearText() {
-        for (int i = 0; i < lines; i++) {
-            for (int j = 0; j < lineLength; j++) {
-                characters[i][j] = (byte) 0;
+        for (int i = 0; i < LineCount; i++) {
+            for (int j = 0; j < LineLength; j++) {
+                _characters[i][j] = (byte) 0;
             }
         }
         setCursor(0, 0);
     }
 
     public void clearLine(int line) {
-        for (int j = 0; j < lineLength; j++) {
-            characters[line][j] = (byte) 0;
+        for (int j = 0; j < LineLength; j++) {
+            _characters[line][j] = (byte) 0;
         }
     }
 
     public void newLine() {
-        cursorX = 0;
-        cursorY++;
-        if (cursorY >= lines) {
+        _cursorX = 0;
+        _cursorY++;
+        if (_cursorY >= LineCount) {
             scroll();
-            cursorY--;
+            _cursorY--;
         }
     }
 }

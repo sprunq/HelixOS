@@ -1,12 +1,12 @@
 package rte;
 
 import kernel.Kernel;
-import kernel.bios.BIOS;
+import kernel.MemoryLayout;
 import kernel.memory.MemoryManager;
 
 public class DynamicRuntime {
     static final int SIZE_FOR_PANIC_CALL = 512;
-    static int stackExtreme = BIOS.BIOS_STKEND + SIZE_FOR_PANIC_CALL;
+    static int stackExtreme = MemoryLayout.PROGRAM_STACK_BOTTOM + SIZE_FOR_PANIC_CALL;
 
     /*
      * Gets called if the function to be called would exceed stackExtreme.

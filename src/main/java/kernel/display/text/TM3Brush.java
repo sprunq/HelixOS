@@ -1,7 +1,7 @@
 package kernel.display.text;
 
 public class TM3Brush {
-    private byte color;
+    private byte _color;
 
     public TM3Brush() {
         setFg(TM3Color.GREY);
@@ -21,31 +21,31 @@ public class TM3Brush {
 
     @SJC.Inline
     public void setFg(byte fg) {
-        this.color = TM3Color.setFg(this.color, fg);
+        this._color = TM3Color.setFg(this._color, fg);
     }
 
     @SJC.Inline
     public void setBg(byte bg) {
-        this.color = TM3Color.setBg(this.color, bg);
+        this._color = TM3Color.setBg(this._color, bg);
     }
 
     @SJC.Inline
     public void setFgBright(boolean isBright) {
-        this.color = TM3Color.setFgBright(this.color, isBright);
+        this._color = TM3Color.setFgBright(this._color, isBright);
     }
 
     @SJC.Inline
     public void setBgBright(boolean isBright) {
-        this.color = TM3Color.setBgBright(this.color, isBright);
+        this._color = TM3Color.setBgBright(this._color, isBright);
     }
 
     @SJC.Inline
-    public byte getColor() {
-        return color;
+    public byte get_color() {
+        return _color;
     }
 
     @SJC.Inline
-    public void setColor(byte color) {
-        this.color = color;
+    public void set_color(byte color) {
+        this._color = color;
     }
 }

@@ -1,7 +1,7 @@
 package kernel.memory;
 
-import kernel.Env;
 import kernel.Kernel;
+import kernel.MemoryLayout;
 import rte.SClassDesc;
 import util.BitHelper;
 
@@ -134,7 +134,7 @@ public class MemoryManager {
         int endOfObject = startOfObject + lengthOfObject;
 
         // Check if the object fits into the memory. If not, panic
-        if (endOfObject >= Env.MEMORY_LIMIT) {
+        if (endOfObject >= MemoryLayout.MEMORY_LIMIT) {
             Kernel.panic("Out of memory");
         }
 
