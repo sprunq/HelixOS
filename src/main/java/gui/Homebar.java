@@ -14,6 +14,7 @@ public class Homebar implements IUiElement {
     public TextField Clock;
     public TextField NameVersion;
     private byte _backgroundColor;
+    private StrBuilder _sb;
 
     public Homebar(int x, int y, int width, int height) {
         this.X = x;
@@ -21,6 +22,7 @@ public class Homebar implements IUiElement {
         this.Width = width;
         this.Height = height;
         this._backgroundColor = VM13.frgb(0.1, 0.2, 0.5);
+        this._sb = new StrBuilder(20);
 
         this.Clock = new TextField(
                 320 - 120 - 1,
@@ -63,8 +65,8 @@ public class Homebar implements IUiElement {
         int minutes = RTC.readMinute();
         int seconds = RTC.readSecond();
 
-        StrBuilder sb = new StrBuilder()
-                .append(Integer.toString(day, 10).leftPad(2, '0'))
+        _sb.clearKeepCapacity();
+        _sb.append(Integer.toString(day, 10).leftPad(2, '0'))
                 .append("/")
                 .append(Integer.toString(month, 10).leftPad(2, '0'))
                 .append("/")
@@ -77,7 +79,7 @@ public class Homebar implements IUiElement {
                 .append(Integer.toString(seconds, 10).leftPad(2, '0'));
 
         Clock.clearText();
-        Clock.addString(sb.toString());
+        Clock.addString(_sb.toString());
         Clock.draw();
     }
 }

@@ -19,11 +19,11 @@ public class ByteVector {
         this.size = 0;
     }
 
-    public void clearKeepSize() {
-        size = 0;
+    public void clearKeepCapacity() {
         for (int i = 0; i < size; i++) {
             elements[i] = 0;
         }
+        size = 0;
     }
 
     @SJC.Inline

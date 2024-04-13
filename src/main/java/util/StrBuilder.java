@@ -12,8 +12,8 @@ public class StrBuilder {
         this.strBuffer = new ByteVector(initialCapacity);
     }
 
-    public void clearKeepSize() {
-        strBuffer.clearKeepSize();
+    public void clearKeepCapacity() {
+        strBuffer.clearKeepCapacity();
     }
 
     @SJC.Inline

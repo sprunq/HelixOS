@@ -56,7 +56,6 @@ public class Kernel {
                 .appendLine("3: Color Palette")
                 .appendLine()
                 .appendLine("Man kann hier auch schreiben!");
-        sb.appendLine((byte) 4);
 
         gui.TfMain.addString(sb.toString());
 

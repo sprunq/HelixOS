@@ -49,13 +49,18 @@ public class VM13 {
     }
 
     public static void putChar(byte c, int x, int y, AFont font, byte color) {
-        for (int charLine = 0; charLine < font.getHeight(); charLine++) {
-            byte b = font.getCharacterBitmapLine(c, charLine);
-            for (int lineBit = 0; lineBit < font.getWidth(); lineBit++) {
-                if (BitHelper.getFlag(b, lineBit)) {
-                    int posX;
-                    int posY;
-                    if (font.isVertical()) {
+        int fontWidth = font.getWidth();
+        int fontHeight = font.getHeight();
+        boolean fontVertical = font.isVertical();
+
+        for (int charLine = 0; charLine < fontHeight; charLine++) {
+            int b = font.getCharacterBitmapLine(c, charLine);
+            for (int lineBit = 0; lineBit < fontWidth; lineBit++) {
+                int bit = BitHelper.getBit(b, lineBit);
+                if (bit == 1) {
+                    int posX = x + charLine;
+                    int posY = y + lineBit;
+                    if (fontVertical) {
                         posX = x + charLine;
                         posY = y + lineBit;
                     } else {

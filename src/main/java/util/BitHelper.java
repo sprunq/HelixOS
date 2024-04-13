@@ -3,9 +3,15 @@ package util;
 import kernel.Kernel;
 
 public class BitHelper {
+
+    @SJC.Inline
+    public static int getBit(int value, int n) {
+        return ((value >> n) & 1);
+    }
+
     @SJC.Inline
     public static boolean getFlag(int value, int n) {
-        int flag = ((value >> n) & 1);
+        int flag = BitHelper.getBit(value, n);
         return flag == 1;
     }
 

@@ -39,7 +39,7 @@ public class Font5x7 extends AFont {
         return 3;
     }
 
-    public byte getCharacterBitmapLine(int ch, int offset) {
+    public int getCharacterBitmapLine(int ch, int offset) {
         if (ch < FONT_CHARACHTERS_START || ch > FONT_CHARACHTERS_LAST) {
             return 0;
         }
@@ -47,8 +47,8 @@ public class Font5x7 extends AFont {
             return 0;
         }
         ch -= FONT_CHARACHTERS_START;
-        int b = FONT_BYTES[ch * BYTES_PER_CHAR + offset];
-        return (byte) b;
+        byte b = FONT_BYTES[ch * BYTES_PER_CHAR + offset];
+        return Integer.ubyte(b);
     }
 
     private static final byte[] FONT_BYTES = {
@@ -146,6 +146,6 @@ public class Font5x7 extends AFont {
             0x00, 0x08, 0x36, 0x41, 0x41, // '{' 123
             0x00, 0x00, 0x7F, 0x00, 0x00, // '|' 124
             0x41, 0x41, 0x36, 0x08, 0x00, // '}' 125
-            0x02, 0x01, 0x02, 0x04, 0x02 // '~' 126
+            0x02, 0x01, 0x02, 0x04, 0x02, // '~' 126
     };
 }

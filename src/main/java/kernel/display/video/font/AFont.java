@@ -10,7 +10,7 @@ public abstract class AFont {
 
     public abstract int getSpacingH();
 
-    public abstract byte getCharacterBitmapLine(int ch, int line);
+    public abstract int getCharacterBitmapLine(int ch, int line);
 
     public abstract boolean isVertical();
 }

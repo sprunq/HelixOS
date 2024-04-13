@@ -31,7 +31,7 @@ public class PCIDeviceReader extends TextField implements IKeyboardEventListener
 
     public void draw() {
         clearText();
-        _sb.clearKeepSize();
+        _sb.clearKeepCapacity();
         _sb.appendLine("PCI Devices")
                 .appendLine()
                 .appendLine("- right arrow -> next")
