@@ -1,5 +1,8 @@
 package kernel;
 
+import kernel.hardware.RTC;
+import util.StrBuilder;
+
 public class Logger {
     private static LogEntry[] logBuffer;
     private static int logIndex = 0;
@@ -18,7 +21,7 @@ public class Logger {
     public static void initialize(byte logLevel, int capactiy) {
         logBuffer = new LogEntry[capactiy];
         for (int i = 0; i < capactiy; i++) {
-            logBuffer[i] = new LogEntry("", "", NONE);
+            logBuffer[i] = new LogEntry("", "", NONE, "");
         }
         initialized = true;
         minimumLogLevel = logLevel;
@@ -58,6 +61,7 @@ public class Logger {
         logBuffer[logIndex].setCategory(category);
         logBuffer[logIndex].setMessage(message);
         logBuffer[logIndex].setPriority(priority);
+        logBuffer[logIndex].setTime_HMS(getTimeHMS());
         logIndex++;
         logTicks++;
         if (logIndex >= logBuffer.length) {
@@ -90,5 +94,30 @@ public class Logger {
     @SJC.Inline
     public static int getLogTicks() {
         return logTicks;
+    }
+
+    private static String getTimeHMS() {
+        int hours = RTC.readHour();
+        int minutes = RTC.readMinute();
+        int seconds = RTC.readSecond();
+        boolean hoursIsTwoDigits = hours >= 10;
+        boolean minutesIsTwoDigits = minutes >= 10;
+        boolean secondsIsTwoDigits = seconds >= 10;
+        StrBuilder sb = new StrBuilder(10);
+        if (!hoursIsTwoDigits) {
+            sb.append('0');
+        }
+        sb.append(hours);
+        sb.append(':');
+        if (!minutesIsTwoDigits) {
+            sb.append('0');
+        }
+        sb.append(minutes);
+        sb.append(':');
+        if (!secondsIsTwoDigits) {
+            sb.append('0');
+        }
+        sb.append(seconds);
+        return sb.toString();
     }
 }

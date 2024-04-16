@@ -54,7 +54,7 @@ public class ClockTime extends TextField {
                 || minutes != _lastMinute
                 || seconds != _lastSecond;
         if (d) {
-            Logger.trace("Clock", "Dirty");
+            Logger.trace("ClockTime", "Dirty");
         }
         return d;
     }

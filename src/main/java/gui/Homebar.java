@@ -9,7 +9,8 @@ public class Homebar implements IUIElement {
     public final int Y;
     public final int Width;
     public final int Height;
-    public ClockTime Clock;
+    public ClockTime ClockTime;
+    public ClockDate ClockDate;
     public TextField NameVersion;
     private int _bg;
     private int _fg;
@@ -25,9 +26,18 @@ public class Homebar implements IUIElement {
         AFont clockFont = Font8x8.Instance;
         int clockWidth = clockFont.getWidth() * 9;
         int clockHeight = clockFont.getHeight() + 2;
-        this.Clock = new ClockTime(
+        this.ClockTime = new ClockTime(
                 X + Width - clockWidth - 5,
-                Y + 7,
+                Y + 2,
+                clockWidth,
+                clockHeight,
+                clockFont,
+                _fg,
+                _bg);
+
+        this.ClockDate = new ClockDate(
+                X + Width - clockWidth - 5,
+                Y + 11,
                 clockWidth,
                 clockHeight,
                 clockFont,
@@ -53,19 +63,27 @@ public class Homebar implements IUIElement {
 
     @Override
     public boolean isDirty() {
-        return NameVersion.isDirty() || Clock.isDirty();
+        return ClockTime.isDirty() || ClockDate.isDirty() || NameVersion.isDirty();
     }
 
     @Override
     public void drawFg() {
-        NameVersion.drawFg();
-        Clock.drawFg();
+        if (NameVersion.isDirty()) {
+            NameVersion.drawFg();
+        }
+        if (ClockTime.isDirty()) {
+            ClockTime.drawFg();
+        }
+        if (ClockDate.isDirty()) {
+            ClockDate.drawFg();
+        }
     }
 
     @Override
     public void drawBg() {
         Kernel.Display.fillrect(X, Y, Width, Height, _bg);
         NameVersion.drawBg();
-        Clock.drawBg();
+        ClockTime.drawBg();
+        ClockDate.drawBg();
     }
 }

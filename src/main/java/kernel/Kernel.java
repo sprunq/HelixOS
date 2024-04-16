@@ -17,6 +17,8 @@ import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
 import util.StrBuilder;
 import util.VectorVesaMode;
+import util.images.BinImageReader;
+import util.images.JiJi;
 
 public class Kernel {
     public static TM3 TmOut;
@@ -34,15 +36,25 @@ public class Kernel {
         Kernel.TmOut = new TM3();
         TmOut.clearScreen();
 
+        for (int i = 0; i < 10; i++) {
+            byte b = JiJi.DATA.get(i);
+            TmOut.println(b & 0xFF);
+        }
+        return;
+
         VectorVesaMode modes = VesaQuery.AvailableModes();
         VesaMode mode = VesaQuery.GetMode(modes, 1024, 768, 24, true);
-
-        TmOut.print(mode.dbg());
 
         VesaGraphics Vesa = new VesaGraphics();
         Vesa.setMode(mode);
 
         Display = Vesa;
+
+        // int[][] bitmap = BinImageReader.decode_data(JiJi.DATA);
+        panic(Integer.toString(BinImageReader.get_height(JiJi.DATA)));
+        // Display.setBitmap(0, 0, bitmap);
+
+        return;
 
         Gui = new GUI();
 
@@ -74,7 +86,7 @@ public class Kernel {
                 KeyboardController.readEvent();
             }
             Gui.drawFg();
-            Timer.sleep(1000 / 60);
+            Timer.sleep(1000 / 30);
         }
     }
 

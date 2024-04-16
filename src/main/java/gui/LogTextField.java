@@ -52,6 +52,7 @@ public class LogTextField extends TextField {
                 if (msg.length() != 0) {
                     String cat = log.getCategory();
                     byte level = (byte) log.getPriority();
+                    String time = log.getTime_HMS();
                     int color = 0;
                     switch (level) {
                         case Logger.TRACE:
@@ -74,6 +75,8 @@ public class LogTextField extends TextField {
                             break;
                     }
                     setBrushColor(color);
+                    addString(time);
+                    addString(" ");
                     addString("<");
                     addString(cat);
                     addString("> ");

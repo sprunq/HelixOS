@@ -5,10 +5,13 @@ public class LogEntry {
     private String category;
     private byte priority;
 
-    public LogEntry(String category, String message, byte priority) {
+    private String time_HMS;
+
+    public LogEntry(String category, String message, byte priority, String time_HMS) {
         this.category = category;
         this.message = message;
         this.priority = priority;
+        this.time_HMS = time_HMS;
     }
 
     @SJC.Inline
@@ -27,6 +30,11 @@ public class LogEntry {
     }
 
     @SJC.Inline
+    public String getTime_HMS() {
+        return time_HMS;
+    }
+
+    @SJC.Inline
     public void setCategory(String category) {
         this.category = category;
     }
@@ -39,5 +47,10 @@ public class LogEntry {
     @SJC.Inline
     public void setPriority(byte priority) {
         this.priority = priority;
+    }
+
+    @SJC.Inline
+    public void setTime_HMS(String time_HMS) {
+        this.time_HMS = time_HMS;
     }
 }
