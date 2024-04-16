@@ -3,7 +3,7 @@ package kernel;
 import gui.GUI;
 import kernel.bios.BIOS;
 import kernel.display.text.TM3Color;
-import kernel.display.video.VM13;
+import kernel.display.vesa.VESAGraphics;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
@@ -15,8 +15,9 @@ import kernel.memory.MemoryManager;
 import util.StrBuilder;
 
 public class Kernel {
-    public static TM3 tmOut;
-    public static GUI gui;
+    public static TM3 TmOut;
+    public static GUI Gui;
+    public static VESAGraphics Vesa;
 
     public static void main() {
         MemoryManager.initialize();
@@ -26,45 +27,21 @@ public class Kernel {
         IDT.initialize();
         IDT.enable();
 
-        Kernel.tmOut = new TM3();
-        tmOut.clearScreen();
+        Kernel.TmOut = new TM3();
+        TmOut.clearScreen();
 
-        BIOS.activateGraphicsMode();
+        Vesa = VESAGraphics.detectDevice();
+        Vesa.setMode(1024, 768, 24, true);
 
-        // The palette has to be set after graphics mode is activated
-        VM13.setPalette();
-
-        gui = new GUI();
-        KeyboardController.addListener(new Breaker(), 4);
-        KeyboardController.addListener(gui.MultiWindow, 3);
-        KeyboardController.addListener(gui.PciDeviceReader, 2);
-        KeyboardController.addListener(gui.TfMain, 1);
-
-        StrBuilder sb = new StrBuilder();
-        sb.appendLine("Phase 4")
-                .appendLine()
-                .appendLine("- Next win: Left CTRL + PAGE UP")
-                .appendLine("- Prev win: Left CTRL + PAGE DOWN")
-                .appendLine("- Break: Left CTRL + Left ALT")
-                .appendLine()
-                .appendLine("Pages")
-                .appendLine("0: Logs")
-                .appendLine("1: System MemMap")
-                .appendLine("2: PCI Devices")
-                .appendLine("  - Right Arrow: Next device")
-                .appendLine("3: Color Palette")
-                .appendLine()
-                .appendLine("Man kann hier auch schreiben!");
-
-        gui.TfMain.addString(sb.toString());
+        Gui = new GUI();
 
         while (true) {
             while (KeyboardController.hasNewEvent()) {
                 KeyboardController.readEvent();
             }
-            VM13.clearBackBuffer();
-            gui.draw();
-            VM13.swap();
+            // VM13.clearBackBuffer();
+            Gui.draw();
+            // VM13.swap();
             Timer.sleep(1000 / 20);
         }
     }

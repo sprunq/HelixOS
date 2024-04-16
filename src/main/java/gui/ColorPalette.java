@@ -1,6 +1,6 @@
 package gui;
 
-import kernel.display.video.VM13;
+import kernel.Kernel;
 
 /**
  * Displays all VGA Mode 13h colors in a grid.
@@ -27,7 +27,7 @@ public class ColorPalette implements IUiElement {
         for (int i = 0; i < 256; i++) {
             for (int j = x2; j < x2 + BoxSize; j++) {
                 for (int j2 = y2; j2 < y2 + BoxSize; j2++) {
-                    VM13.putPixel(j, j2, (byte) i);
+                    Kernel.Vesa.setPixel(j, j2, 100);
                 }
             }
 

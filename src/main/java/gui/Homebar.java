@@ -1,8 +1,9 @@
 package gui;
 
+import kernel.Kernel;
+import kernel.display.vesa.VESAGraphics;
 import kernel.display.video.VM13;
-import kernel.display.video.font.Font5x7;
-import kernel.display.video.font.Font8x8;
+import kernel.display.video.font.Font3x6;
 import kernel.hardware.RTC;
 import util.StrBuilder;
 
@@ -13,7 +14,7 @@ public class Homebar implements IUiElement {
     public final int Height;
     public TextField Clock;
     public TextField NameVersion;
-    private byte _backgroundColor;
+    private int _backgroundColor;
     private StrBuilder _sb;
 
     public Homebar(int x, int y, int width, int height) {
@@ -21,7 +22,7 @@ public class Homebar implements IUiElement {
         this.Y = y;
         this.Width = width;
         this.Height = height;
-        this._backgroundColor = VM13.frgb(0.1, 0.2, 0.5);
+        this._backgroundColor = VESAGraphics.rgb24(20, 20, 20);
         this._sb = new StrBuilder(20);
 
         this.Clock = new TextField(
@@ -34,7 +35,7 @@ public class Homebar implements IUiElement {
                 0,
                 _backgroundColor,
                 VM13.frgb(1.0, 1.0, 1.0),
-                Font5x7.Instance);
+                Font3x6.Instance);
 
         this.NameVersion = new TextField(
                 5,
@@ -46,13 +47,13 @@ public class Homebar implements IUiElement {
                 0,
                 _backgroundColor,
                 VM13.frgb(1.0, 1.0, 1.0),
-                Font8x8.Instance);
+                Font3x6.Instance);
         this.NameVersion.addString("TOOS");
     }
 
     @Override
     public void draw() {
-        VM13.fillrect(X, Y, Width, Height, _backgroundColor);
+        // VM13.fillrect(X, Y, Width, Height, _backgroundColor);
         NameVersion.draw();
         drawClock();
     }

@@ -1,5 +1,6 @@
 package gui;
 
+import kernel.Kernel;
 import kernel.display.video.VM13;
 import kernel.display.video.font.AFont;
 
@@ -14,12 +15,12 @@ public class TextField implements IUiElement {
     public final int LineLength;
     public final int LineCount;
     private byte[][] _characters;
-    private byte[][] _characterColors;
+    private int[][] _characterColors;
     private int _cursorX;
     private int _cursorY;
     private AFont _font;
-    private byte _backGroundColor;
-    private byte _brush;
+    private int _backGroundColor;
+    private int _brush;
 
     public TextField(
             int x,
@@ -29,8 +30,8 @@ public class TextField implements IUiElement {
             int borderSpacing,
             int charSpacing,
             int lineSpacing,
-            byte backGroundColor,
-            byte defaultBrushColor,
+            int backGroundColor,
+            int defaultBrushColor,
             AFont font) {
         _cursorX = 0;
         _cursorY = 0;
@@ -46,20 +47,20 @@ public class TextField implements IUiElement {
         LineLength = (width - borderSpacing * 2) / (font.getWidth() + SpacingW);
         LineCount = (height - borderSpacing * 2) / (font.getHeight() + SpacingH);
         _characters = new byte[LineCount][LineLength];
-        _characterColors = new byte[LineCount][LineLength];
+        _characterColors = new int[LineCount][LineLength];
         _brush = defaultBrushColor;
     }
 
     public void draw() {
-        VM13.fillrect(X, Y, Width, Height, _backGroundColor);
+        // VM13.fillrect(X, Y, Width, Height, _backGroundColor);
 
         for (int i = 0; i < LineCount; i++) {
             for (int j = 0; j < LineLength; j++) {
                 int x = this.X + j * (_font.getWidth() + SpacingW) + SpacingBorder;
                 int y = this.Y + i * (_font.getHeight() + SpacingH) + SpacingBorder;
-                byte character = _characters[i][j];
-                byte characterColor = _characterColors[i][j];
-                VM13.putChar(character, x, y, _font, characterColor);
+                int character = _characters[i][j];
+                int characterColor = _characterColors[i][j];
+                Kernel.Vesa.putCh(character, x, y, _font, characterColor);
             }
         }
     }

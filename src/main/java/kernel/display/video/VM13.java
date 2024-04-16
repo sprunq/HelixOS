@@ -39,7 +39,7 @@ public class VM13 {
     }
 
     @SJC.Inline
-    public static void putPixel(int x, int y, byte color) {
+    public static void setPixel(int x, int y, byte color) {
         _backBuffer[offset(x, y)] = color;
     }
 
@@ -67,7 +67,7 @@ public class VM13 {
                         posX = x + lineBit;
                         posY = y + charLine;
                     }
-                    putPixel(posX, posY, color);
+                    setPixel(posX, posY, color);
                 }
             }
         }
@@ -76,7 +76,7 @@ public class VM13 {
     public static void fillrect(int x, int y, int width, int height, byte color) {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                putPixel(x + j, y + i, color);
+                setPixel(x + j, y + i, color);
             }
         }
     }
