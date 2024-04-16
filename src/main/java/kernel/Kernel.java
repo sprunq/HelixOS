@@ -36,8 +36,11 @@ public class Kernel {
         Kernel.TmOut = new TM3();
         TmOut.clearScreen();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 4; i++) {
             byte b = JiJi.DATA.get(i);
+            // byte c = binimp.ByteData.jiji_200[i]; // wie geht das?
+            TmOut.print((int) b); // (Ignoriert das Vorzeichen)
+            TmOut.print(" = ");
             TmOut.println(b & 0xFF);
         }
         return;
