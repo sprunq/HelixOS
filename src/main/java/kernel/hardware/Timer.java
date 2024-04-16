@@ -1,23 +1,23 @@
 package kernel.hardware;
 
 public class Timer {
-    private static int tickCount = 0;
+    private static int _tickCount = 0;
 
     @SJC.Inline
     public static void tick() {
-        tickCount++;
-        if (tickCount < 0) {
-            tickCount = 0;
+        _tickCount++;
+        if (_tickCount < 0) {
+            _tickCount = 0;
         }
     }
 
     @SJC.Inline
     public static int getTick() {
-        return tickCount;
+        return _tickCount;
     }
 
     public static void sleep(int ms) {
-        double rate = PIT.getRateHz();
+        double rate = PIT.get_rateHz();
         int ticks = (int) (rate / 1000.0 * (double) ms);
         int start = getTick();
         while (getTick() - start < ticks) {
@@ -26,7 +26,7 @@ public class Timer {
     }
 
     public static int getTickDifferenceMs(int start, int end) {
-        double rate = PIT.getRateHz();
+        double rate = PIT.get_rateHz();
         return (int) ((end - start) / rate * 1000.0);
     }
 }

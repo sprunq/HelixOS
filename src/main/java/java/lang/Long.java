@@ -1,19 +1,12 @@
 package java.lang;
 
+import kernel.Kernel;
 import util.NoAllocConv;
 
-public class Integer {
-    /*
-     * I hate you Java.
-     */
-    @SJC.Inline
-    public static int ubyte(int i) {
-        return i & 0xFF;
-    }
+public class Long {
+    public static byte[] BUFFER = MAGIC.toByteArray("00000000000000000000000000000000000000000000000000000000", true);
 
-    public static byte[] BUFFER = MAGIC.toByteArray("0000000000000000000000000000", true);
-
-    public static String toString(int i, int base) {
+    public static String toString(long i, int base) {
         if (i == 0) {
             return "0";
         }
@@ -45,8 +38,13 @@ public class Integer {
         return new String(chars);
     }
 
-    @SJC.Inline
-    public static String toString(int i) {
-        return toString(i, 10);
+    public static long parseLong(String s) {
+        Kernel.panic("Long.parseLong not implemented");
+        return -1;
+    }
+
+    public static long parseLong(String s, int a) {
+        Kernel.panic("Long.parseLong not implemented");
+        return -1;
     }
 }

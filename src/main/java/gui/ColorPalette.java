@@ -6,44 +6,39 @@ import kernel.display.video.VM13;
  * Displays all VGA Mode 13h colors in a grid.
  */
 public class ColorPalette implements IUiElement {
-    public final int x;
-    public final int y;
-    public final int width;
-    public final int height;
-    public final int boxSize;
+    public final int X;
+    public final int Y;
+    public final int Width;
+    public final int Height;
+    public final int BoxSize;
 
     public ColorPalette(int x, int y, int width, int height, int boxSize) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.boxSize = boxSize;
+        this.X = x;
+        this.Y = y;
+        this.Width = width;
+        this.Height = height;
+        this.BoxSize = boxSize;
     }
 
     @Override
     public void draw() {
-        int x2 = x;
-        int y2 = y;
+        int x2 = X;
+        int y2 = Y;
         for (int i = 0; i < 256; i++) {
-            for (int j = x2; j < x2 + boxSize; j++) {
-                for (int j2 = y2; j2 < y2 + boxSize; j2++) {
+            for (int j = x2; j < x2 + BoxSize; j++) {
+                for (int j2 = y2; j2 < y2 + BoxSize; j2++) {
                     VM13.putPixel(j, j2, (byte) i);
                 }
             }
 
-            x2 += boxSize;
-            if (x2 >= x + width) {
-                x2 = x;
-                y2 += boxSize;
+            x2 += BoxSize;
+            if (x2 + BoxSize >= X + Width) {
+                x2 = X;
+                y2 += BoxSize;
             }
-            if (y2 >= y + height) {
+            if (y2 + BoxSize >= Y + Height) {
                 break;
             }
         }
-
-    }
-
-    @Override
-    public void clearDrawing() {
     }
 }

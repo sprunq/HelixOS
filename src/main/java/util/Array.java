@@ -1,6 +1,15 @@
 package util;
 
 public class Array {
+
+    public static byte[] copyOf(byte[] original, int newLength) {
+        byte[] copy = new byte[newLength];
+        for (int i = 0; i < MathH.min(original.length, newLength); i++) {
+            copy[i] = original[i];
+        }
+        return copy;
+    }
+
     public static void reverse(char[] a) {
         int i = a.length - 1;
         int j = 0;

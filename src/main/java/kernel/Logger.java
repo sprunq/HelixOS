@@ -8,7 +8,7 @@ public class Logger {
     private static boolean initialized = false;
 
     public static final byte NONE = 0;
-    public static final byte DEBUG = 1;
+    public static final byte TRACE = 1;
     public static final byte INFO = 2;
     public static final byte WARNING = 3;
     public static final byte ERROR = 4;
@@ -17,41 +17,44 @@ public class Logger {
     public static void initialize(byte logLevel, int capactiy) {
         logBuffer = new LogEntry[capactiy];
         for (int i = 0; i < capactiy; i++) {
-            logBuffer[i] = new LogEntry("", NONE);
+            logBuffer[i] = new LogEntry("", "", NONE);
         }
         initialized = true;
         minimumLogLevel = logLevel;
+
+        Logger.info("Logger", "Initialized");
     }
 
     @SJC.Inline
-    public static void debug(String message) {
-        log(message, DEBUG);
+    public static void trace(String category, String message) {
+        log(category, message, TRACE);
     }
 
     @SJC.Inline
-    public static void info(String message) {
-        log(message, INFO);
+    public static void info(String category, String message) {
+        log(category, message, INFO);
     }
 
     @SJC.Inline
-    public static void warning(String message) {
-        log(message, WARNING);
+    public static void warning(String category, String message) {
+        log(category, message, WARNING);
     }
 
     @SJC.Inline
-    public static void error(String message) {
-        log(message, ERROR);
+    public static void error(String category, String message) {
+        log(category, message, ERROR);
     }
 
     @SJC.Inline
-    public static void fatal(String message) {
-        log(message, FATAL);
+    public static void fatal(String category, String message) {
+        log(category, message, FATAL);
     }
 
-    public static void log(String message, byte priority) {
+    public static void log(String category, String message, byte priority) {
         if (priority < minimumLogLevel || !initialized)
             return;
 
+        logBuffer[logIndex].setCategory(category);
         logBuffer[logIndex].setMessage(message);
         logBuffer[logIndex].setPriority(priority);
         logIndex++;

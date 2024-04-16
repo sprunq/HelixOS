@@ -1,18 +1,18 @@
 package kernel.display.video;
 
-import kernel.Env;
 import kernel.Logger;
-import kernel.display.video.font.IFont;
+import kernel.MemoryLayout;
+import kernel.display.video.font.AFont;
 import kernel.memory.Memory;
-import rte.SArray;
 import util.BitHelper;
 import util.MathH;
 
 public class VM13 {
-    private static VM13Memory vidMem = (VM13Memory) MAGIC.cast2Struct(Env.VGA_VID_BUFFER);
+    private static final VM13Memory VidMem = (VM13Memory) MAGIC.cast2Struct(MemoryLayout.VGA_VID_BUFFER_START);
 
     public static final int WIDTH = 320;
     public static final int HEIGHT = 200;
+    public static final int SIZE = WIDTH * HEIGHT;
 
     public static final int PALETTE_MASK = 0x3C6;
     public static final int PALETTE_WRITE = 0x3C8;
@@ -22,22 +22,25 @@ public class VM13 {
      * Back buffer for double buffering.
      * Without double buffering, the screen would flicker.
      */
-    private static byte[] backBuffer = new byte[WIDTH * HEIGHT];
+    private static byte[] _backBuffer = new byte[WIDTH * HEIGHT];
 
     /*
      * Swaps the back buffer with the video memory.
      */
     public static void swap() {
-        int ptrToVidMem = MAGIC.cast2Ref(vidMem.color);
+        Memory.copyBytes(
+                MAGIC.addr(_backBuffer[0]),
+                MAGIC.addr(VidMem.Color[0]),
+                WIDTH * HEIGHT);
+    }
 
-        int ptrToBackBuffer = MAGIC.cast2Ref(backBuffer) + SArray.getScalarSize();
-        Memory.copyBytes(ptrToBackBuffer, ptrToVidMem, WIDTH * HEIGHT);
-        Logger.debug("VGA Swap buffer");
+    public static void clearBackBuffer() {
+        Memory.setBytes(MAGIC.addr(_backBuffer[0]), SIZE, (byte) 0);
     }
 
     @SJC.Inline
     public static void putPixel(int x, int y, byte color) {
-        backBuffer[offset(x, y)] = color;
+        _backBuffer[offset(x, y)] = color;
     }
 
     @SJC.Inline
@@ -45,14 +48,19 @@ public class VM13 {
         return WIDTH * y + x;
     }
 
-    public static void putChar(byte c, int x, int y, IFont font, byte color) {
-        for (int charLine = 0; charLine < font.getHeight(); charLine++) {
-            byte b = font.getCharacterBitmapLine(c, charLine);
-            for (int lineBit = 0; lineBit < font.getWidth(); lineBit++) {
-                if (BitHelper.getFlag(b, lineBit)) {
-                    int posX;
-                    int posY;
-                    if (font.isVertical()) {
+    public static void putChar(byte c, int x, int y, AFont font, byte color) {
+        int fontWidth = font.getWidth();
+        int fontHeight = font.getHeight();
+        boolean fontVertical = font.isVertical();
+
+        for (int charLine = 0; charLine < fontHeight; charLine++) {
+            int b = font.getCharacterBitmapLine(c, charLine);
+            for (int lineBit = 0; lineBit < fontWidth; lineBit++) {
+                int bit = BitHelper.getBit(b, lineBit);
+                if (bit == 1) {
+                    int posX = x + charLine;
+                    int posY = y + lineBit;
+                    if (fontVertical) {
                         posX = x + charLine;
                         posY = y + lineBit;
                     } else {
@@ -65,12 +73,17 @@ public class VM13 {
         }
     }
 
-    public static void setRegion(int x, int y, int width, int height, byte color) {
-        for (int yy = y; yy < y + height; yy++) {
-            for (int xx = x; xx < x + width; xx++) {
-                putPixel(xx, yy, color);
+    public static void fillrect(int x, int y, int width, int height, byte color) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                putPixel(x + j, y + i, color);
             }
         }
+    }
+
+    public static void clearScreen(byte color) {
+        fillrect(0, 0, WIDTH, HEIGHT, color);
+        VM13.swap();
     }
 
     /*
@@ -87,7 +100,7 @@ public class VM13 {
         MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
         MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
         MAGIC.wIOs8(PALETTE_DATA, (byte) 0x3F);
-        Logger.info("Set VGA palette");
+        Logger.info("VGA", "Set palette");
     }
 
     /*

@@ -6,19 +6,24 @@ public class String {
     private byte[] value;
     private int count;
 
+    public String(byte[] value) {
+        this.value = value;
+        this.count = value.length;
+    }
+
     @SJC.Inline
     public int length() {
         return count;
     }
 
     @SJC.Inline
-    public byte charAt(int i) {
+    public byte get(int i) {
         return value[i];
     }
 
-    public String(byte[] value) {
-        this.value = value;
-        this.count = value.length;
+    @SJC.Inline
+    public byte[] getBytes() {
+        return value;
     }
 
     public char[] toCharArray() {
@@ -69,4 +74,16 @@ public class String {
         return new String(appended);
     }
 
+    public String append(int i) {
+        return append(Integer.toString(i, 10));
+    }
+
+    public String append(char c) {
+        byte[] appended = new byte[count + 1];
+        for (int i = 0; i < count; i++) {
+            appended[i] = value[i];
+        }
+        appended[count] = (byte) c;
+        return new String(appended);
+    }
 }

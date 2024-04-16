@@ -12,7 +12,7 @@ public class PIC {
     public static void initialize() {
         programmChip(MASTER, 0x20, 0x04); // init offset and slave config of master
         programmChip(SLAVE, 0x28, 0x02); // init offset and slave config of slave
-        Logger.info("Initialized PIT");
+        Logger.info("PIC", "Initialized");
     }
 
     @SJC.Inline

@@ -3,11 +3,12 @@ package kernel.interrupt;
 import kernel.Kernel;
 import kernel.Logger;
 import kernel.hardware.Timer;
+import kernel.hardware.keyboard.KeyboardController;
 
 public class Interrupts {
     @SJC.Interrupt
     public static void ignoreHandler() {
-        Logger.warning("INTR: ignoreHandler");
+        Logger.warning("INTR", "ignoreHandler");
     }
 
     @SJC.Interrupt
@@ -73,7 +74,7 @@ public class Interrupts {
 
     @SJC.Interrupt
     public static void keyboardHandler() {
-        Logger.error("INTR: keyboardHandler");
+        KeyboardController.handle();
         PIC.acknowledge(1);
     }
 }

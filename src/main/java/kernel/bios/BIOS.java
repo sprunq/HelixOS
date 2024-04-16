@@ -1,15 +1,12 @@
 package kernel.bios;
 
-import assembler.x86;
 import kernel.Logger;
+import kernel.MemoryLayout;
 import kernel.interrupt.IDT;
+import util.StrBuilder;
 
 public class BIOS {
-    public final static int BIOS_MEMORY = 0x60000;
-    public final static int BIOS_STKEND = BIOS_MEMORY + 0x1000;
-    public final static int BIOS_STKBSE = BIOS_STKEND - 0x28;
-
-    public final static BIOSRegs regs = (BIOSRegs) MAGIC.cast2Struct(BIOS_STKBSE);
+    public final static BIOSRegs Registers = (BIOSRegs) MAGIC.cast2Struct(MemoryLayout.BIOS_STKBSE);
 
     public final static short F_CARRY = 0x0001;
     public final static short F_PARITY = 0x0004;
@@ -21,161 +18,62 @@ public class BIOS {
     public final static short F_DIR = 0x0400;
     public final static short F_OVER = 0x0800;
 
-    private static boolean initDone;
+    private static boolean _initDone;
 
     @SJC.Inline
     public static void activateGraphicsMode() {
-        BIOS.regs.EAX = 0x0013;
+        BIOS.Registers.EAX = 0x0013;
         BIOS.rint(0x10);
     }
 
     @SJC.Inline
     public static void activateTextMode() {
-        BIOS.regs.EAX = 0x0003;
+        BIOS.Registers.EAX = 0x0003;
         BIOS.rint(0x10);
+    }
+
+    public static MemMapEntry memMap(int idx) {
+        Logger.trace("BIOS", new StrBuilder().append("memMap(").append(idx).append(")").toString());
+        execMemMap(idx);
+        return readMemMap();
+    }
+
+    public static int getMemMapContinuationIndex() {
+        return Registers.EBX;
+    }
+
+    private static void execMemMap(int idx) {
+        Registers.EAX = 0x0000E820;
+        Registers.EDX = 0x534D4150;
+        Registers.EBX = idx;
+        Registers.ES = (short) (MemoryLayout.BIOS_BUFFER_MEMMAP_START >>> 4);
+        Registers.EDI = MemoryLayout.BIOS_BUFFER_MEMMAP_START & 0xF;
+        Registers.ECX = MemoryLayout.BIOS_BUFFER_MEMMAP_SIZE;
+        rint(0x15);
+    }
+
+    private static MemMapEntry readMemMap() {
+        long base = MAGIC.rMem64(MemoryLayout.BIOS_BUFFER_MEMMAP_START);
+        long length = MAGIC.rMem64(MemoryLayout.BIOS_BUFFER_MEMMAP_START + 8);
+        int type = MAGIC.rMem32(MemoryLayout.BIOS_BUFFER_MEMMAP_START + 16);
+        return new MemMapEntry(base, length, type);
     }
 
     // -------------------------------------------------------- call BIOS-IRQ
     // ------------------------------------
     public static void rint(int inter) {
-        int addr = BIOS_MEMORY + 8;
+        int addr = MemoryLayout.BIOS_MEMORY + 8;
 
-        if (!initDone) { // initialize 16 bit code
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr++, (byte) 0xBB);
-            MAGIC.wMem32(addr, BIOS_MEMORY); // mov ebx,0x60000(BIOS_MEMORY)
-            addr += 4;
-
-            MAGIC.wMem8(addr++, (byte) 0x67);
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr++, (byte) 0x89);
-            MAGIC.wMem8(addr++, (byte) 0x23); // mov [ebx],esp
-
-            MAGIC.wMem8(addr++, (byte) 0x0F);
-            MAGIC.wMem8(addr++, (byte) 0x20);
-            MAGIC.wMem8(addr++, (byte) 0xC0); // mov eax,cr0
-
-            MAGIC.wMem8(addr++, (byte) 0x67);
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr++, (byte) 0x89);
-            MAGIC.wMem8(addr++, (byte) 0x43);
-            MAGIC.wMem8(addr++, (byte) 0x04); // mov [ebx+4],eax
-
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr++, (byte) 0x25);
-            MAGIC.wMem8(addr++, (byte) 0xFE);
-            MAGIC.wMem8(addr++, (byte) 0xFF);
-            MAGIC.wMem8(addr++, (byte) 0xFE);
-            MAGIC.wMem8(addr++, (byte) 0x7F); // and eax, 0x7FFEFFFE
-
-            MAGIC.wMem8(addr++, (byte) 0x0F);
-            MAGIC.wMem8(addr++, (byte) 0x22);
-            MAGIC.wMem8(addr++, (byte) 0xC0); // mov cr0, eax
-
-            MAGIC.wMem8(addr++, (byte) 0xEA);
-            MAGIC.wMem8(addr++, (byte) 0x28);
-            MAGIC.wMem8(addr++, (byte) 0x00);
-            MAGIC.wMem16(addr, (short) (BIOS_MEMORY >>> 4)); // jmp 0x6000(BIOS_MEMORY>>>4):0028
-            addr += 2;
-
-            MAGIC.wMem8(addr++, (byte) 0xBA);
-            MAGIC.wMem16(addr, (short) (BIOS_MEMORY >>> 4)); // mov dx,0x6000(BIOS_MEMORY>>>4)
-            addr += 2;
-
-            MAGIC.wMem8(addr++, (byte) 0x8E);
-            MAGIC.wMem8(addr++, (byte) 0xD2); // mov ss,dx
-
-            MAGIC.wMem8(addr++, (byte) 0x8E);
-            MAGIC.wMem8(addr++, (byte) 0xEA); // mov gs,dx
-
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr++, (byte) 0xBC);
-            MAGIC.wMem32(addr, BIOS_STKBSE - BIOS_MEMORY); // mov esp,0x2000(BIOS_MEMORY-BIOS_STKBSE)
-            addr += 4;
-
-            MAGIC.wMem8(addr++, (byte) 0x1F); // pop ds
-            MAGIC.wMem8(addr++, (byte) 0x07); // pop es
-
-            MAGIC.wMem8(addr++, (byte) 0x0f);
-            MAGIC.wMem8(addr++, (byte) 0xa1); // pop fs
-
-            MAGIC.wMem8(addr++, (byte) 0x58); // pop ax -> we have to pop something for symmetry
-
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr++, (byte) 0x61); // popad
-
-            MAGIC.wMem8(addr++, (byte) 0xCD);
-            MAGIC.wMem8(addr++, (byte) 0); // cd inter
-
-            MAGIC.wMem8(addr++, (byte) 0xFA); // cli (some buggy BIOS versions enable interrupts)
-
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr++, (byte) 0x60); // pushad
-
-            MAGIC.wMem8(addr++, (byte) 0x9C); // pushf
-
-            MAGIC.wMem8(addr++, (byte) 0x0f);
-            MAGIC.wMem8(addr++, (byte) 0xa0); // push fs
-
-            MAGIC.wMem8(addr++, (byte) 0x06); // push es
-            MAGIC.wMem8(addr++, (byte) 0x1E); // push ds
-
-            MAGIC.wMem8(addr++, (byte) 0x2E);
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr++, (byte) 0xA1);
-            MAGIC.wMem8(addr++, (byte) 0x04);
-            MAGIC.wMem8(addr++, (byte) 0x00); // mov eax,[cs:0x0004]
-
-            MAGIC.wMem8(addr++, (byte) 0x0F);
-            MAGIC.wMem8(addr++, (byte) 0x22);
-            MAGIC.wMem8(addr++, (byte) 0xC0); // mov cr0, eax
-
-            MAGIC.wMem8(addr++, (byte) 0xEA);
-            MAGIC.wMem8(addr++, (byte) 0x53);
-            MAGIC.wMem8(addr++, (byte) 0x00);
-            MAGIC.wMem8(addr++, (byte) 0x18);
-            MAGIC.wMem8(addr++, (byte) 0x00); // jmp 0x0018:0053
-
-            MAGIC.wMem8(addr++, (byte) 0xBA);
-            MAGIC.wMem8(addr++, (byte) 0x10);
-            MAGIC.wMem8(addr++, (byte) 0x00); // mov dx,0x0010
-
-            MAGIC.wMem8(addr++, (byte) 0x8E);
-            MAGIC.wMem8(addr++, (byte) 0xDA); // mov ds,dx
-
-            MAGIC.wMem8(addr++, (byte) 0x8E);
-            MAGIC.wMem8(addr++, (byte) 0xC2); // mov es,dx
-
-            MAGIC.wMem8(addr++, (byte) 0x8E);
-            MAGIC.wMem8(addr++, (byte) 0xE2); // mov fs,dx
-
-            MAGIC.wMem8(addr++, (byte) 0x8E);
-            MAGIC.wMem8(addr++, (byte) 0xEA); // mov gs,dx
-
-            MAGIC.wMem8(addr++, (byte) 0x8E);
-            MAGIC.wMem8(addr++, (byte) 0xD2); // mov ss,dx
-
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr++, (byte) 0xB8);
-            MAGIC.wMem32(addr, BIOS_MEMORY); // mov eax, BIOS_MEMORY
-            addr += 4;
-
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr++, (byte) 0x67);
-            MAGIC.wMem8(addr++, (byte) 0x8B);
-            MAGIC.wMem8(addr++, (byte) 0x20); // mov esp, [eax]
-
-            MAGIC.wMem8(addr++, (byte) 0x66);
-            MAGIC.wMem8(addr, (byte) 0xCB); // far ret
-
-            initDone = true;
+        if (!_initDone) { // initialize 16 bit code
+            initBios(addr);
+            _initDone = true;
         }
 
         // real function after initialization
-        MAGIC.wMem8(BIOS_MEMORY + 61, (byte) inter); // set interrupt number
+        MAGIC.wMem8(MemoryLayout.BIOS_MEMORY + 61, (byte) inter); // set interrupt number
         MAGIC.inline(0x9C); // pushf
         MAGIC.inline(0xFA); // cli
-        lidtRealMode(); // load idt with real mode interrupt table
+        IDT.loadTableRealMode();// load idt with real mode interrupt table
 
         // call 16 bit code
         MAGIC.inline(0x56); // push e/rsi
@@ -197,18 +95,137 @@ public class BIOS {
         }
         MAGIC.inline(0x5F); // pop e/rdi
         MAGIC.inline(0x5E); // pop e/rsi
-        lidt(); // load idt with protected/long mode interrupt table
+        IDT.loadTable(); // load idt with protected/long mode interrupt table
         MAGIC.inline(0x9D); // popf
     }
 
-    @SJC.Inline
-    private static void lidt() {
-        IDT.loadTable();
-    }
+    private static void initBios(int addr) {
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr++, (byte) 0xBB);
+        MAGIC.wMem32(addr, MemoryLayout.BIOS_MEMORY); // mov ebx,0x60000(BIOS_MEMORY)
+        addr += 4;
 
-    @SJC.Inline
-    private static void lidtRealMode() {
-        x86.ldit(0, 1023);
-        Logger.info("Load IDT (real)");
+        MAGIC.wMem8(addr++, (byte) 0x67);
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr++, (byte) 0x89);
+        MAGIC.wMem8(addr++, (byte) 0x23); // mov [ebx],esp
+
+        MAGIC.wMem8(addr++, (byte) 0x0F);
+        MAGIC.wMem8(addr++, (byte) 0x20);
+        MAGIC.wMem8(addr++, (byte) 0xC0); // mov eax,cr0
+
+        MAGIC.wMem8(addr++, (byte) 0x67);
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr++, (byte) 0x89);
+        MAGIC.wMem8(addr++, (byte) 0x43);
+        MAGIC.wMem8(addr++, (byte) 0x04); // mov [ebx+4],eax
+
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr++, (byte) 0x25);
+        MAGIC.wMem8(addr++, (byte) 0xFE);
+        MAGIC.wMem8(addr++, (byte) 0xFF);
+        MAGIC.wMem8(addr++, (byte) 0xFE);
+        MAGIC.wMem8(addr++, (byte) 0x7F); // and eax, 0x7FFEFFFE
+
+        MAGIC.wMem8(addr++, (byte) 0x0F);
+        MAGIC.wMem8(addr++, (byte) 0x22);
+        MAGIC.wMem8(addr++, (byte) 0xC0); // mov cr0, eax
+
+        MAGIC.wMem8(addr++, (byte) 0xEA);
+        MAGIC.wMem8(addr++, (byte) 0x28);
+        MAGIC.wMem8(addr++, (byte) 0x00);
+        MAGIC.wMem16(addr, (short) (MemoryLayout.BIOS_MEMORY >>> 4)); // jmp 0x6000(BIOS_MEMORY>>>4):0028
+        addr += 2;
+
+        MAGIC.wMem8(addr++, (byte) 0xBA);
+        MAGIC.wMem16(addr, (short) (MemoryLayout.BIOS_MEMORY >>> 4)); // mov dx,0x6000(BIOS_MEMORY>>>4)
+        addr += 2;
+
+        MAGIC.wMem8(addr++, (byte) 0x8E);
+        MAGIC.wMem8(addr++, (byte) 0xD2); // mov ss,dx
+
+        MAGIC.wMem8(addr++, (byte) 0x8E);
+        MAGIC.wMem8(addr++, (byte) 0xEA); // mov gs,dx
+
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr++, (byte) 0xBC);
+        MAGIC.wMem32(addr, MemoryLayout.BIOS_STKBSE - MemoryLayout.BIOS_MEMORY); // mov
+                                                                                 // esp,0x2000(BIOS_MEMORY-BIOS_STKBSE)
+        addr += 4;
+
+        MAGIC.wMem8(addr++, (byte) 0x1F); // pop ds
+        MAGIC.wMem8(addr++, (byte) 0x07); // pop es
+
+        MAGIC.wMem8(addr++, (byte) 0x0f);
+        MAGIC.wMem8(addr++, (byte) 0xa1); // pop fs
+
+        MAGIC.wMem8(addr++, (byte) 0x58); // pop ax -> we have to pop something for symmetry
+
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr++, (byte) 0x61); // popad
+
+        MAGIC.wMem8(addr++, (byte) 0xCD);
+        MAGIC.wMem8(addr++, (byte) 0); // cd inter
+
+        MAGIC.wMem8(addr++, (byte) 0xFA); // cli (some buggy BIOS versions enable interrupts)
+
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr++, (byte) 0x60); // pushad
+
+        MAGIC.wMem8(addr++, (byte) 0x9C); // pushf
+
+        MAGIC.wMem8(addr++, (byte) 0x0f);
+        MAGIC.wMem8(addr++, (byte) 0xa0); // push fs
+
+        MAGIC.wMem8(addr++, (byte) 0x06); // push es
+        MAGIC.wMem8(addr++, (byte) 0x1E); // push ds
+
+        MAGIC.wMem8(addr++, (byte) 0x2E);
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr++, (byte) 0xA1);
+        MAGIC.wMem8(addr++, (byte) 0x04);
+        MAGIC.wMem8(addr++, (byte) 0x00); // mov eax,[cs:0x0004]
+
+        MAGIC.wMem8(addr++, (byte) 0x0F);
+        MAGIC.wMem8(addr++, (byte) 0x22);
+        MAGIC.wMem8(addr++, (byte) 0xC0); // mov cr0, eax
+
+        MAGIC.wMem8(addr++, (byte) 0xEA);
+        MAGIC.wMem8(addr++, (byte) 0x53);
+        MAGIC.wMem8(addr++, (byte) 0x00);
+        MAGIC.wMem8(addr++, (byte) 0x18);
+        MAGIC.wMem8(addr++, (byte) 0x00); // jmp 0x0018:0053
+
+        MAGIC.wMem8(addr++, (byte) 0xBA);
+        MAGIC.wMem8(addr++, (byte) 0x10);
+        MAGIC.wMem8(addr++, (byte) 0x00); // mov dx,0x0010
+
+        MAGIC.wMem8(addr++, (byte) 0x8E);
+        MAGIC.wMem8(addr++, (byte) 0xDA); // mov ds,dx
+
+        MAGIC.wMem8(addr++, (byte) 0x8E);
+        MAGIC.wMem8(addr++, (byte) 0xC2); // mov es,dx
+
+        MAGIC.wMem8(addr++, (byte) 0x8E);
+        MAGIC.wMem8(addr++, (byte) 0xE2); // mov fs,dx
+
+        MAGIC.wMem8(addr++, (byte) 0x8E);
+        MAGIC.wMem8(addr++, (byte) 0xEA); // mov gs,dx
+
+        MAGIC.wMem8(addr++, (byte) 0x8E);
+        MAGIC.wMem8(addr++, (byte) 0xD2); // mov ss,dx
+
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr++, (byte) 0xB8);
+        MAGIC.wMem32(addr, MemoryLayout.BIOS_MEMORY); // mov eax, BIOS_MEMORY
+        addr += 4;
+
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr++, (byte) 0x67);
+        MAGIC.wMem8(addr++, (byte) 0x8B);
+        MAGIC.wMem8(addr++, (byte) 0x20); // mov esp, [eax]
+
+        MAGIC.wMem8(addr++, (byte) 0x66);
+        MAGIC.wMem8(addr, (byte) 0xCB); // far ret
     }
 }

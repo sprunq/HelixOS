@@ -10,7 +10,6 @@ package kernel.hardware;
  * and so on until it gets to 0x59, then back to 0x00.
  */
 public class RTC {
-
     private static final int RTC_DATA = 0x71;
     private static final int RTC_BASE = 0x70;
 

@@ -7,8 +7,12 @@ import kernel.display.video.VM13;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
+import kernel.hardware.keyboard.Breaker;
+import kernel.hardware.keyboard.KeyboardController;
+import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
+import util.StrBuilder;
 
 public class Kernel {
     public static TM3 tmOut;
@@ -16,61 +20,53 @@ public class Kernel {
 
     public static void main() {
         MemoryManager.initialize();
-        Logger.initialize(Logger.DEBUG, 20);
+        Logger.initialize(Logger.TRACE, 200);
+        KeyboardController.initialize(QWERTZ.Instance);
+        PIT.initialize();
         IDT.initialize();
         IDT.enable();
-        PIT.init();
 
         Kernel.tmOut = new TM3();
         tmOut.clearScreen();
 
         BIOS.activateGraphicsMode();
-        Logger.info("Activated VGA Mode 13h");
 
         // The palette has to be set after graphics mode is activated
         VM13.setPalette();
 
         gui = new GUI();
-        gui.tfMain.addString("  ## Welcome TO TOOS ##");
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.addString("Features:");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - Interrupts");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - Timer");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - Real Time Clock");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - Logging");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - GUI in VGA Mode 13h");
-        gui.tfMain.newLine();
-        gui.tfMain.addString(" - Fonts");
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.newLine();
-        gui.tfMain.addString("Um Interrupts zu sehen");
-        gui.tfMain.newLine();
-        gui.tfMain.addString("bitte eine Taste druecken");
+        KeyboardController.addListener(new Breaker(), 4);
+        KeyboardController.addListener(gui.MultiWindow, 3);
+        KeyboardController.addListener(gui.PciDeviceReader, 2);
+        KeyboardController.addListener(gui.TfMain, 1);
+
+        StrBuilder sb = new StrBuilder();
+        sb.appendLine("Phase 4")
+                .appendLine()
+                .appendLine("- Next win: Left CTRL + PAGE UP")
+                .appendLine("- Prev win: Left CTRL + PAGE DOWN")
+                .appendLine("- Break: Left CTRL + Left ALT")
+                .appendLine()
+                .appendLine("Pages")
+                .appendLine("0: Logs")
+                .appendLine("1: System MemMap")
+                .appendLine("2: PCI Devices")
+                .appendLine("  - Right Arrow: Next device")
+                .appendLine("3: Color Palette")
+                .appendLine()
+                .appendLine("Man kann hier auch schreiben!");
+
+        gui.TfMain.addString(sb.toString());
 
         while (true) {
-            gui.clearDrawing();
+            while (KeyboardController.hasNewEvent()) {
+                KeyboardController.readEvent();
+            }
+            VM13.clearBackBuffer();
             gui.draw();
             VM13.swap();
-            Timer.sleep(1000 / 4);
-            rec(1000000);
-
+            Timer.sleep(1000 / 20);
         }
-    }
-
-    private static void rec(int i) {
-        int c = i / 2;
-        rec(c);
     }
 
     public static void panic(String msg) {
