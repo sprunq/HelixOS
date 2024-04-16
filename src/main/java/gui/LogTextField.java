@@ -2,17 +2,18 @@ package gui;
 
 import kernel.LogEntry;
 import kernel.Logger;
+import kernel.display.vesa.VESAGraphics;
 import kernel.display.video.VM13;
 import kernel.display.video.font.AFont;
 
 public class LogTextField extends TextField {
-    private final byte COL_FALLBACK;
-    private final byte COL_FATAL;
-    private final byte COL_ERROR;
-    private final byte COL_WARNING;
-    private final byte COL_INFO;
-    private final byte COL_TRACE;
-    private final byte COL_WHITE;
+    private final int COL_FALLBACK;
+    private final int COL_FATAL;
+    private final int COL_ERROR;
+    private final int COL_WARNING;
+    private final int COL_INFO;
+    private final int COL_TRACE;
+    private final int COL_WHITE;
 
     public LogTextField(
             int x,
@@ -23,15 +24,16 @@ public class LogTextField extends TextField {
             AFont font,
             int charSpacing,
             int lineSpacing,
-            byte backGroundColor) {
-        super(x, y, width, height, border, charSpacing, lineSpacing, backGroundColor, VM13.frgb(1.0, 1.0, 1.0), font);
-        COL_FALLBACK = VM13.frgb(1.0, 0.5, 1.0);
-        COL_FATAL = VM13.frgb(0.6, 0.0, 0.0);
-        COL_ERROR = VM13.frgb(0.9, 0.1, 0.1);
-        COL_WARNING = VM13.frgb(1.0, 0.7, 0.0);
-        COL_INFO = VM13.frgb(0.5, 0.7, 1.0);
-        COL_TRACE = VM13.frgb(0.4, 0.8, 0.4);
-        COL_WHITE = VM13.frgb(1.0, 1.0, 1.0);
+            int backGroundColor) {
+        super(x, y, width, height, border, charSpacing, lineSpacing, backGroundColor, VESAGraphics.rgb24(255, 255, 255),
+                font);
+        COL_FALLBACK = VESAGraphics.rgb24(255, 255, 255);
+        COL_FATAL = VESAGraphics.rgb24(255, 255, 255);
+        COL_ERROR = VESAGraphics.rgb24(255, 255, 255);
+        COL_WARNING = VESAGraphics.rgb24(255, 255, 255);
+        COL_INFO = VESAGraphics.rgb24(255, 255, 255);
+        COL_TRACE = VESAGraphics.rgb24(255, 255, 255);
+        COL_WHITE = VESAGraphics.rgb24(255, 255, 255);
     }
 
     public void draw() {
@@ -44,7 +46,7 @@ public class LogTextField extends TextField {
                 if (msg.length() != 0) {
                     String cat = log.getCategory();
                     byte level = (byte) log.getPriority();
-                    byte color = 0;
+                    int color = 0;
                     switch (level) {
                         case Logger.TRACE:
                             color = COL_TRACE;

@@ -49,10 +49,11 @@ public class TextField implements IUiElement {
         _characters = new byte[LineCount][LineLength];
         _characterColors = new int[LineCount][LineLength];
         _brush = defaultBrushColor;
+
+        Kernel.Vesa.fillrect(X, Y, Width, Height, _backGroundColor);
     }
 
     public void draw() {
-        // VM13.fillrect(X, Y, Width, Height, _backGroundColor);
 
         for (int i = 0; i < LineCount; i++) {
             for (int j = 0; j < LineLength; j++) {
@@ -60,7 +61,7 @@ public class TextField implements IUiElement {
                 int y = this.Y + i * (_font.getHeight() + SpacingH) + SpacingBorder;
                 int character = _characters[i][j];
                 int characterColor = _characterColors[i][j];
-                Kernel.Vesa.putCh(character, x, y, _font, characterColor);
+                Kernel.Vesa.putCh(character, x, y, _font, characterColor, _backGroundColor);
             }
         }
     }
@@ -70,7 +71,7 @@ public class TextField implements IUiElement {
         this._cursorY = y;
     }
 
-    public void setBrushColor(byte color) {
+    public void setBrushColor(int color) {
         this._brush = color;
     }
 

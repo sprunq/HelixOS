@@ -34,7 +34,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
                             "../src/main",
                             "-o", "boot", 
                             "-y", 
-                            "-s", "256k",
+                            "-s", "1024k",
                             "-t", "ia32", "-T", "sse3", 
                             "-x"
                             ],
