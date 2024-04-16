@@ -1,5 +1,10 @@
 package gui;
 
-public interface IUiElement {
-    public void draw();
+public interface IUIElement {
+    public boolean isDirty();
+
+    public void drawFg();
+
+    public void drawBg();
+
 }

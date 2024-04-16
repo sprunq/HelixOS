@@ -1,5 +1,7 @@
 package kernel.display.video.font;
 
+import kernel.Kernel;
+
 /*
  * Bitmap from:
  * https://github.com/BaronWilliams/Vertical-Fonts/blob/master/font5x7.c
@@ -148,4 +150,10 @@ public class Font7x8 extends AFont {
             65, 65, 119, 62, 8, 8, 0, // '}' 125
             2, 3, 1, 3, 2, 3, 1, // '~' 126
     };
+
+    @Override
+    public int[][] renderToBitmap(int[][] bitmap, int ch, int color, int backColor) {
+        Kernel.todo("Font7x8.renderToBitmap");
+        return null;
+    }
 }

@@ -1,6 +1,6 @@
 package gui;
 
-import kernel.display.video.VM13;
+import kernel.Kernel;
 import kernel.display.video.font.AFont;
 import kernel.hardware.keyboard.IKeyboardEventListener;
 import kernel.hardware.keyboard.Key;
@@ -22,14 +22,18 @@ public class PCIDeviceReader extends TextField implements IKeyboardEventListener
             AFont font,
             int charSpacing,
             int lineSpacing,
-            byte backGroundColor) {
-        super(x, y, width, height, border, charSpacing, lineSpacing, backGroundColor, VM13.frgb(1.0, 1.0, 1.0), font);
+            int backGroundColor) {
+        super(x, y, width, height, border,
+                charSpacing, lineSpacing,
+                Kernel.Display.rgb(255, 255, 255),
+                backGroundColor,
+                font);
         this._pciDeviceReader = new LazyPciDeviceReader();
         this._selectedDevice = _pciDeviceReader.next();
         this._sb = new StrBuilder(400);
     }
 
-    public void draw() {
+    public void drawFg() {
         clearText();
         _sb.clearKeepCapacity();
         _sb.appendLine("PCI Devices")
@@ -59,7 +63,7 @@ public class PCIDeviceReader extends TextField implements IKeyboardEventListener
         }
 
         addString(_sb.toString());
-        super.draw();
+        super.drawFg();
     }
 
     @Override

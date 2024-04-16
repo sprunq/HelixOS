@@ -13,4 +13,6 @@ public abstract class AFont {
     public abstract int getCharacterBitmapLine(int ch, int line);
 
     public abstract boolean isVertical();
+
+    public abstract int[][] renderToBitmap(int[][] bitmap, int ch, int color, int backColor);
 }

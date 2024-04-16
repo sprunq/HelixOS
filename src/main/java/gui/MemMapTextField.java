@@ -1,8 +1,8 @@
 package gui;
 
+import kernel.Kernel;
 import kernel.bios.BIOS;
 import kernel.bios.MemMapEntry;
-import kernel.display.video.VM13;
 import kernel.display.video.font.AFont;
 import util.StrBuilder;
 
@@ -19,12 +19,17 @@ public class MemMapTextField extends TextField {
             AFont font,
             int charSpacing,
             int lineSpacing,
-            byte backGroundColor) {
-        super(x, y, width, height, border, charSpacing, lineSpacing, backGroundColor, VM13.frgb(1.0, 1.0, 1.0), font);
+            int backGroundColor) {
+        super(x, y, width, height, border, charSpacing,
+                lineSpacing,
+                Kernel.Display.rgb(255, 255, 255),
+                backGroundColor,
+                font);
         _sb = new StrBuilder(512);
     }
 
-    public void draw() {
+    @Override
+    public void drawFg() {
         clearText();
         _sb.clearKeepCapacity();
         _sb.appendLine("System Memory Map");
@@ -45,6 +50,6 @@ public class MemMapTextField extends TextField {
             idx = BIOS.getMemMapContinuationIndex();
         } while (idx != 0);
         addString(_sb.toString());
-        super.draw();
+        super.drawFg();
     }
 }

@@ -11,6 +11,11 @@ public class Integer {
         return i & 0xFF;
     }
 
+    @SJC.Inline
+    public static int ushort(int i) {
+        return i & 0xFFFF;
+    }
+
     public static byte[] BUFFER = MAGIC.toByteArray("0000000000000000000000000000", true);
 
     public static String toString(int i, int base) {

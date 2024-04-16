@@ -34,7 +34,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
                             "../src/main",
                             "-o", "boot", 
                             "-y", 
-                            "-s", "1024k",
+                            "-s", "256k",
                             "-t", "ia32", "-T", "sse3", 
                             "-x"
                             ],
@@ -54,7 +54,8 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         "-m", "1024", 
         "-boot", "a", 
         "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy", 
-        "-rtc", "base=localtime"
+        "-rtc", "base=localtime",
+        # "-full-screen",
         ])
 
     # Cleanup

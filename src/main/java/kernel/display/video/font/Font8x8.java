@@ -1,5 +1,7 @@
 package kernel.display.video.font;
 
+import util.BitHelper;
+
 /*
 * Bitmap from:
 * https://github.com/lucianoforks/tetris-os/blob/master/src/font.c
@@ -50,6 +52,35 @@ public class Font8x8 extends AFont {
         ch -= FONT_CHARACHTERS_START;
         byte b = FONT_BYTES[ch * BYTES_PER_CHAR + offset];
         return Integer.ubyte(b);
+    }
+
+    @Override
+    public int[][] renderToBitmap(int[][] bitmap, int ch, int color, int backColor) {
+        int fontWidth = getWidth();
+        int fontHeight = getHeight();
+        boolean fontVertical = isVertical();
+
+        for (int charLine = 0; charLine < fontHeight; charLine++) {
+            int b = getCharacterBitmapLine(ch, charLine);
+            for (int lineBit = 0; lineBit < fontWidth; lineBit++) {
+                int bit = BitHelper.getBit(b, lineBit);
+                int posX;
+                int posY;
+                if (fontVertical) {
+                    posX = charLine;
+                    posY = lineBit;
+                } else {
+                    posX = lineBit;
+                    posY = charLine;
+                }
+                if (bit == 1) {
+                    bitmap[posX][posY] = color;
+                } else {
+                    bitmap[posX][posY] = backColor;
+                }
+            }
+        }
+        return bitmap;
     }
 
     private static final byte[] FONT_BYTES = {
@@ -150,4 +181,5 @@ public class Font8x8 extends AFont {
             0x6E, 0x3B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // U+007E (~)
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // U+007F
     };
+
 }

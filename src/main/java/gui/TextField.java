@@ -1,10 +1,10 @@
 package gui;
 
 import kernel.Kernel;
-import kernel.display.video.VM13;
+import kernel.Logger;
 import kernel.display.video.font.AFont;
 
-public class TextField implements IUiElement {
+public class TextField implements IUIElement {
     public final int X;
     public final int Y;
     public final int Width;
@@ -14,13 +14,16 @@ public class TextField implements IUiElement {
     public final int SpacingH;
     public final int LineLength;
     public final int LineCount;
-    private byte[][] _characters;
-    private int[][] _characterColors;
-    private int _cursorX;
-    private int _cursorY;
-    private AFont _font;
-    private int _backGroundColor;
-    private int _brush;
+    protected byte[][] _characters;
+    protected int[][] _characterColors;
+    protected int _cursorX;
+    protected int _cursorY;
+    protected AFont _font;
+    protected final int _bg;
+    protected int _fg;
+    protected int[][] _fontBuffer;
+
+    private boolean _dirty;
 
     public TextField(
             int x,
@@ -30,12 +33,13 @@ public class TextField implements IUiElement {
             int borderSpacing,
             int charSpacing,
             int lineSpacing,
-            int backGroundColor,
-            int defaultBrushColor,
+            int fg,
+            int bg,
             AFont font) {
         _cursorX = 0;
         _cursorY = 0;
-        _backGroundColor = backGroundColor;
+        _fg = fg;
+        _bg = bg;
         _font = font;
         X = x;
         Y = y;
@@ -48,22 +52,8 @@ public class TextField implements IUiElement {
         LineCount = (height - borderSpacing * 2) / (font.getHeight() + SpacingH);
         _characters = new byte[LineCount][LineLength];
         _characterColors = new int[LineCount][LineLength];
-        _brush = defaultBrushColor;
-
-        Kernel.Vesa.fillrect(X, Y, Width, Height, _backGroundColor);
-    }
-
-    public void draw() {
-
-        for (int i = 0; i < LineCount; i++) {
-            for (int j = 0; j < LineLength; j++) {
-                int x = this.X + j * (_font.getWidth() + SpacingW) + SpacingBorder;
-                int y = this.Y + i * (_font.getHeight() + SpacingH) + SpacingBorder;
-                int character = _characters[i][j];
-                int characterColor = _characterColors[i][j];
-                Kernel.Vesa.putCh(character, x, y, _font, characterColor, _backGroundColor);
-            }
-        }
+        _fontBuffer = new int[font.getHeight()][font.getWidth()];
+        _dirty = true;
     }
 
     public void setCursor(int x, int y) {
@@ -72,7 +62,7 @@ public class TextField implements IUiElement {
     }
 
     public void setBrushColor(int color) {
-        this._brush = color;
+        this._fg = color;
     }
 
     public void addChar(byte c) {
@@ -85,8 +75,9 @@ public class TextField implements IUiElement {
             _cursorY--;
         }
         _characters[_cursorY][_cursorX] = c;
-        _characterColors[_cursorY][_cursorX] = _brush;
+        _characterColors[_cursorY][_cursorX] = _fg;
         _cursorX++;
+        _dirty = true;
     }
 
     public void addString(String s) {
@@ -114,7 +105,7 @@ public class TextField implements IUiElement {
         }
         for (int j = 0; j < LineLength; j++) {
             _characters[LineCount - 1][j] = (byte) ' ';
-            _characterColors[LineCount - 1][j] = _backGroundColor;
+            _characterColors[LineCount - 1][j] = _bg;
         }
     }
 
@@ -140,5 +131,33 @@ public class TextField implements IUiElement {
             scroll();
             _cursorY--;
         }
+    }
+
+    @Override
+    public void drawFg() {
+        for (int i = 0; i < LineCount; i++) {
+            for (int j = 0; j < LineLength; j++) {
+                int x = this.X + j * (_font.getWidth() + SpacingW) + SpacingBorder;
+                int y = this.Y + i * (_font.getHeight() + SpacingH) + SpacingBorder;
+                int character = _characters[i][j];
+                int characterColor = _characterColors[i][j];
+                _fontBuffer = _font.renderToBitmap(_fontBuffer, character, characterColor, _bg);
+                Kernel.Display.setBitmap(x, y, _fontBuffer);
+            }
+        }
+        _dirty = false;
+    }
+
+    @Override
+    public boolean isDirty() {
+        if (_dirty) {
+            Logger.trace("TextField", "Dirty");
+        }
+        return _dirty;
+    }
+
+    @Override
+    public void drawBg() {
+        Kernel.Display.fillrect(X, Y, Width, Height, _bg);
     }
 }

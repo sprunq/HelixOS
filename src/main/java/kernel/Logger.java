@@ -6,6 +6,7 @@ public class Logger {
     private static int entryCount = 0;
     private static byte minimumLogLevel = 0;
     private static boolean initialized = false;
+    private static int logTicks = 0;
 
     public static final byte NONE = 0;
     public static final byte TRACE = 1;
@@ -58,6 +59,7 @@ public class Logger {
         logBuffer[logIndex].setMessage(message);
         logBuffer[logIndex].setPriority(priority);
         logIndex++;
+        logTicks++;
         if (logIndex >= logBuffer.length) {
             logIndex = 0;
         }
@@ -83,5 +85,10 @@ public class Logger {
             index += logBuffer.length;
         }
         return index;
+    }
+
+    @SJC.Inline
+    public static int getLogTicks() {
+        return logTicks;
     }
 }

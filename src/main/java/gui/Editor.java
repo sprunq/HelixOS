@@ -14,9 +14,18 @@ public class Editor extends TextField implements IKeyboardEventListener {
             AFont font,
             int charSpacing,
             int lineSpacing,
-            byte backGroundColor,
-            byte textColor) {
-        super(x, y, width, height, border, charSpacing, lineSpacing, backGroundColor, textColor, font);
+            int fg,
+            int bg) {
+        super(x,
+                y,
+                width,
+                height,
+                border,
+                charSpacing,
+                lineSpacing,
+                fg,
+                bg,
+                font);
     }
 
     @Override
@@ -42,5 +51,10 @@ public class Editor extends TextField implements IKeyboardEventListener {
     public boolean onKeyReleased(char keyCode) {
         // do nothing
         return false;
+    }
+
+    @Override
+    public boolean isDirty() {
+        return super.isDirty();
     }
 }
