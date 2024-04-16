@@ -28,7 +28,9 @@ public class Editor extends TextField implements IKeyboardEventListener {
                     break;
                 default:
                     int x = Key.ascii(keyCode);
-                    addChar((byte) x);
+                    if (x != 0) {
+                        addChar((byte) x);
+                    }
                     break;
             }
             return true;

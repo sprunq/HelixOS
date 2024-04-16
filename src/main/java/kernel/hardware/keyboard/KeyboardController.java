@@ -34,7 +34,7 @@ public class KeyboardController {
     public static void initialize(ALayout keyBoardLayout) {
         _inputBuffer = new RingBuffer(256);
         _layout = keyBoardLayout;
-        _listeners = new ListenerPriorityMap(19);
+        _listeners = new ListenerPriorityMap(16);
         Logger.info("Key", "Initialized");
     }
 

@@ -46,7 +46,8 @@ public class BIOS {
         Registers.EAX = 0x0000E820;
         Registers.EDX = 0x534D4150;
         Registers.EBX = idx;
-        Registers.EDI = MemoryLayout.BIOS_BUFFER_MEMMAP_START;
+        Registers.ES = (short) (MemoryLayout.BIOS_BUFFER_MEMMAP_START >>> 4);
+        Registers.EDI = MemoryLayout.BIOS_BUFFER_MEMMAP_START & 0xF;
         Registers.ECX = MemoryLayout.BIOS_BUFFER_MEMMAP_SIZE;
         rint(0x15);
     }

@@ -26,8 +26,6 @@ public class Kernel {
         IDT.initialize();
         IDT.enable();
 
-        KeyboardController.addListener(new Breaker(), 4);
-
         Kernel.tmOut = new TM3();
         tmOut.clearScreen();
 
@@ -37,6 +35,7 @@ public class Kernel {
         VM13.setPalette();
 
         gui = new GUI();
+        KeyboardController.addListener(new Breaker(), 4);
         KeyboardController.addListener(gui.MultiWindow, 3);
         KeyboardController.addListener(gui.PciDeviceReader, 2);
         KeyboardController.addListener(gui.TfMain, 1);
