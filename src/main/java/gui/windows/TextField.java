@@ -1,33 +1,34 @@
-package gui;
+package gui.windows;
 
+import gui.AWindow;
 import kernel.Kernel;
-import kernel.Logger;
+import kernel.display.ADisplay;
 import kernel.display.video.font.AFont;
 
-public class TextField implements IUIElement {
-    public final int X;
-    public final int Y;
-    public final int Width;
-    public final int Height;
+public class TextField extends AWindow {
+
     public final int SpacingBorder;
     public final int SpacingW;
     public final int SpacingH;
     public final int LineLength;
     public final int LineCount;
-    protected byte[][] _characters;
-    protected int[][] _characterColors;
+
     protected int _cursorX;
     protected int _cursorY;
-    protected AFont _font;
-    protected final int _bg;
-    protected int _fg;
-    protected int[][] _fontBuffer;
 
-    private boolean _dirty;
+    protected int _bg;
+    protected int _fg;
+
+    protected byte[][] _characters;
+    protected int[][] _characterColors;
+
+    protected AFont _font;
+    protected int[][] _fontBuffer;
 
     public TextField(
             int x,
             int y,
+            int z,
             int width,
             int height,
             int borderSpacing,
@@ -36,6 +37,8 @@ public class TextField implements IUIElement {
             int fg,
             int bg,
             AFont font) {
+        super(x, y, z, width, height);
+
         _cursorX = 0;
         _cursorY = 0;
         _fg = fg;
@@ -53,7 +56,6 @@ public class TextField implements IUIElement {
         _characters = new byte[LineCount][LineLength];
         _characterColors = new int[LineCount][LineLength];
         _fontBuffer = new int[font.getHeight()][font.getWidth()];
-        _dirty = true;
     }
 
     public void setCursor(int x, int y) {
@@ -65,35 +67,40 @@ public class TextField implements IUIElement {
         this._fg = color;
     }
 
-    public void addChar(byte c) {
+    public void write(byte c) {
         if (_cursorX >= LineLength) {
-            _cursorX = 0;
-            _cursorY++;
+            carriageReturn();
         }
         if (_cursorY >= LineCount) {
-            scroll();
-            _cursorY--;
+            newLine();
         }
         _characters[_cursorY][_cursorX] = c;
         _characterColors[_cursorY][_cursorX] = _fg;
         _cursorX++;
-        _dirty = true;
     }
 
-    public void addString(String s) {
+    public void carriageReturn() {
+        _cursorX = 0;
+        _cursorY++;
+    }
+
+    public void newLine() {
+        carriageReturn();
+        if (_cursorY >= LineCount) {
+            scroll();
+            _cursorY--;
+        }
+    }
+
+    public void write(String s) {
         for (int i = 0; i < s.length(); i++) {
             byte c = (byte) s.get(i);
             if (c == '\n') {
                 newLine();
             } else {
-                addChar(c);
+                write(c);
             }
         }
-    }
-
-    public void addStringln(String s) {
-        addString(s);
-        newLine();
     }
 
     public void scroll() {
@@ -124,17 +131,10 @@ public class TextField implements IUIElement {
         }
     }
 
-    public void newLine() {
-        _cursorX = 0;
-        _cursorY++;
-        if (_cursorY >= LineCount) {
-            scroll();
-            _cursorY--;
-        }
-    }
-
     @Override
-    public void drawFg() {
+    public void draw(ADisplay display) {
+        Kernel.Display.fillrect(X, Y, Width, Height, _bg);
+
         for (int i = 0; i < LineCount; i++) {
             for (int j = 0; j < LineLength; j++) {
                 int x = this.X + j * (_font.getWidth() + SpacingW) + SpacingBorder;
@@ -145,19 +145,10 @@ public class TextField implements IUIElement {
                 Kernel.Display.setBitmap(x, y, _fontBuffer);
             }
         }
-        _dirty = false;
     }
 
     @Override
-    public boolean isDirty() {
-        if (_dirty) {
-            Logger.trace("TextField", "Dirty");
-        }
-        return _dirty;
-    }
-
-    @Override
-    public void drawBg() {
-        Kernel.Display.fillrect(X, Y, Width, Height, _bg);
+    public boolean needsRedraw() {
+        return true;
     }
 }

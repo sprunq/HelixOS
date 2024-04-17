@@ -5,8 +5,8 @@ import kernel.bios.BIOS;
 import kernel.display.vesa.layout.VESAControllerInfoStruct;
 import kernel.display.vesa.layout.VESAModeInfoStruct;
 import util.StrBuilder;
-import util.VectorInt;
-import util.VectorVesaMode;
+import util.vector.VectorInt;
+import util.vector.VectorVesaMode;
 
 public class VesaQuery {
     private final static VESAControllerInfoStruct contrInfo = (VESAControllerInfoStruct) MAGIC

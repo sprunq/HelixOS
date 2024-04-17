@@ -29,4 +29,8 @@ public class Timer {
         double rate = PIT.get_rateHz();
         return (int) ((end - start) / rate * 1000.0);
     }
+
+    public static int getTickDifferenceMs(int ticks) {
+        return getTickDifferenceMs(0, ticks);
+    }
 }

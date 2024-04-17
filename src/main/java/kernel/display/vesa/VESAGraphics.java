@@ -3,11 +3,14 @@ package kernel.display.vesa;
 import kernel.Kernel;
 import kernel.bios.BIOS;
 import kernel.display.ADisplay;
+import kernel.memory.Memory;
 import util.BitHelper;
 import util.MathH;
 
 public class VesaGraphics extends ADisplay {
     public VesaMode curMode;
+    private byte[] buffer;
+    private boolean needsRedraw;
 
     public VesaGraphics() {
         curMode = null;
@@ -21,6 +24,8 @@ public class VesaGraphics extends ADisplay {
         BIOS.Registers.EBX = mode.ModeNr;
         BIOS.rint(0x10);
         curMode = mode;
+        buffer = new byte[curMode.XRes * curMode.YRes * 3];
+        needsRedraw = true;
     }
 
     @Override
@@ -44,9 +49,13 @@ public class VesaGraphics extends ADisplay {
 
     @Override
     public void setBitmap(int x, int y, int[][] bitmap) {
-        for (int i = 0; i < bitmap.length; i++) {
-            for (int j = 0; j < bitmap[i].length; j++) {
-                setPixel(x + i, y + j, bitmap[i][j]);
+        int height = bitmap.length;
+        int width = bitmap[0].length;
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int col = bitmap[i][j];
+                setPixel(x + i, y + j, col);
             }
         }
     }
@@ -63,12 +72,14 @@ public class VesaGraphics extends ADisplay {
         }
 
         if (curMode.ColorDepth == 24) {
-            int addr = curMode.LfbAddress + (x + y * curMode.XRes) * 3;
-            MAGIC.wMem16(addr, (short) col);
-            MAGIC.wMem8(addr + 2, (byte) (col >>> 16));
+            int addr = (x + y * curMode.XRes) * 3;
+            buffer[addr] = (byte) col;
+            buffer[addr + 1] = (byte) (col >>> 8);
+            buffer[addr + 2] = (byte) (col >>> 16);
         } else {
             Kernel.panic("VESAGraphics.setPixel: unsupported color depth");
         }
+        needsRedraw = true;
     }
 
     @Override
@@ -83,4 +94,18 @@ public class VesaGraphics extends ADisplay {
         return color;
     }
 
+    @Override
+    public void swap() {
+        if (needsRedraw) {
+            if (curMode.ColorDepth == 24) {
+                int from = MAGIC.addr(buffer[0]);
+                int to = curMode.LfbAddress;
+                int len = buffer.length;
+                Memory.copyBytes(from, to, len);
+            } else {
+                Kernel.panic("VESAGraphics.update: unsupported color depth");
+            }
+        }
+        needsRedraw = false;
+    }
 }

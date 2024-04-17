@@ -1,7 +1,5 @@
 package kernel.hardware;
 
-import util.StrBuilder;
-
 /**
  * Real-Time Clock
  * 

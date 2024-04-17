@@ -1,11 +1,13 @@
-package gui;
+package gui.windows;
 
 import kernel.Kernel;
 import kernel.LogEntry;
 import kernel.Logger;
+import kernel.display.ADisplay;
 import kernel.display.video.font.AFont;
 
 public class LogTextField extends TextField {
+
     private final int COL_FATAL;
     private final int COL_ERROR;
     private final int COL_WARNING;
@@ -17,6 +19,7 @@ public class LogTextField extends TextField {
     public LogTextField(
             int x,
             int y,
+            int z,
             int width,
             int height,
             int border,
@@ -25,6 +28,7 @@ public class LogTextField extends TextField {
             AFont font) {
         super(x,
                 y,
+                z,
                 width,
                 height,
                 border,
@@ -42,7 +46,8 @@ public class LogTextField extends TextField {
         COL_WHITE = Kernel.Display.rgb(255, 255, 255);
     }
 
-    public void drawFg() {
+    @Override
+    public void draw(ADisplay display) {
         clearText();
         int amountToDisplay = LineCount - 1;
         for (int i = amountToDisplay; i >= 0; i--) {
@@ -75,12 +80,12 @@ public class LogTextField extends TextField {
                             break;
                     }
                     setBrushColor(color);
-                    addString(time);
-                    addString(" ");
-                    addString("<");
-                    addString(cat);
-                    addString("> ");
-                    addString(msg);
+                    write(time);
+                    write(" ");
+                    write("<");
+                    write(cat);
+                    write("> ");
+                    write(msg);
                     newLine();
                 }
             }
@@ -88,14 +93,14 @@ public class LogTextField extends TextField {
         setCursor(0, 0);
         clearLine(0);
         setBrushColor(COL_WHITE);
-        addString("Log Entries");
+        write("Log Entries");
         newLine();
         lastLogTick = Logger.getLogTicks();
-        super.drawFg();
+        super.draw(display);
     }
 
     @Override
-    public boolean isDirty() {
+    public boolean needsRedraw() {
         int logTicks = Logger.getLogTicks();
         boolean dirty = logTicks != lastLogTick;
         if (dirty) {

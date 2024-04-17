@@ -1,28 +1,26 @@
 package kernel;
 
-import gui.GUI;
+import gui.Splashscreen;
+import gui.WindowManager;
+import gui.windows.LogTextField;
 import kernel.bios.BIOS;
 import kernel.display.text.TM3Color;
 import kernel.display.vesa.VesaGraphics;
 import kernel.display.vesa.VesaMode;
 import kernel.display.vesa.VesaQuery;
+import kernel.display.video.font.Font8x8;
 import kernel.display.ADisplay;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
-import kernel.hardware.keyboard.Breaker;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
-import util.StrBuilder;
-import util.VectorVesaMode;
-import util.images.BinImageReader;
-import util.images.JiJi;
+import util.vector.VectorVesaMode;
 
 public class Kernel {
     public static TM3 TmOut;
-    public static GUI Gui;
     public static ADisplay Display;
 
     public static void main() {
@@ -36,60 +34,48 @@ public class Kernel {
         Kernel.TmOut = new TM3();
         TmOut.clearScreen();
 
-        for (int i = 0; i < 4; i++) {
-            byte b = JiJi.DATA.get(i);
-            // byte c = binimp.ByteData.jiji_200[i]; // wie geht das?
-            TmOut.print((int) b); // (Ignoriert das Vorzeichen)
-            TmOut.print(" = ");
-            TmOut.println(b & 0xFF);
-        }
-        return;
-
         VectorVesaMode modes = VesaQuery.AvailableModes();
         VesaMode mode = VesaQuery.GetMode(modes, 1024, 768, 24, true);
 
         VesaGraphics Vesa = new VesaGraphics();
         Vesa.setMode(mode);
-
         Display = Vesa;
+        Display.swap();
 
-        // int[][] bitmap = BinImageReader.decode_data(JiJi.DATA);
-        panic(Integer.toString(BinImageReader.get_height(JiJi.DATA)));
-        // Display.setBitmap(0, 0, bitmap);
+        Splashscreen.show();
 
-        return;
+        WindowManager windowManager = new WindowManager(Vesa);
 
-        Gui = new GUI();
+        LogTextField logTextField = new LogTextField(0, 0, 4,
+                mode.XRes, mode.YRes,
+                0, 0, 0,
+                Font8x8.Instance);
+        windowManager.addWindow(logTextField);
 
-        KeyboardController.addListener(new Breaker(), 4);
-        KeyboardController.addListener(Gui.MultiWindow, 3);
-        KeyboardController.addListener(Gui.PciDeviceReader, 2);
-        KeyboardController.addListener(Gui.TfMain, 1);
-
-        StrBuilder sb = new StrBuilder();
-        sb.appendLine("Phase 4")
-                .appendLine()
-                .appendLine("- Next win: Left CTRL + PAGE UP")
-                .appendLine("- Prev win: Left CTRL + PAGE DOWN")
-                .appendLine("- Break: Left CTRL + Left ALT")
-                .appendLine()
-                .appendLine("Pages")
-                .appendLine("0: Logs")
-                .appendLine("1: System MemMap")
-                .appendLine("2: PCI Devices")
-                .appendLine("  - Right Arrow: Next device")
-                .appendLine("3: Color Palette")
-                .appendLine()
-                .appendLine("Man kann hier auch schreiben!");
-
-        Gui.TfMain.addString(sb.toString());
-        Gui.drawBg();
+        int averageOver = 500;
+        int avg = 0;
+        int avgIndex = 0;
         while (true) {
             while (KeyboardController.hasNewEvent()) {
                 KeyboardController.readEvent();
             }
-            Gui.drawFg();
-            Timer.sleep(1000 / 30);
+            int startTick = Timer.getTick();
+            windowManager.drawWindows();
+
+            Display.swap();
+
+            int endTick = Timer.getTick();
+            int diff = endTick - startTick;
+            avg += diff;
+            avgIndex++;
+            if (avgIndex >= averageOver) {
+                avg /= averageOver;
+                avgIndex = 0;
+                int ms = Timer.getTickDifferenceMs(avg);
+                Logger.trace("Window", "Average draw time: ".append(ms).append("ms"));
+                avg = 0;
+            }
+            Timer.sleep(1000 / 20);
         }
     }
 

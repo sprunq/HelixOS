@@ -3,11 +3,11 @@ import shutil
 import subprocess
 import signal
 import platform
-import sys
 import argparse
+from distutils.dir_util import copy_tree
 
 BUILD_DIR = "build_os"
-RESOURCE_DIR = "res"
+RESOURCE_DIR = "include"
 START_DIR = os.getcwd()
 
 def clean_dir(dir : str):
@@ -22,9 +22,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         exit()
 
     clean_dir(BUILD_DIR)
-    # copy content in res/
-    for file in os.listdir(RESOURCE_DIR):
-        shutil.copy(os.path.join(RESOURCE_DIR, file), BUILD_DIR)
+    copy_tree(RESOURCE_DIR, BUILD_DIR)
 
     os.chdir(BUILD_DIR)
 
@@ -32,9 +30,10 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
                             "java", 
                             "-jar", sjc_jar_absolute, 
                             "../src/main",
+                            "../include",
                             "-o", "boot", 
                             "-y", 
-                            "-s", "256k",
+                            "-s", "600k",
                             "-t", "ia32", "-T", "sse3", 
                             "-x"
                             ],

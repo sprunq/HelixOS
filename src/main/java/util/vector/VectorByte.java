@@ -1,18 +1,20 @@
-package util;
+package util.vector;
 
 import kernel.Kernel;
+import util.Array;
+import util.MathH;
 
-public class ByteVector {
+public class VectorByte {
     private static final int DEFAULT_CAPACITY = 10;
     private byte[] elements;
     private int size;
 
-    public ByteVector() {
+    public VectorByte() {
         this.elements = new byte[DEFAULT_CAPACITY];
         this.size = 0;
     }
 
-    public ByteVector(int initialCapacity) {
+    public VectorByte(int initialCapacity) {
         if (initialCapacity < 0)
             Kernel.panic("Illegal Capacity");
         this.elements = new byte[initialCapacity];

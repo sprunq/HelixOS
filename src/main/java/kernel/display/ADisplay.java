@@ -12,4 +12,6 @@ public abstract class ADisplay {
     public abstract void fillrect(int x, int y, int width, int height, int color);
 
     public abstract void setBitmap(int x, int y, int[][] bitmap);
+
+    public abstract void swap();
 }
