@@ -7,16 +7,16 @@ import kernel.memory.Memory;
 import util.BitHelper;
 import util.MathH;
 
-public class VesaGraphics extends ADisplay {
-    public VesaMode curMode;
+public class VESAGraphics extends ADisplay {
+    public VESAMode curMode;
     private byte[] buffer;
     private boolean needsRedraw;
 
-    public VesaGraphics() {
+    public VESAGraphics() {
         curMode = null;
     }
 
-    public void setMode(VesaMode mode) {
+    public void setMode(VESAMode mode) {
         if (mode == null) {
             Kernel.panic("VESAGraphics.setMode: mode is null");
         }

@@ -3,7 +3,7 @@ package kernel.display.vesa;
 import util.IDebug;
 import util.StrBuilder;
 
-public class VesaMode implements IDebug {
+public class VESAMode implements IDebug {
     public final boolean Graphical;
     public final int ModeNr;
     public final int LfbAddress;
@@ -11,7 +11,7 @@ public class VesaMode implements IDebug {
     public final int YRes;
     public final int ColorDepth;
 
-    public VesaMode(int modeNr, int xRes, int yRes, int colDepth, int lfbAddress, boolean graphical) {
+    public VESAMode(int modeNr, int xRes, int yRes, int colDepth, int lfbAddress, boolean graphical) {
         this.ModeNr = modeNr;
         this.XRes = xRes;
         this.YRes = yRes;

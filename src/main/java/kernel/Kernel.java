@@ -5,8 +5,8 @@ import gui.WindowManager;
 import gui.windows.LogTextField;
 import kernel.bios.BIOS;
 import kernel.display.text.TM3Color;
-import kernel.display.vesa.VesaGraphics;
-import kernel.display.vesa.VesaMode;
+import kernel.display.vesa.VESAGraphics;
+import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
 import kernel.display.video.font.Font8x8;
 import kernel.display.ADisplay;
@@ -35,9 +35,9 @@ public class Kernel {
         TmOut.clearScreen();
 
         VectorVesaMode modes = VesaQuery.AvailableModes();
-        VesaMode mode = VesaQuery.GetMode(modes, 1280, 768, 24, true);
+        VESAMode mode = VesaQuery.GetMode(modes, 1280, 768, 24, true);
 
-        VesaGraphics Vesa = new VesaGraphics();
+        VESAGraphics Vesa = new VESAGraphics();
         Vesa.setMode(mode);
         Display = Vesa;
         Display.swap();
@@ -48,7 +48,7 @@ public class Kernel {
             Logger.info("VESA", modes.get(i).dbg());
         }
 
-        WindowManager windowManager = new WindowManager(Vesa);
+        WindowManager windowManager = new WindowManager(Display);
 
         LogTextField logTextField = new LogTextField(0, 0, 4,
                 mode.XRes, mode.YRes,

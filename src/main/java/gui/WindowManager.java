@@ -1,14 +1,14 @@
 package gui;
 
-import kernel.display.vesa.VesaGraphics;
+import kernel.display.ADisplay;
 import util.vector.VectorWindow;
 
 public class WindowManager {
 
     private VectorWindow windows;
-    private VesaGraphics display;
+    private ADisplay display;
 
-    public WindowManager(VesaGraphics display) {
+    public WindowManager(ADisplay display) {
         windows = new VectorWindow();
         this.display = display;
     }

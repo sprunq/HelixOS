@@ -1,31 +1,31 @@
 package util.vector;
 
 import kernel.Kernel;
-import kernel.display.vesa.VesaMode;
+import kernel.display.vesa.VESAMode;
 
 public class VectorVesaMode {
     private static final int DEFAULT_CAPACITY = 10;
-    private VesaMode[] elements;
+    private VESAMode[] elements;
     private int size;
 
     public VectorVesaMode() {
-        this.elements = new VesaMode[DEFAULT_CAPACITY];
+        this.elements = new VESAMode[DEFAULT_CAPACITY];
         this.size = 0;
     }
 
     public VectorVesaMode(int initialCapacity) {
         if (initialCapacity < 0)
             Kernel.panic("Illegal Capacity");
-        this.elements = new VesaMode[initialCapacity];
+        this.elements = new VESAMode[initialCapacity];
         this.size = 0;
     }
 
-    public void add(VesaMode element) {
+    public void add(VESAMode element) {
         ensureCapacity(size + 1);
         elements[size++] = element;
     }
 
-    public VesaMode get(int index) {
+    public VESAMode get(int index) {
         if (index < 0 || index >= size)
             Kernel.panic("Index out of bounds for vector access");
         return elements[index];
@@ -42,7 +42,7 @@ public class VectorVesaMode {
                 newCapacity = minCapacity;
             }
 
-            VesaMode[] newElements = new VesaMode[newCapacity];
+            VESAMode[] newElements = new VESAMode[newCapacity];
             for (int i = 0; i < size; i++) {
                 newElements[i] = elements[i];
             }

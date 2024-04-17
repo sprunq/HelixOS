@@ -60,7 +60,7 @@ public class VesaQuery {
                 int YRes = Integer.ushort(modeInfo.yRes);
                 int ColorDepth = Integer.ubyte(modeInfo.colDepth);
                 int LfbAddress = modeInfo.lfbAddress;
-                VesaMode mode = new VesaMode(vesaMode, XRes, YRes, ColorDepth, LfbAddress, isGraphical);
+                VESAMode mode = new VESAMode(vesaMode, XRes, YRes, ColorDepth, LfbAddress, isGraphical);
                 modes.add(mode);
             }
         }
@@ -69,9 +69,9 @@ public class VesaQuery {
         return modes;
     }
 
-    public static VesaMode GetMode(VectorVesaMode modes, int xRes, int yRes, int colDepth, boolean graphical) {
+    public static VESAMode GetMode(VectorVesaMode modes, int xRes, int yRes, int colDepth, boolean graphical) {
         for (int i = 0; i < modes.size(); i++) {
-            VesaMode mode = modes.get(i);
+            VESAMode mode = modes.get(i);
             if (mode.XRes == xRes && mode.YRes == yRes && mode.ColorDepth == colDepth && mode.Graphical == graphical) {
                 return mode;
             }
@@ -82,7 +82,7 @@ public class VesaQuery {
     public static String ModesToStr(VectorVesaMode modes) {
         StrBuilder sb = new StrBuilder();
         for (int i = 0; i < modes.size(); i++) {
-            VesaMode mode = modes.get(i);
+            VESAMode mode = modes.get(i);
             sb.dbgLine(mode);
         }
         return sb.toString();
