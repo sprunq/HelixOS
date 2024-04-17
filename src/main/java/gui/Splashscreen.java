@@ -13,7 +13,7 @@ public class Splashscreen {
         }
         BinImage logo = Logo.load();
         BinImage logoText = LogoText.load();
-        int spaceBetween = 10;
+        int spaceBetween = 20;
         int combinedHeight = logo.Height + logoText.Height + spaceBetween;
 
         int backColor = Kernel.Display.rgb(0, 13, 40);

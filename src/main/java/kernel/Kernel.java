@@ -42,7 +42,7 @@ public class Kernel {
         Display = Vesa;
         Display.swap();
 
-        Splashscreen.show(000);
+        Splashscreen.show(4000);
 
         for (int i = 0; i < modes.size(); i++) {
             Logger.info("VESA", modes.get(i).dbg());

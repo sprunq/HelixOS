@@ -73,7 +73,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         os.kill(os.getppid(), signal.SIGHUP)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='ToOS Build tool')
+    parser = argparse.ArgumentParser(prog='HelixOS Build tool')
     parser.add_argument('--sjc', metavar='path_to_jar', type=str, required=True, help='path to the sjc jar file')
     parser.add_argument('--autoclose', action='store_true', help='auto close terminal after completion')
     parser.add_argument('--cleanup', action='store_true', help='delete build directory after completion')
