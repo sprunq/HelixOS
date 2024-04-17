@@ -35,24 +35,28 @@ public class Kernel {
         TmOut.clearScreen();
 
         VectorVesaMode modes = VesaQuery.AvailableModes();
-        VesaMode mode = VesaQuery.GetMode(modes, 1024, 768, 24, true);
+        VesaMode mode = VesaQuery.GetMode(modes, 1280, 768, 24, true);
 
         VesaGraphics Vesa = new VesaGraphics();
         Vesa.setMode(mode);
         Display = Vesa;
         Display.swap();
 
-        Splashscreen.show();
+        Splashscreen.show(000);
+
+        for (int i = 0; i < modes.size(); i++) {
+            Logger.info("VESA", modes.get(i).dbg());
+        }
 
         WindowManager windowManager = new WindowManager(Vesa);
 
         LogTextField logTextField = new LogTextField(0, 0, 4,
                 mode.XRes, mode.YRes,
-                0, 0, 0,
+                8, 0, 1,
                 Font8x8.Instance);
         windowManager.addWindow(logTextField);
 
-        int averageOver = 500;
+        int averageOver = 100;
         int avg = 0;
         int avgIndex = 0;
         while (true) {
@@ -75,7 +79,7 @@ public class Kernel {
                 Logger.trace("Window", "Average draw time: ".append(ms).append("ms"));
                 avg = 0;
             }
-            Timer.sleep(1000 / 20);
+            Timer.sleep(1000 / 60);
         }
     }
 

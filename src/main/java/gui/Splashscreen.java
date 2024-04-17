@@ -7,7 +7,10 @@ import util.images.Logo;
 import util.images.LogoText;
 
 public class Splashscreen {
-    public static void show() {
+    public static void show(int time) {
+        if (time <= 0) {
+            return;
+        }
         BinImage logo = Logo.load();
         BinImage logoText = LogoText.load();
         int spaceBetween = 10;
@@ -26,7 +29,7 @@ public class Splashscreen {
         Kernel.Display.setBitmap(x_text, y_text, logoText.PixelData);
 
         Kernel.Display.swap();
-        Timer.sleep(4000);
+        Timer.sleep(time);
         Kernel.Display.fillrect(0, 0, Kernel.Display.Width(), Kernel.Display.Height(), backColor);
         Kernel.Display.swap();
     }

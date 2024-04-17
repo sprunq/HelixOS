@@ -4,6 +4,7 @@ import gui.AWindow;
 import kernel.Kernel;
 import kernel.display.ADisplay;
 import kernel.display.video.font.AFont;
+import kernel.hardware.keyboard.Key;
 
 public class TextField extends AWindow {
 
@@ -44,10 +45,6 @@ public class TextField extends AWindow {
         _fg = fg;
         _bg = bg;
         _font = font;
-        X = x;
-        Y = y;
-        Width = width;
-        Height = height;
         SpacingBorder = borderSpacing;
         SpacingW = charSpacing + font.getSpacingW();
         SpacingH = lineSpacing + font.getSpacingH();
@@ -79,6 +76,7 @@ public class TextField extends AWindow {
         _cursorX++;
     }
 
+    @SJC.Inline
     public void carriageReturn() {
         _cursorX = 0;
         _cursorY++;
@@ -134,13 +132,20 @@ public class TextField extends AWindow {
     @Override
     public void draw(ADisplay display) {
         Kernel.Display.fillrect(X, Y, Width, Height, _bg);
-
+        int xFactor = _font.getWidth() + SpacingW;
+        int yFactor = _font.getHeight() + SpacingH;
+        int xOffset = this.X + SpacingBorder;
+        int yOffset = this.Y + SpacingBorder;
         for (int i = 0; i < LineCount; i++) {
             for (int j = 0; j < LineLength; j++) {
-                int x = this.X + j * (_font.getWidth() + SpacingW) + SpacingBorder;
-                int y = this.Y + i * (_font.getHeight() + SpacingH) + SpacingBorder;
                 int character = _characters[i][j];
                 int characterColor = _characterColors[i][j];
+                // Skip rendering if the character is not visible
+                if (characterColor == _bg || Key.ascii(character) == 0) {
+                    continue;
+                }
+                int x = xOffset + j * xFactor;
+                int y = yOffset + i * yFactor;
                 _fontBuffer = _font.renderToBitmap(_fontBuffer, character, characterColor, _bg);
                 Kernel.Display.setBitmap(x, y, _fontBuffer);
             }

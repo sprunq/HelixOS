@@ -80,11 +80,11 @@ public class LogTextField extends TextField {
                             break;
                     }
                     setBrushColor(color);
-                    write(time);
-                    write(" ");
                     write("<");
-                    write(cat);
+                    write(time);
                     write("> ");
+                    write(cat);
+                    write(": ");
                     write(msg);
                     newLine();
                 }
