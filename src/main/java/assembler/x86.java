@@ -34,4 +34,12 @@ public class x86 {
     public static void breakpoint() {
         MAGIC.inline(0xCC);
     }
+
+    /*
+     * Halt
+     */
+    @SJC.Inline
+    public static void hlt() {
+        MAGIC.inline(0xF4);
+    }
 }

@@ -27,9 +27,10 @@ public class Splashscreen {
         int y_text = y + logo.Height + spaceBetween;
 
         Kernel.Display.setBitmap(x_text, y_text, logoText.PixelData);
-
         Kernel.Display.swap();
+
         Timer.sleep(time);
+
         Kernel.Display.fillrect(0, 0, Kernel.Display.Width(), Kernel.Display.Height(), backColor);
         Kernel.Display.swap();
     }
