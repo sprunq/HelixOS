@@ -1,5 +1,6 @@
 package kernel.display.video.font;
 
+import kernel.display.ADisplay;
 import util.BitHelper;
 
 /*
@@ -55,7 +56,7 @@ public class Font8x8 extends AFont {
     }
 
     @Override
-    public int[][] renderToBitmap(int[][] bitmap, int ch, int color, int backColor) {
+    public void renderToDisplay(ADisplay display, int x, int y, int ch, int color, int backColor) {
         int fontWidth = getWidth();
         int fontHeight = getHeight();
         boolean fontVertical = isVertical();
@@ -64,23 +65,22 @@ public class Font8x8 extends AFont {
             int b = getCharacterBitmapLine(ch, charLine);
             for (int lineBit = 0; lineBit < fontWidth; lineBit++) {
                 int bit = BitHelper.getBit(b, lineBit);
-                int posX;
-                int posY;
+                int posX = x;
+                int posY = y;
                 if (fontVertical) {
-                    posX = charLine;
-                    posY = lineBit;
+                    posX += charLine;
+                    posY += lineBit;
                 } else {
-                    posX = lineBit;
-                    posY = charLine;
+                    posX += lineBit;
+                    posY += charLine;
                 }
                 if (bit == 1) {
-                    bitmap[posX][posY] = color;
+                    display.setPixel(posX, posY, color);
                 } else {
-                    bitmap[posX][posY] = backColor;
+                    display.setPixel(posX, posY, backColor);
                 }
             }
         }
-        return bitmap;
     }
 
     private static final byte[] FONT_BYTES = {
@@ -181,5 +181,4 @@ public class Font8x8 extends AFont {
             0x6E, 0x3B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // U+007E (~)
             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // U+007F
     };
-
 }

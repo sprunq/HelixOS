@@ -24,7 +24,6 @@ public class TextField extends AWindow {
     protected int[][] _characterColors;
 
     protected AFont _font;
-    protected int[][] _fontBuffer;
 
     public TextField(
             int x,
@@ -52,7 +51,6 @@ public class TextField extends AWindow {
         LineCount = (height - borderSpacing * 2) / (font.getHeight() + SpacingH);
         _characters = new byte[LineCount][LineLength];
         _characterColors = new int[LineCount][LineLength];
-        _fontBuffer = new int[font.getHeight()][font.getWidth()];
     }
 
     public void setCursor(int x, int y) {
@@ -146,8 +144,7 @@ public class TextField extends AWindow {
                 }
                 int x = xOffset + j * xFactor;
                 int y = yOffset + i * yFactor;
-                _fontBuffer = _font.renderToBitmap(_fontBuffer, character, characterColor, _bg);
-                Kernel.Display.setBitmap(x, y, _fontBuffer);
+                _font.renderToDisplay(display, x, y, character, characterColor, _bg);
             }
         }
     }

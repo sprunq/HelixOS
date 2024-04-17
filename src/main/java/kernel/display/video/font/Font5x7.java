@@ -1,7 +1,5 @@
 package kernel.display.video.font;
 
-import kernel.Kernel;
-
 /*
  * Bitmap from:
  * https://github.com/BaronWilliams/Vertical-Fonts/blob/master/font5x7.c
@@ -18,12 +16,12 @@ public class Font5x7 extends AFont {
 
     @Override
     public int getWidth() {
-        return FONT_HEIGHT;
+        return FONT_WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return FONT_WIDTH;
+        return FONT_HEIGHT;
     }
 
     @Override
@@ -33,12 +31,12 @@ public class Font5x7 extends AFont {
 
     @Override
     public int getSpacingW() {
-        return 0;
+        return 1;
     }
 
     @Override
     public int getSpacingH() {
-        return 3;
+        return 0;
     }
 
     public int getCharacterBitmapLine(int ch, int offset) {
@@ -150,10 +148,4 @@ public class Font5x7 extends AFont {
             0x41, 0x41, 0x36, 0x08, 0x00, // '}' 125
             0x02, 0x01, 0x02, 0x04, 0x02, // '~' 126
     };
-
-    @Override
-    public int[][] renderToBitmap(int[][] bitmap, int ch, int color, int backColor) {
-        Kernel.todo("Font5x7.renderToBitmap");
-        return null;
-    }
 }

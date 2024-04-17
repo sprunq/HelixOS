@@ -102,10 +102,6 @@ public class LogTextField extends TextField {
     @Override
     public boolean needsRedraw() {
         int logTicks = Logger.getLogTicks();
-        boolean dirty = logTicks != lastLogTick;
-        if (dirty) {
-            Logger.trace("LogField", "Dirty");
-        }
-        return dirty;
+        return logTicks != lastLogTick;
     }
 }

@@ -8,7 +8,7 @@ import kernel.display.text.TM3Color;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
-import kernel.display.video.font.Font8x8;
+import kernel.display.video.font.Font9x16;
 import kernel.display.ADisplay;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
@@ -42,7 +42,9 @@ public class Kernel {
         Display = Vesa;
         Display.swap();
 
-        Splashscreen.show(4000);
+        Display.swap();
+
+        Splashscreen.show(5000);
 
         for (int i = 0; i < modes.size(); i++) {
             Logger.info("VESA", modes.get(i).dbg());
@@ -53,7 +55,7 @@ public class Kernel {
         LogTextField logTextField = new LogTextField(0, 0, 4,
                 mode.XRes, mode.YRes,
                 8, 0, 1,
-                Font8x8.Instance);
+                Font9x16.Instance);
         windowManager.addWindow(logTextField);
 
         int averageOver = 100;
@@ -76,7 +78,7 @@ public class Kernel {
                 avg /= averageOver;
                 avgIndex = 0;
                 int ms = Timer.getTickDifferenceMs(avg);
-                Logger.trace("Window", "Average draw time: ".append(ms).append("ms"));
+                Logger.info("Window", "Average draw time: ".append(ms).append("ms"));
                 avg = 0;
             }
             Timer.sleep(1000 / 60);
