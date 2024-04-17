@@ -1,10 +1,10 @@
 package gui.windows;
 
 import kernel.Kernel;
-import kernel.LogEntry;
-import kernel.Logger;
 import kernel.display.ADisplay;
 import kernel.display.video.font.AFont;
+import util.logging.LogEntry;
+import util.logging.Logger;
 
 public class LogTextField extends TextField {
 
@@ -35,9 +35,8 @@ public class LogTextField extends TextField {
                 charSpacing,
                 lineSpacing,
                 Kernel.Display.rgb(0, 255, 0),
-                Kernel.Display.rgb(100, 100, 100),
+                Kernel.Display.rgb(0, 13, 40),
                 font);
-
         COL_FATAL = Kernel.Display.rgb(255, 0, 0);
         COL_ERROR = Kernel.Display.rgb(200, 0, 0);
         COL_WARNING = Kernel.Display.rgb(255, 230, 0);

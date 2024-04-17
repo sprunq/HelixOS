@@ -1,4 +1,4 @@
-package kernel;
+package util.logging;
 
 import kernel.hardware.RTC;
 import util.StrBuilder;

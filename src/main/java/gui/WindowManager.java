@@ -1,5 +1,6 @@
 package gui;
 
+import gui.windows.AWindow;
 import kernel.display.ADisplay;
 import util.vector.VectorWindow;
 

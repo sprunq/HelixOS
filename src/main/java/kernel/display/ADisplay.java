@@ -14,4 +14,6 @@ public abstract class ADisplay {
     public abstract void setBitmap(int x, int y, int[][] bitmap);
 
     public abstract void swap();
+
+    public abstract void clearScreen();
 }

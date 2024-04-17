@@ -1,8 +1,8 @@
 package kernel;
 
-import gui.Splashscreen;
 import gui.WindowManager;
 import gui.windows.LogTextField;
+import gui.windows.Splashscreen;
 import kernel.bios.BIOS;
 import kernel.display.text.TM3Color;
 import kernel.display.vesa.VESAGraphics;
@@ -17,6 +17,7 @@ import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
+import util.logging.Logger;
 import util.vector.VectorVesaMode;
 
 public class Kernel {
@@ -35,39 +36,32 @@ public class Kernel {
         TmOut.clearScreen();
 
         VectorVesaMode modes = VesaQuery.AvailableModes();
-        VESAMode mode = VesaQuery.GetMode(modes, 1280, 768, 24, true);
-
-        VESAGraphics Vesa = new VESAGraphics();
-        Vesa.setMode(mode);
-        Display = Vesa;
-        Display.swap();
-
-        Display.swap();
-
-        Splashscreen.show(5000);
-
         for (int i = 0; i < modes.size(); i++) {
             Logger.info("VESA", modes.get(i).dbg());
         }
 
+        VESAMode mode = VesaQuery.GetMode(modes, 1280, 768, 24, true);
+        VESAGraphics Vesa = new VESAGraphics();
+        Vesa.setMode(mode);
+        Display = Vesa;
+
+        Splashscreen.show(5000);
+
         WindowManager windowManager = new WindowManager(Display);
 
-        LogTextField logTextField = new LogTextField(0, 0, 4,
-                mode.XRes, mode.YRes,
-                8, 0, 1,
-                Font9x16.Instance);
-        windowManager.addWindow(logTextField);
+        buildGuiEnvironment(windowManager);
 
-        int averageOver = 100;
+        int averageOver = 500;
         int avg = 0;
         int avgIndex = 0;
         while (true) {
             while (KeyboardController.hasNewEvent()) {
                 KeyboardController.readEvent();
             }
-            int startTick = Timer.getTick();
-            windowManager.drawWindows();
 
+            int startTick = Timer.getTick();
+
+            windowManager.drawWindows();
             Display.swap();
 
             int endTick = Timer.getTick();
@@ -77,12 +71,27 @@ public class Kernel {
             if (avgIndex >= averageOver) {
                 avg /= averageOver;
                 avgIndex = 0;
-                int ms = Timer.getTickDifferenceMs(avg);
-                Logger.info("Window", "Average draw time: ".append(ms).append("ms"));
+                int msAvg = Timer.getTickDifferenceMs(avg);
+                Logger.trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
                 avg = 0;
             }
             Timer.sleep(1000 / 60);
         }
+    }
+
+    private static void buildGuiEnvironment(WindowManager windowManager) {
+        LogTextField logTextField = new LogTextField(
+                0,
+                0,
+                4,
+                Kernel.Display.Width(),
+                Kernel.Display.Height(),
+                8,
+                0,
+                1,
+                Font9x16.Instance);
+
+        windowManager.addWindow(logTextField);
     }
 
     public static void panic(String msg) {

@@ -1,4 +1,4 @@
-package util.images;
+package gui.images;
 
 public class LogoText extends BinImage {
     protected LogoText(byte[] data) {

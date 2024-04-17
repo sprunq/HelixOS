@@ -1,9 +1,9 @@
 package kernel.bios;
 
-import kernel.Logger;
 import kernel.MemoryLayout;
 import kernel.interrupt.IDT;
 import util.StrBuilder;
+import util.logging.Logger;
 
 public class BIOS {
     public final static BIOSRegs Registers = (BIOSRegs) MAGIC.cast2Struct(MemoryLayout.BIOS_STKBSE);

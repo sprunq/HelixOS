@@ -1,6 +1,6 @@
 package util.vector;
 
-import gui.AWindow;
+import gui.windows.AWindow;
 import kernel.Kernel;
 
 public class VectorWindow {

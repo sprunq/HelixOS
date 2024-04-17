@@ -1,4 +1,4 @@
-package kernel;
+package util.logging;
 
 public class LogEntry {
     private String message;

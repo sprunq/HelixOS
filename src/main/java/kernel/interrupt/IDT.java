@@ -1,10 +1,10 @@
 package kernel.interrupt;
 
 import assembler.x86;
-import kernel.Logger;
 import kernel.MemoryLayout;
 import rte.SClassDesc;
 import util.BitHelper;
+import util.logging.Logger;
 
 /**
  * The Interrupt Descriptor Table

@@ -1,10 +1,10 @@
-package gui;
+package gui.windows;
 
+import gui.images.BinImage;
+import gui.images.Logo;
+import gui.images.LogoText;
 import kernel.Kernel;
 import kernel.hardware.Timer;
-import util.images.BinImage;
-import util.images.Logo;
-import util.images.LogoText;
 
 public class Splashscreen {
     public static void show(int time) {

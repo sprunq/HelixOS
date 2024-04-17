@@ -1,8 +1,8 @@
 package kernel.hardware.keyboard;
 
-import kernel.Logger;
 import kernel.hardware.keyboard.layout.ALayout;
 import util.BitHelper;
+import util.logging.Logger;
 
 public class KeyboardController {
     private static final int PORT_KEYCODE = 0x60;

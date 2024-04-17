@@ -1,6 +1,5 @@
 package gui.windows;
 
-import gui.AWindow;
 import kernel.Kernel;
 import kernel.display.ADisplay;
 import kernel.display.video.font.AFont;
@@ -130,6 +129,7 @@ public class TextField extends AWindow {
     @Override
     public void draw(ADisplay display) {
         Kernel.Display.fillrect(X, Y, Width, Height, _bg);
+
         int xFactor = _font.getWidth() + SpacingW;
         int yFactor = _font.getHeight() + SpacingH;
         int xOffset = this.X + SpacingBorder;

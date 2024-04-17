@@ -1,4 +1,4 @@
-package util.images;
+package gui.images;
 
 import kernel.Kernel;
 

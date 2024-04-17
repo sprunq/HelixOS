@@ -1,4 +1,4 @@
-package gui;
+package gui.windows;
 
 import kernel.display.ADisplay;
 

@@ -6,6 +6,7 @@ import kernel.display.ADisplay;
 import kernel.memory.Memory;
 import util.BitHelper;
 import util.MathH;
+import util.logging.Logger;
 
 public class VESAGraphics extends ADisplay {
     public VESAMode curMode;
@@ -26,6 +27,7 @@ public class VESAGraphics extends ADisplay {
         curMode = mode;
         buffer = new byte[curMode.XRes * curMode.YRes * 3];
         needsRedraw = true;
+        Logger.info("VESA", "setMode to ".append(curMode.dbg()));
     }
 
     @Override
@@ -40,11 +42,19 @@ public class VESAGraphics extends ADisplay {
 
     @Override
     public void fillrect(int x, int y, int width, int height, int color) {
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                setPixel(x + j, y + i, color);
-            }
+        if (curMode == null) {
+            Kernel.panic("VESAGraphics.fillrect: mode is null");
         }
+        if (x < 0 || y < 0 || x + width > curMode.XRes || y + height > curMode.YRes) {
+            Kernel.panic("VESAGraphics.fillrect: invalid parameters");
+        }
+
+        if (curMode.ColorDepth == 24) {
+            fillrect24(x, y, width, height, color);
+        } else {
+            Kernel.panic("VESAGraphics.fillrect: unsupported color depth");
+        }
+
     }
 
     @Override
@@ -73,9 +83,9 @@ public class VESAGraphics extends ADisplay {
 
         if (curMode.ColorDepth == 24) {
             int addr = (x + y * curMode.XRes) * 3;
-            buffer[addr] = (byte) col;
-            buffer[addr + 1] = (byte) (col >>> 8);
-            buffer[addr + 2] = (byte) (col >>> 16);
+            int addrR = MAGIC.addr(buffer[addr]);
+            MAGIC.wMem8(addrR, (byte) col);
+            MAGIC.wMem16(addrR + 1, (short) (col >> 8));
         } else {
             Kernel.panic("VESAGraphics.setPixel: unsupported color depth");
         }
@@ -107,5 +117,29 @@ public class VESAGraphics extends ADisplay {
             }
         }
         needsRedraw = false;
+    }
+
+    @Override
+    public void clearScreen() {
+        int from = MAGIC.addr(buffer[0]);
+        int len = buffer.length;
+        Memory.setBytes(from, len, (byte) 0);
+    }
+
+    /*
+     * Fill a rectangle with a color in 24-bit mode.
+     * Somwhat optimized version.
+     */
+    @SJC.Inline
+    private void fillrect24(int x, int y, int width, int height, int color) {
+        int lineStart = (x + y * curMode.XRes) * 3;
+        int lastLine = (x + (y + height) * curMode.XRes) * 3;
+        for (int i = lineStart; i < lastLine; i += curMode.XRes * 3) {
+            int lineStartAddr = MAGIC.addr(buffer[i]);
+            for (int j = 0; j < width * 3; j += 3) {
+                MAGIC.wMem8(lineStartAddr + j, (byte) color);
+                MAGIC.wMem16(lineStartAddr + j + 1, (short) (color >> 8));
+            }
+        }
     }
 }
