@@ -49,7 +49,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         exit()
     
     subprocess.run([
-        "qemu-system-i386", 
+        "qemu-system-x86_64", 
         "-m", "1024", 
         "-boot", "a", 
         "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy", 

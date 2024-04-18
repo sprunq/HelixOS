@@ -16,6 +16,7 @@ import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
+import kernel.memory.Memory;
 import kernel.memory.MemoryManager;
 import util.logging.Logger;
 import util.vector.VectorVesaMode;
@@ -24,6 +25,7 @@ public class Kernel {
     public static ADisplay Display;
 
     public static void main() {
+        Memory.enableSSE3();
         MemoryManager.initialize();
         Logger.initialize(Logger.TRACE, 200);
         KeyboardController.initialize(QWERTZ.Instance);

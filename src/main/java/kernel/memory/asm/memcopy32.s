@@ -1,10 +1,7 @@
-/*
-* File needs to be copied to include folder!
-*/
+; File needs to be copied to include folder!
 
 section .text
 bits 32
-
 
 var_offset_from  EQU 16
 var_offset_to    EQU 12
