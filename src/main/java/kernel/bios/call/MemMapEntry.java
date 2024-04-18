@@ -1,4 +1,4 @@
-package kernel.bios;
+package kernel.bios.call;
 
 public class MemMapEntry {
     public final long Base;

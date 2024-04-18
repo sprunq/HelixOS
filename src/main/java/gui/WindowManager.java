@@ -2,6 +2,7 @@ package gui;
 
 import gui.windows.AWindow;
 import kernel.display.ADisplay;
+import kernel.hardware.Timer;
 import util.vector.VectorWindow;
 
 public class WindowManager {
@@ -26,5 +27,12 @@ public class WindowManager {
                 window.draw(display);
             }
         }
+    }
+
+    public void staticDisplayFor(int ms) {
+        drawWindows();
+        display.swap();
+        Timer.sleep(ms);
+        display.clearScreen();
     }
 }

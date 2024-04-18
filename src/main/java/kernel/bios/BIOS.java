@@ -2,8 +2,6 @@ package kernel.bios;
 
 import kernel.MemoryLayout;
 import kernel.interrupt.IDT;
-import util.StrBuilder;
-import util.logging.Logger;
 
 public class BIOS {
     public final static BIOSRegs Registers = (BIOSRegs) MAGIC.cast2Struct(MemoryLayout.BIOS_STKBSE);
@@ -19,45 +17,6 @@ public class BIOS {
     public final static short F_OVER = 0x0800;
 
     private static boolean _initDone;
-
-    @SJC.Inline
-    public static void activateGraphicsMode() {
-        BIOS.Registers.EAX = 0x0013;
-        BIOS.rint(0x10);
-    }
-
-    @SJC.Inline
-    public static void activateTextMode() {
-        BIOS.Registers.EAX = 0x0003;
-        BIOS.rint(0x10);
-    }
-
-    public static MemMapEntry memMap(int idx) {
-        Logger.trace("BIOS", new StrBuilder().append("memMap(").append(idx).append(")").toString());
-        execMemMap(idx);
-        return readMemMap();
-    }
-
-    public static int getMemMapContinuationIndex() {
-        return Registers.EBX;
-    }
-
-    private static void execMemMap(int idx) {
-        Registers.EAX = 0x0000E820;
-        Registers.EDX = 0x534D4150;
-        Registers.EBX = idx;
-        Registers.ES = (short) (MemoryLayout.BIOS_BUFFER_MEMMAP_START >>> 4);
-        Registers.EDI = MemoryLayout.BIOS_BUFFER_MEMMAP_START & 0xF;
-        Registers.ECX = MemoryLayout.BIOS_BUFFER_MEMMAP_SIZE;
-        rint(0x15);
-    }
-
-    private static MemMapEntry readMemMap() {
-        long base = MAGIC.rMem64(MemoryLayout.BIOS_BUFFER_MEMMAP_START);
-        long length = MAGIC.rMem64(MemoryLayout.BIOS_BUFFER_MEMMAP_START + 8);
-        int type = MAGIC.rMem32(MemoryLayout.BIOS_BUFFER_MEMMAP_START + 16);
-        return new MemMapEntry(base, length, type);
-    }
 
     // -------------------------------------------------------- call BIOS-IRQ
     // ------------------------------------

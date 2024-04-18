@@ -3,7 +3,7 @@ package kernel;
 import gui.WindowManager;
 import gui.windows.LogTextField;
 import gui.windows.Splashscreen;
-import kernel.bios.BIOS;
+import kernel.bios.call.DisplayModes;
 import kernel.display.text.TM3Color;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
@@ -36,22 +36,29 @@ public class Kernel {
         TmOut.clearScreen();
 
         VectorVesaMode modes = VesaQuery.AvailableModes();
+        Logger.info("VESA", "Available VESA modes:");
         for (int i = 0; i < modes.size(); i++) {
             Logger.info("VESA", modes.get(i).dbg());
         }
 
-        VESAMode mode = VesaQuery.GetMode(modes, 1280, 768, 24, true);
-        VESAGraphics Vesa = new VESAGraphics();
-        Vesa.setMode(mode);
-        Display = Vesa;
+        VESAMode mode = VesaQuery.GetMode(
+                modes,
+                1440,
+                900,
+                32,
+                true);
 
-        Splashscreen.show(5000);
+        Display = new VESAGraphics(mode);
+        Display.activate();
+
+        WindowManager winManSplashScreen = new WindowManager(Display);
+        buildSplashScreen(winManSplashScreen);
+        winManSplashScreen.staticDisplayFor(3000);
 
         WindowManager windowManager = new WindowManager(Display);
-
         buildGuiEnvironment(windowManager);
 
-        int averageOver = 500;
+        int averageOver = 100;
         int avg = 0;
         int avgIndex = 0;
         while (true) {
@@ -79,7 +86,18 @@ public class Kernel {
         }
     }
 
+    private static void buildSplashScreen(WindowManager winManSplashScreen) {
+        Splashscreen splash = new Splashscreen(
+                0,
+                0,
+                0,
+                Kernel.Display.Width(),
+                Kernel.Display.Height());
+        winManSplashScreen.addWindow(splash);
+    }
+
     private static void buildGuiEnvironment(WindowManager windowManager) {
+
         LogTextField logTextField = new LogTextField(
                 0,
                 0,
@@ -95,7 +113,7 @@ public class Kernel {
     }
 
     public static void panic(String msg) {
-        BIOS.activateTextMode();
+        DisplayModes.activateTextMode();
         final byte colBorder = TM3Color.set(TM3Color.BLACK, TM3Color.RED);
         final byte colTextMsg = TM3Color.set(TM3Color.LIGHT_RED, TM3Color.BLACK);
         final byte colTextPanic = TM3Color.set(TM3Color.RED, TM3Color.BLACK);

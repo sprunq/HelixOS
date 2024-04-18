@@ -4,19 +4,33 @@ import gui.images.BinImage;
 import gui.images.Logo;
 import gui.images.LogoText;
 import kernel.Kernel;
-import kernel.hardware.Timer;
+import kernel.display.ADisplay;
 
-public class Splashscreen {
-    public static void show(int time) {
+public class Splashscreen extends AWindow {
+    private BinImage logo;
+    private BinImage logoText;
+    private int spaceBetween;
+    private int combinedHeight;
+    private int backColor;
+
+    public Splashscreen(int x, int y, int z, int width, int height) {
+        super(x, y, z, width, height);
+        logo = Logo.load();
+        logoText = LogoText.load();
+        spaceBetween = 20;
+        combinedHeight = logo.Height + logoText.Height + spaceBetween;
+        backColor = Kernel.Display.rgb(0, 13, 40);
+    }
+
+    public void show(int time) {
         if (time <= 0) {
             return;
         }
-        BinImage logo = Logo.load();
-        BinImage logoText = LogoText.load();
-        int spaceBetween = 20;
-        int combinedHeight = logo.Height + logoText.Height + spaceBetween;
 
-        int backColor = Kernel.Display.rgb(0, 13, 40);
+    }
+
+    @Override
+    public void draw(ADisplay display) {
         Kernel.Display.fillrect(0, 0, Kernel.Display.Width(), Kernel.Display.Height(), backColor);
 
         int x = Kernel.Display.Width() / 2 - logo.Width / 2;
@@ -27,11 +41,10 @@ public class Splashscreen {
         int y_text = y + logo.Height + spaceBetween;
 
         Kernel.Display.setBitmap(x_text, y_text, logoText.PixelData);
-        Kernel.Display.swap();
+    }
 
-        Timer.sleep(time);
-
-        Kernel.Display.fillrect(0, 0, Kernel.Display.Width(), Kernel.Display.Height(), backColor);
-        Kernel.Display.swap();
+    @Override
+    public boolean needsRedraw() {
+        return true;
     }
 }

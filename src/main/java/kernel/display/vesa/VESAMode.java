@@ -1,5 +1,6 @@
 package kernel.display.vesa;
 
+import kernel.Kernel;
 import util.IDebug;
 import util.StrBuilder;
 
@@ -30,5 +31,22 @@ public class VESAMode implements IDebug {
                 .append(", Graphical: ").append(Graphical)
                 .append(")");
         return sb.toString();
+    }
+
+    public int bytesPerColor() {
+        switch (ColorDepth) {
+            case 8:
+                return 1;
+            case 15:
+            case 16:
+                return 2;
+            case 24:
+                return 3;
+            case 32:
+                return 4;
+            default:
+                Kernel.panic("VESAMode.bytesPerColor: unsupported color depth");
+                return 0;
+        }
     }
 }
