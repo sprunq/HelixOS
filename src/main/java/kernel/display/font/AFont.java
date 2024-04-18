@@ -1,4 +1,4 @@
-package kernel.display.tm3;
+package kernel.display.font;
 
 import kernel.display.ADisplay;
 import util.BitHelper;
@@ -17,7 +17,7 @@ public abstract class AFont {
 
     public abstract boolean isVertical();
 
-    public void renderToDisplay(ADisplay display, int x, int y, int ch, int color, int backColor) {
+    public void renderToDisplay(ADisplay display, int x, int y, int ch, int color) {
         int fontWidth = getWidth();
         int fontHeight = getHeight();
         boolean fontVertical = isVertical();
@@ -37,8 +37,6 @@ public abstract class AFont {
                 }
                 if (bit == 1) {
                     display.setPixel(posX, posY, color);
-                } else {
-                    display.setPixel(posX, posY, backColor);
                 }
             }
         }

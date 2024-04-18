@@ -3,13 +3,14 @@ package kernel;
 import gui.WindowManager;
 import gui.windows.LogTextField;
 import gui.windows.Splashscreen;
+import gui.windows.TextField;
 import kernel.bios.call.DisplayModes;
 import kernel.display.text.TM3Color;
-import kernel.display.tm3.Font9x16;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
 import kernel.display.ADisplay;
+import kernel.display.font.Font9x16;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
@@ -49,7 +50,7 @@ public class Kernel {
 
         WindowManager winManSplashScreen = new WindowManager(Display);
         buildSplashScreen(winManSplashScreen);
-        winManSplashScreen.staticDisplayFor(3000);
+        winManSplashScreen.staticDisplayFor(1000);
 
         WindowManager windowManager = new WindowManager(Display);
         buildGuiEnvironment(windowManager);

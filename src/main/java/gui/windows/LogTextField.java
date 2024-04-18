@@ -2,7 +2,7 @@ package gui.windows;
 
 import kernel.Kernel;
 import kernel.display.ADisplay;
-import kernel.display.tm3.AFont;
+import kernel.display.font.AFont;
 import util.logging.LogEntry;
 import util.logging.Logger;
 

@@ -2,16 +2,16 @@ package gui.windows;
 
 import kernel.Kernel;
 import kernel.display.ADisplay;
-import kernel.display.tm3.AFont;
+import kernel.display.font.AFont;
 import kernel.hardware.keyboard.Key;
 
 public class TextField extends AWindow {
 
-    public final int SpacingBorder;
-    public final int SpacingW;
-    public final int SpacingH;
-    public final int LineLength;
-    public final int LineCount;
+    public int SpacingBorder;
+    public int SpacingW;
+    public int SpacingH;
+    public int LineLength;
+    public int LineCount;
 
     protected int _cursorX;
     protected int _cursorY;
@@ -63,7 +63,7 @@ public class TextField extends AWindow {
 
     public void write(byte c) {
         if (_cursorX >= LineLength) {
-            carriageReturn();
+            newLine();
         }
         if (_cursorY >= LineCount) {
             newLine();
@@ -73,14 +73,9 @@ public class TextField extends AWindow {
         _cursorX++;
     }
 
-    @SJC.Inline
-    public void carriageReturn() {
+    public void newLine() {
         _cursorX = 0;
         _cursorY++;
-    }
-
-    public void newLine() {
-        carriageReturn();
         if (_cursorY >= LineCount) {
             scroll();
             _cursorY--;
@@ -132,8 +127,8 @@ public class TextField extends AWindow {
 
         int xFactor = _font.getWidth() + SpacingW;
         int yFactor = _font.getHeight() + SpacingH;
-        int xOffset = this.X + SpacingBorder;
-        int yOffset = this.Y + SpacingBorder;
+        int xOffset = X + SpacingBorder;
+        int yOffset = Y + SpacingBorder;
         for (int i = 0; i < LineCount; i++) {
             for (int j = 0; j < LineLength; j++) {
                 int character = _characters[i][j];
@@ -144,7 +139,7 @@ public class TextField extends AWindow {
                 }
                 int x = xOffset + j * xFactor;
                 int y = yOffset + i * yFactor;
-                _font.renderToDisplay(display, x, y, character, characterColor, _bg);
+                _font.renderToDisplay(display, x, y, character, characterColor);
             }
         }
     }

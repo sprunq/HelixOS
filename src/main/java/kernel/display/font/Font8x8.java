@@ -1,7 +1,4 @@
-package kernel.display.tm3;
-
-import kernel.display.ADisplay;
-import util.BitHelper;
+package kernel.display.font;
 
 /*
 * Bitmap from:
@@ -53,34 +50,6 @@ public class Font8x8 extends AFont {
         ch -= FONT_CHARACHTERS_START;
         byte b = FONT_BYTES[ch * BYTES_PER_CHAR + offset];
         return Integer.ubyte(b);
-    }
-
-    @Override
-    public void renderToDisplay(ADisplay display, int x, int y, int ch, int color, int backColor) {
-        int fontWidth = getWidth();
-        int fontHeight = getHeight();
-        boolean fontVertical = isVertical();
-
-        for (int charLine = 0; charLine < fontHeight; charLine++) {
-            int b = getCharacterBitmapLine(ch, charLine);
-            for (int lineBit = 0; lineBit < fontWidth; lineBit++) {
-                int bit = BitHelper.getBit(b, lineBit);
-                int posX = x;
-                int posY = y;
-                if (fontVertical) {
-                    posX += charLine;
-                    posY += lineBit;
-                } else {
-                    posX += lineBit;
-                    posY += charLine;
-                }
-                if (bit == 1) {
-                    display.setPixel(posX, posY, color);
-                } else {
-                    display.setPixel(posX, posY, backColor);
-                }
-            }
-        }
     }
 
     private static final byte[] FONT_BYTES = {
