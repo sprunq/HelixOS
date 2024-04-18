@@ -3,7 +3,6 @@ package kernel;
 import gui.WindowManager;
 import gui.windows.LogTextField;
 import gui.windows.Splashscreen;
-import gui.windows.TextField;
 import kernel.bios.call.DisplayModes;
 import kernel.display.text.TM3Color;
 import kernel.display.vesa.VESAGraphics;
