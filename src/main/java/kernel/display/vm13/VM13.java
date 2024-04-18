@@ -28,14 +28,14 @@ public class VM13 {
      * Swaps the back buffer with the video memory.
      */
     public static void swap() {
-        Memory.copyBytes(
+        Memory.memcopy(
                 MAGIC.addr(_backBuffer[0]),
                 MAGIC.addr(VidMem.Color[0]),
                 WIDTH * HEIGHT);
     }
 
     public static void clearBackBuffer() {
-        Memory.setBytes(MAGIC.addr(_backBuffer[0]), SIZE, (byte) 0);
+        Memory.memset(MAGIC.addr(_backBuffer[0]), SIZE, (byte) 0);
     }
 
     @SJC.Inline

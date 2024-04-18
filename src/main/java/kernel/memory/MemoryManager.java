@@ -139,7 +139,7 @@ public class MemoryManager {
         }
 
         // Clear the memory
-        Memory.setBytes(startOfObject, lengthOfObject, (byte) 0);
+        Memory.memset(startOfObject, lengthOfObject, (byte) 0);
 
         // cast2Obj expects the pointer to the first scalar field.
         // It needs space because relocs will be stored in front of the object

@@ -20,6 +20,12 @@ The general build command looks like:
 python3 build.py --sjc path_to_sjc_jar
 ```
 
+Build asm files with
+
+```
+yasm file.s -o file.bim -a x86
+```
+
 Example:
 
 ```

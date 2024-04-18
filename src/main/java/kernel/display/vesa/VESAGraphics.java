@@ -155,7 +155,7 @@ public class VESAGraphics extends ADisplay {
             int from = MAGIC.addr(buffer[0]);
             int to = curMode.LfbAddress;
             int len = buffer.length;
-            Memory.copyBytes(from, to, len);
+            Memory.memcopy(from, to, len);
         }
         needsRedraw = false;
     }
@@ -164,7 +164,7 @@ public class VESAGraphics extends ADisplay {
     public void clearScreen() {
         int from = MAGIC.addr(buffer[0]);
         int len = buffer.length;
-        Memory.setBytes(from, len, (byte) 0);
+        Memory.memset(from, len, (byte) 0);
     }
 
     @SJC.Inline
@@ -172,9 +172,7 @@ public class VESAGraphics extends ADisplay {
         int addr32 = (x + y * curMode.XRes) << 2;
         int addrR32 = MAGIC.addr(buffer[addr32]);
         for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                MAGIC.wMem32(addrR32 + (j << 2), color);
-            }
+            Memory.memset32(addrR32, width, color);
             addrR32 += curMode.XRes << 2;
         }
     }
