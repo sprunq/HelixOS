@@ -3,9 +3,7 @@ package gui.windows;
 import kernel.Kernel;
 import kernel.display.ADisplay;
 import kernel.display.font.AFont;
-import kernel.hardware.Timer;
 import kernel.hardware.keyboard.Key;
-import util.logging.Logger;
 
 public class TextField extends AWindow {
 

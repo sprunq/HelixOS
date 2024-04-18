@@ -12,6 +12,11 @@ public class Memory {
         }
     }
 
+    /*
+     * Set 32-bit words in memory to a specific value.
+     * When changing variable order or layout, make sure to update the
+     * corresponding inline assembly as well.
+     */
     @SJC.NoInline
     public static void memset32(int start, int len, int value) {
         MAGIC.inlineBlock("memset32");
@@ -33,6 +38,11 @@ public class Memory {
         }
     }
 
+    /*
+     * Copy 32-bit words from one memory location to another.
+     * When changing variable order or layout, make sure to update the
+     * corresponding inline assembly as well.
+     */
     @SJC.NoInline
     private static void memcopy32(int from, int to, int cnt) {
         MAGIC.inlineBlock("memcopy32");

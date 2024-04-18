@@ -54,7 +54,7 @@ public class Kernel {
         WindowManager windowManager = new WindowManager(Display);
         buildGuiEnvironment(windowManager);
 
-        int averageOver = 100;
+        int averageOver = 200;
         int avg = 0;
         int avgIndex = 0;
         while (true) {
