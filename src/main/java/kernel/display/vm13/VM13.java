@@ -1,7 +1,7 @@
-package kernel.display.video;
+package kernel.display.vm13;
 
 import kernel.MemoryLayout;
-import kernel.display.video.font.AFont;
+import kernel.display.tm3.AFont;
 import kernel.memory.Memory;
 import util.BitHelper;
 import util.MathH;

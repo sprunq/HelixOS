@@ -1,4 +1,4 @@
-package kernel.display.video.font;
+package kernel.display.tm3;
 
 /*
 * Bitmap from:

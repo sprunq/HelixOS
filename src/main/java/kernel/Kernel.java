@@ -5,10 +5,10 @@ import gui.windows.LogTextField;
 import gui.windows.Splashscreen;
 import kernel.bios.call.DisplayModes;
 import kernel.display.text.TM3Color;
+import kernel.display.tm3.Font9x16;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
-import kernel.display.video.font.Font9x16;
 import kernel.display.ADisplay;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
@@ -21,7 +21,6 @@ import util.logging.Logger;
 import util.vector.VectorVesaMode;
 
 public class Kernel {
-    public static TM3 TmOut;
     public static ADisplay Display;
 
     public static void main() {
@@ -31,9 +30,6 @@ public class Kernel {
         PIT.initialize();
         IDT.initialize();
         IDT.enable();
-
-        Kernel.TmOut = new TM3();
-        TmOut.clearScreen();
 
         VectorVesaMode modes = VesaQuery.AvailableModes();
         Logger.info("VESA", "Available VESA modes:");

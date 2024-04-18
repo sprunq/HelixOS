@@ -2,7 +2,7 @@ package gui.windows;
 
 import kernel.Kernel;
 import kernel.display.ADisplay;
-import kernel.display.video.font.AFont;
+import kernel.display.tm3.AFont;
 import kernel.hardware.keyboard.Key;
 
 public class TextField extends AWindow {
