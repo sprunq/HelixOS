@@ -23,12 +23,12 @@ public class VESAMode implements IDebug {
 
     @Override
     public String dbg() {
-        StrBuilder sb = new StrBuilder();
-        sb.append("VESAMode[").append(ModeNr).append("](")
-                .append("x: ").append(XRes)
+        StrBuilder sb = new StrBuilder(30);
+        sb.append("VESA[").append(ModeNr).append("] (")
+                .append(Graphical ? "Graphic" : "Text")
+                .append(", bbp: ").append(ColorDepth)
+                .append(", x: ").append(XRes)
                 .append(", y: ").append(YRes)
-                .append(", depth: ").append(ColorDepth)
-                .append(", Graphical: ").append(Graphical)
                 .append(")");
         return sb.toString();
     }

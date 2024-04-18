@@ -1,12 +1,13 @@
-package gui.windows;
+package gui.displays;
 
+import gui.ADisplayElement;
 import gui.images.BinImage;
 import gui.images.Logo;
 import gui.images.LogoText;
 import kernel.Kernel;
 import kernel.display.ADisplay;
 
-public class Splashscreen extends AWindow {
+public class Splashscreen extends ADisplayElement {
     private BinImage logo;
     private BinImage logoText;
     private int spaceBetween;
@@ -20,13 +21,6 @@ public class Splashscreen extends AWindow {
         spaceBetween = 20;
         combinedHeight = logo.Height + logoText.Height + spaceBetween;
         backColor = Kernel.Display.rgb(0, 13, 40);
-    }
-
-    public void show(int time) {
-        if (time <= 0) {
-            return;
-        }
-
     }
 
     @Override

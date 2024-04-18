@@ -1,15 +1,16 @@
 package kernel;
 
 import gui.WindowManager;
-import gui.windows.LogTextField;
-import gui.windows.Splashscreen;
+import gui.displays.Homebar;
+import gui.displays.Splashscreen;
+import gui.displays.windows.LogTextField;
 import kernel.bios.call.DisplayModes;
 import kernel.display.text.TM3Color;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
 import kernel.display.ADisplay;
-import kernel.display.font.Font9x16;
+import kernel.display.font.Font7x8;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
@@ -21,6 +22,8 @@ import util.logging.Logger;
 import util.vector.VectorVesaMode;
 
 public class Kernel {
+    public static final int RESOLUTION = 1;
+
     public static ADisplay Display;
 
     public static void main() {
@@ -37,19 +40,25 @@ public class Kernel {
             Logger.info("VESA", modes.get(i).dbg());
         }
 
-        VESAMode mode = VesaQuery.GetMode(
-                modes,
-                1440,
-                900,
-                32,
-                true);
+        VESAMode mode;
+        switch (RESOLUTION) {
+            case 0:
+                mode = VesaQuery.GetMode(modes, 1024, 768, 32, true);
+                break;
+            case 1:
+                mode = VesaQuery.GetMode(modes, 1440, 900, 32, true);
+                break;
+            default:
+                panic("Invalid Resolution value");
+                return;
+        }
 
         Display = new VESAGraphics(mode);
         Display.activate();
 
         WindowManager winManSplashScreen = new WindowManager(Display);
         buildSplashScreen(winManSplashScreen);
-        winManSplashScreen.staticDisplayFor(1000);
+        // winManSplashScreen.staticDisplayFor(000);
 
         WindowManager windowManager = new WindowManager(Display);
         buildGuiEnvironment(windowManager);
@@ -94,18 +103,35 @@ public class Kernel {
 
     private static void buildGuiEnvironment(WindowManager windowManager) {
 
-        LogTextField logTextField = new LogTextField(
-                0,
-                0,
-                4,
+        Homebar homebar = new Homebar(
                 Kernel.Display.Width(),
-                Kernel.Display.Height(),
+                Kernel.Display.Height());
+
+        LogTextField logTextField = new LogTextField(
+                Display.Width() / 3,
+                200,
+                4,
+                Display.Width() / 2,
+                Kernel.Display.Height() / 2 - homebar.Height,
                 8,
                 0,
-                1,
-                Font9x16.Instance);
+                2,
+                Font7x8.Instance);
 
+        LogTextField logTextField2 = new LogTextField(
+                Display.Width() / 8,
+                100,
+                5,
+                (int) (Display.Width() / 1.5),
+                Kernel.Display.Height() / 2,
+                8,
+                0,
+                2,
+                Font7x8.Instance);
+
+        windowManager.addWindow(homebar);
         windowManager.addWindow(logTextField);
+        windowManager.addWindow(logTextField2);
     }
 
     public static void panic(String msg) {

@@ -1,12 +1,12 @@
-package gui.windows;
+package gui.components;
 
+import gui.ADisplayElement;
 import kernel.Kernel;
 import kernel.display.ADisplay;
 import kernel.display.font.AFont;
 import kernel.hardware.keyboard.Key;
 
-public class TextField extends AWindow {
-
+public class TextField extends ADisplayElement {
     public int SpacingBorder;
     public int SpacingW;
     public int SpacingH;
@@ -46,8 +46,8 @@ public class TextField extends AWindow {
         SpacingBorder = borderSpacing;
         SpacingW = charSpacing + font.getSpacingW();
         SpacingH = lineSpacing + font.getSpacingH();
-        LineLength = (width - borderSpacing * 2) / (font.getWidth() + SpacingW);
-        LineCount = (height - borderSpacing * 2) / (font.getHeight() + SpacingH);
+        LineLength = (Width - borderSpacing * 2) / (font.getWidth() + SpacingW);
+        LineCount = (Height - borderSpacing * 2) / (font.getHeight() + SpacingH);
         _characters = new byte[LineCount][LineLength];
         _characterColors = new int[LineCount][LineLength];
     }
@@ -122,6 +122,11 @@ public class TextField extends AWindow {
     }
 
     @Override
+    public boolean needsRedraw() {
+        return true;
+    }
+
+    @Override
     public void draw(ADisplay display) {
         Kernel.Display.fillrect(X, Y, Width, Height, _bg);
 
@@ -142,10 +147,5 @@ public class TextField extends AWindow {
                 _font.renderToDisplay(display, x, y, character, characterColor);
             }
         }
-    }
-
-    @Override
-    public boolean needsRedraw() {
-        return true;
     }
 }

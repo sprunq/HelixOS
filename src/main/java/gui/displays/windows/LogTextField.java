@@ -1,20 +1,20 @@
-package gui.windows;
+package gui.displays.windows;
 
+import gui.components.TextField;
 import kernel.Kernel;
 import kernel.display.ADisplay;
 import kernel.display.font.AFont;
 import util.logging.LogEntry;
 import util.logging.Logger;
 
-public class LogTextField extends TextField {
-
+public class LogTextField extends AWindow {
     private final int COL_FATAL;
     private final int COL_ERROR;
     private final int COL_WARNING;
     private final int COL_INFO;
     private final int COL_TRACE;
-    private final int COL_WHITE;
     private int lastLogTick = -1;
+    private TextField _textField;
 
     public LogTextField(
             int x,
@@ -26,29 +26,33 @@ public class LogTextField extends TextField {
             int charSpacing,
             int lineSpacing,
             AFont font) {
-        super(x,
-                y,
-                z,
-                width,
-                height,
-                border,
-                charSpacing,
-                lineSpacing,
-                Kernel.Display.rgb(0, 255, 0),
-                Kernel.Display.rgb(0, 13, 40),
-                font);
+        super(x, y, z, width, height, "Log Entries");
+
         COL_FATAL = Kernel.Display.rgb(255, 0, 0);
         COL_ERROR = Kernel.Display.rgb(200, 0, 0);
         COL_WARNING = Kernel.Display.rgb(255, 230, 0);
         COL_INFO = Kernel.Display.rgb(128, 200, 255);
         COL_TRACE = Kernel.Display.rgb(100, 220, 100);
-        COL_WHITE = Kernel.Display.rgb(255, 255, 255);
+
+        int bg = Kernel.Display.rgb(20, 20, 20);
+        int fg = Kernel.Display.rgb(255, 255, 255);
+        _textField = new TextField(
+                ContentX,
+                ContentY,
+                z,
+                ContentWidth,
+                ContentHeight,
+                border,
+                charSpacing,
+                lineSpacing,
+                fg,
+                bg,
+                font);
     }
 
-    @Override
-    public void draw(ADisplay display) {
-        clearText();
-        int amountToDisplay = LineCount - 1;
+    public void DrawContent(ADisplay display) {
+        _textField.clearText();
+        int amountToDisplay = _textField.LineCount - 1;
         for (int i = amountToDisplay; i >= 0; i--) {
             LogEntry log = Logger.getChronologicalLog(i);
             if (log != null) {
@@ -78,24 +82,20 @@ public class LogTextField extends TextField {
                             Kernel.panic("LogTextField.draw: unknown log level");
                             break;
                     }
-                    setBrushColor(color);
-                    write("<");
-                    write(time);
-                    write("> ");
-                    write(cat);
-                    write(": ");
-                    write(msg);
-                    newLine();
+                    _textField.setBrushColor(color);
+                    _textField.write("<");
+                    _textField.write(time);
+                    _textField.write("> ");
+                    _textField.write(cat);
+                    _textField.write(": ");
+                    _textField.write(msg);
+                    _textField.newLine();
                 }
             }
         }
-        setCursor(0, 0);
-        clearLine(0);
-        setBrushColor(COL_WHITE);
-        write("Log Entries");
-        newLine();
+        _textField.draw(display);
+
         lastLogTick = Logger.getLogTicks();
-        super.draw(display);
     }
 
     @Override
