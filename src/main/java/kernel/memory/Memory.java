@@ -1,20 +1,10 @@
 package kernel.memory;
 
 public class Memory {
-    public static void setBytes(int start, int len, byte value) {
+    public static void memset(int start, int len, byte value) {
         int end = start + len;
-        if (len % 8 == 0) {
-            for (int i = start; i < end; i += 8) {
-                MAGIC.wMem64(i, (long) value);
-            }
-        } else if (len % 4 == 0) {
-            for (int i = start; i < end; i += 4) {
-                MAGIC.wMem32(i, (int) value);
-            }
-        } else if (len % 2 == 0) {
-            for (int i = start; i < end; i += 2) {
-                MAGIC.wMem16(i, (short) value);
-            }
+        if (len % 4 == 0) {
+            memset32(start, len / 4, value);
         } else {
             for (int i = start; i < end; i++) {
                 MAGIC.wMem8(i, value);
@@ -23,31 +13,21 @@ public class Memory {
     }
 
     /*
-     * Copy bytes from one memory location to another.
-     * Bigger batches are faster even on 32-bit systems.
+     * Set 32-bit words in memory to a specific value.
+     * When changing variable order or layout, make sure to update the
+     * corresponding inline assembly as well.
      */
-    public static void copyBytes(int from, int to, int len) {
-        if (len % 8 == 0) {
-            while (len > 0) {
-                MAGIC.wMem64(to, MAGIC.rMem64(from));
-                from += 8;
-                to += 8;
-                len -= 8;
-            }
-        } else if (len % 4 == 0) {
-            while (len > 0) {
-                MAGIC.wMem32(to, MAGIC.rMem32(from));
-                from += 4;
-                to += 4;
-                len -= 4;
-            }
-        } else if (len % 2 == 0) {
-            while (len > 0) {
-                MAGIC.wMem16(to, MAGIC.rMem16(from));
-                from += 2;
-                to += 2;
-                len -= 2;
-            }
+    @SJC.NoInline
+    public static void memset32(int start, int len, int value) {
+        MAGIC.inlineBlock("memset32");
+    }
+
+    /*
+     * Copy bytes from one memory location to another.
+     */
+    public static void memcopy(int from, int to, int len) {
+        if (len % 4 == 0) {
+            memcopy32(from, to, len / 4);
         } else {
             while (len > 0) {
                 MAGIC.wMem8(to, MAGIC.rMem8(from));
@@ -56,5 +36,15 @@ public class Memory {
                 len--;
             }
         }
+    }
+
+    /*
+     * Copy 32-bit words from one memory location to another.
+     * When changing variable order or layout, make sure to update the
+     * corresponding inline assembly as well.
+     */
+    @SJC.NoInline
+    private static void memcopy32(int from, int to, int cnt) {
+        MAGIC.inlineBlock("memcopy32");
     }
 }

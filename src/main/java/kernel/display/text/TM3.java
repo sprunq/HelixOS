@@ -177,7 +177,7 @@ public class TM3 {
 
     public static void shift_lines() {
         for (int line = BUFFER_START; line < BUFFER_END; line += LINE_SIZE_BYTES) {
-            Memory.copyBytes(line + LINE_SIZE_BYTES, line, LINE_SIZE_BYTES);
+            Memory.memcopy(line + LINE_SIZE_BYTES, line, LINE_SIZE_BYTES);
         }
 
         byte clearColor = TM3Color.set(TM3Color.GREY, TM3Color.BLACK);

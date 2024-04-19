@@ -1,22 +1,30 @@
 package kernel;
 
-import gui.GUI;
-import kernel.bios.BIOS;
+import gui.WindowManager;
+import gui.displays.Homebar;
+import gui.displays.Splashscreen;
+import gui.displays.windows.LogTextField;
+import kernel.bios.call.DisplayModes;
 import kernel.display.text.TM3Color;
-import kernel.display.video.VM13;
+import kernel.display.vesa.VESAGraphics;
+import kernel.display.vesa.VESAMode;
+import kernel.display.vesa.VesaQuery;
+import kernel.display.ADisplay;
+import kernel.display.font.Font7x8;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
-import kernel.hardware.keyboard.Breaker;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
-import util.StrBuilder;
+import util.logging.Logger;
+import util.vector.VectorVesaMode;
 
 public class Kernel {
-    public static TM3 tmOut;
-    public static GUI gui;
+    public static final int RESOLUTION = 1;
+
+    public static ADisplay Display;
 
     public static void main() {
         MemoryManager.initialize();
@@ -26,51 +34,108 @@ public class Kernel {
         IDT.initialize();
         IDT.enable();
 
-        Kernel.tmOut = new TM3();
-        tmOut.clearScreen();
+        VectorVesaMode modes = VesaQuery.AvailableModes();
+        Logger.info("VESA", "Available VESA modes:");
+        for (int i = 0; i < modes.size(); i++) {
+            Logger.info("VESA", modes.get(i).dbg());
+        }
 
-        BIOS.activateGraphicsMode();
+        VESAMode mode;
+        switch (RESOLUTION) {
+            case 0:
+                mode = VesaQuery.GetMode(modes, 1024, 768, 32, true);
+                break;
+            case 1:
+                mode = VesaQuery.GetMode(modes, 1440, 900, 32, true);
+                break;
+            default:
+                panic("Invalid Resolution value");
+                return;
+        }
 
-        // The palette has to be set after graphics mode is activated
-        VM13.setPalette();
+        Display = new VESAGraphics(mode);
+        Display.activate();
 
-        gui = new GUI();
-        KeyboardController.addListener(new Breaker(), 4);
-        KeyboardController.addListener(gui.MultiWindow, 3);
-        KeyboardController.addListener(gui.PciDeviceReader, 2);
-        KeyboardController.addListener(gui.TfMain, 1);
+        WindowManager winManSplashScreen = new WindowManager(Display);
+        buildSplashScreen(winManSplashScreen);
+        // winManSplashScreen.staticDisplayFor(000);
 
-        StrBuilder sb = new StrBuilder();
-        sb.appendLine("Phase 4")
-                .appendLine()
-                .appendLine("- Next win: Left CTRL + PAGE UP")
-                .appendLine("- Prev win: Left CTRL + PAGE DOWN")
-                .appendLine("- Break: Left CTRL + Left ALT")
-                .appendLine()
-                .appendLine("Pages")
-                .appendLine("0: Logs")
-                .appendLine("1: System MemMap")
-                .appendLine("2: PCI Devices")
-                .appendLine("  - Right Arrow: Next device")
-                .appendLine("3: Color Palette")
-                .appendLine()
-                .appendLine("Man kann hier auch schreiben!");
+        WindowManager windowManager = new WindowManager(Display);
+        buildGuiEnvironment(windowManager);
 
-        gui.TfMain.addString(sb.toString());
-
+        int averageOver = 200;
+        int avg = 0;
+        int avgIndex = 0;
         while (true) {
             while (KeyboardController.hasNewEvent()) {
                 KeyboardController.readEvent();
             }
-            VM13.clearBackBuffer();
-            gui.draw();
-            VM13.swap();
-            Timer.sleep(1000 / 20);
+
+            int startTick = Timer.getTick();
+
+            windowManager.drawWindows();
+            Display.swap();
+
+            int endTick = Timer.getTick();
+            int diff = endTick - startTick;
+            avg += diff;
+            avgIndex++;
+            if (avgIndex >= averageOver) {
+                avg /= averageOver;
+                avgIndex = 0;
+                int msAvg = Timer.getTickDifferenceMs(avg);
+                Logger.trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
+                avg = 0;
+            }
+            Timer.sleep(1000 / 60);
         }
     }
 
+    private static void buildSplashScreen(WindowManager winManSplashScreen) {
+        Splashscreen splash = new Splashscreen(
+                0,
+                0,
+                0,
+                Kernel.Display.Width(),
+                Kernel.Display.Height());
+        winManSplashScreen.addWindow(splash);
+    }
+
+    private static void buildGuiEnvironment(WindowManager windowManager) {
+
+        Homebar homebar = new Homebar(
+                Kernel.Display.Width(),
+                Kernel.Display.Height());
+
+        LogTextField logTextField = new LogTextField(
+                Display.Width() / 3,
+                200,
+                4,
+                Display.Width() / 2,
+                Kernel.Display.Height() / 2 - homebar.Height,
+                8,
+                0,
+                2,
+                Font7x8.Instance);
+
+        LogTextField logTextField2 = new LogTextField(
+                Display.Width() / 8,
+                100,
+                5,
+                (int) (Display.Width() / 1.5),
+                Kernel.Display.Height() / 2,
+                8,
+                0,
+                2,
+                Font7x8.Instance);
+
+        windowManager.addWindow(homebar);
+        windowManager.addWindow(logTextField);
+        windowManager.addWindow(logTextField2);
+    }
+
     public static void panic(String msg) {
-        BIOS.activateTextMode();
+        DisplayModes.activateTextMode();
         final byte colBorder = TM3Color.set(TM3Color.BLACK, TM3Color.RED);
         final byte colTextMsg = TM3Color.set(TM3Color.LIGHT_RED, TM3Color.BLACK);
         final byte colTextPanic = TM3Color.set(TM3Color.RED, TM3Color.BLACK);
@@ -91,5 +156,9 @@ public class Kernel {
         pos = TM3.newLinePos(pos);
         while (true) {
         }
+    }
+
+    public static void todo(String msg) {
+        panic("TODO - ".append(msg));
     }
 }

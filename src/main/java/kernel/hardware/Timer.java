@@ -1,5 +1,7 @@
 package kernel.hardware;
 
+import assembler.x86;
+
 public class Timer {
     private static int _tickCount = 0;
 
@@ -21,12 +23,17 @@ public class Timer {
         int ticks = (int) (rate / 1000.0 * (double) ms);
         int start = getTick();
         while (getTick() - start < ticks) {
-            // wait
+            // wait until next interrupt fires
+            x86.hlt();
         }
     }
 
     public static int getTickDifferenceMs(int start, int end) {
         double rate = PIT.get_rateHz();
         return (int) ((end - start) / rate * 1000.0);
+    }
+
+    public static int getTickDifferenceMs(int ticks) {
+        return getTickDifferenceMs(0, ticks);
     }
 }

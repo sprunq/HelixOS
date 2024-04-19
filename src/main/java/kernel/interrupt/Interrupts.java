@@ -1,9 +1,9 @@
 package kernel.interrupt;
 
 import kernel.Kernel;
-import kernel.Logger;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
+import util.logging.Logger;
 
 public class Interrupts {
     @SJC.Interrupt

@@ -3,11 +3,11 @@ import shutil
 import subprocess
 import signal
 import platform
-import sys
 import argparse
+from distutils.dir_util import copy_tree
 
 BUILD_DIR = "build_os"
-RESOURCE_DIR = "res"
+RESOURCE_DIR = "include"
 START_DIR = os.getcwd()
 
 def clean_dir(dir : str):
@@ -22,9 +22,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         exit()
 
     clean_dir(BUILD_DIR)
-    # copy content in res/
-    for file in os.listdir(RESOURCE_DIR):
-        shutil.copy(os.path.join(RESOURCE_DIR, file), BUILD_DIR)
+    copy_tree(RESOURCE_DIR, BUILD_DIR)
 
     os.chdir(BUILD_DIR)
 
@@ -32,8 +30,10 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
                             "java", 
                             "-jar", sjc_jar_absolute, 
                             "../src/main",
+                            "../include",
                             "-o", "boot", 
                             "-y", 
+                            "-s", "600k",
                             "-t", "ia32", "-T", "sse3", 
                             "-x"
                             ],
@@ -49,11 +49,12 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         exit()
     
     subprocess.run([
-        "qemu-system-i386", 
+        "qemu-system-x86_64", 
         "-m", "1024", 
         "-boot", "a", 
         "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy", 
-        "-rtc", "base=localtime"
+        "-rtc", "base=localtime",
+        # "-full-screen",
         ])
 
     # Cleanup
@@ -72,7 +73,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         os.kill(os.getppid(), signal.SIGHUP)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='ToOS Build tool')
+    parser = argparse.ArgumentParser(prog='HelixOS Build tool')
     parser.add_argument('--sjc', metavar='path_to_jar', type=str, required=True, help='path to the sjc jar file')
     parser.add_argument('--autoclose', action='store_true', help='auto close terminal after completion')
     parser.add_argument('--cleanup', action='store_true', help='delete build directory after completion')
