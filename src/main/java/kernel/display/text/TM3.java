@@ -40,6 +40,10 @@ public class TM3 {
         return _cursorPos;
     }
 
+    public int getCurrentLine() {
+        return _cursorPos / LINE_LENGTH;
+    }
+
     public void print(byte b) {
         setCharacterByte(b);
         updateCursorCaretDisplay();

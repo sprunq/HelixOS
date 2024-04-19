@@ -15,6 +15,9 @@ public class MemoryLayout {
     public static final int REAL_MODE_INTERRUPT_TABLE_END = REAL_MODE_INTERRUPT_TABLE_START
             + REAL_MODE_INTERRUPT_TABLE_SIZE;
 
+    public static final int BOOTLOADER_START = 0x7C00;
+    public static final int BOOTLOADER_END = 0x7DFF;
+
     public static final int INTERNAL_FREE_MEMORY_START = 0x07E00;
     public static final int INTERNAL_FREE_MEMORY_END = 0x9FFFF;
 

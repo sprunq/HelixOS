@@ -3,6 +3,9 @@ package java.lang;
 import util.NoAllocConv;
 
 public class Integer {
+    public static final int MAX = 2147483647;
+    public static final int MIN = -2147483648;
+
     /*
      * I hate you Java.
      */

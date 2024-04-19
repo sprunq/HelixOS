@@ -18,17 +18,21 @@ import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
+import kernel.symbols.SymbolResolution;
+import rte.SMthdBlock;
 import util.logging.Logger;
 import util.vector.VectorVesaMode;
 
 public class Kernel {
-    public static final int RESOLUTION = 1;
+    public static final int RESOLUTION = 0;
 
     public static ADisplay Display;
 
     public static void main() {
+        MAGIC.doStaticInit();
         MemoryManager.initialize();
         Logger.initialize(Logger.TRACE, 200);
+        SymbolResolution.initialize();
         KeyboardController.initialize(QWERTZ.Instance);
         PIT.initialize();
         IDT.initialize();
@@ -58,7 +62,7 @@ public class Kernel {
 
         WindowManager winManSplashScreen = new WindowManager(Display);
         buildSplashScreen(winManSplashScreen);
-        // winManSplashScreen.staticDisplayFor(000);
+        winManSplashScreen.staticDisplayFor(3000);
 
         WindowManager windowManager = new WindowManager(Display);
         buildGuiEnvironment(windowManager);
@@ -102,7 +106,6 @@ public class Kernel {
     }
 
     private static void buildGuiEnvironment(WindowManager windowManager) {
-
         Homebar homebar = new Homebar(
                 Kernel.Display.Width(),
                 Kernel.Display.Height());
@@ -135,30 +138,59 @@ public class Kernel {
     }
 
     public static void panic(String msg) {
-        DisplayModes.activateTextMode();
-        final byte colBorder = TM3Color.set(TM3Color.BLACK, TM3Color.RED);
-        final byte colTextMsg = TM3Color.set(TM3Color.LIGHT_RED, TM3Color.BLACK);
-        final byte colTextPanic = TM3Color.set(TM3Color.RED, TM3Color.BLACK);
-        final byte clearCol = TM3Color.set(TM3Color.GREY, TM3Color.BLACK);
 
-        TM3.setLine(0, (byte) ' ', clearCol);
-        TM3.setLine(1, (byte) ' ', clearCol);
-        TM3.setLine(2, (byte) ' ', clearCol);
-
-        int pos = 0;
-        pos = TM3.directPrint(' ', pos, colBorder);
-        pos = TM3.newLinePos(pos);
-        pos = TM3.directPrint(' ', pos, colBorder);
-        pos = TM3.directPrint(" PANIC: ", pos, colTextPanic);
-        pos = TM3.directPrint(msg, pos, colTextMsg);
-        pos = TM3.newLinePos(pos);
-        pos = TM3.directPrint(' ', pos, colBorder);
-        pos = TM3.newLinePos(pos);
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        printStackTrace("PANIC", msg, ebp);
         while (true) {
+
         }
     }
 
     public static void todo(String msg) {
-        panic("TODO - ".append(msg));
+
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        printStackTrace("TODO", msg, ebp);
+        Timer.sleep(-1);
+    }
+
+    public static void printStackTrace(String title, String message, int ebp) {
+        int eip = MAGIC.rMem32(ebp + 4 * 9);
+        DisplayModes.activateTextMode();
+        TM3 out = new TM3();
+        out.clearScreen();
+        out.Brush.setFg(TM3Color.RED);
+        out.println(title);
+        if (message != null) {
+            out.Brush.setFg(TM3Color.RED);
+            out.print("Message: ");
+            out.Brush.setFg(TM3Color.LIGHT_RED);
+            out.println(message);
+        }
+        out.println();
+        out.Brush.setFg(TM3Color.RED);
+        out.println("Stacktrace: ");
+        out.Brush.setFg(TM3Color.LIGHT_RED);
+        do {
+            out.print("  ");
+            out.print("ebp: 0x");
+            out.print(ebp, 16);
+            out.print(", eip: 0x");
+            out.print(eip, 16);
+            out.print(", method: ");
+
+            SMthdBlock m = SymbolResolution.resolve(eip);
+            if (m != null) {
+                out.print(m.namePar);
+            } else {
+                out.print("no method found");
+            }
+            out.println();
+            ebp = MAGIC.rMem32(ebp);
+            eip = MAGIC.rMem32(ebp + 4);
+        } while (ebp <= 0x9BFFC && ebp > 0 && out.getCurrentLine() < TM3.LINE_COUNT);
     }
 }

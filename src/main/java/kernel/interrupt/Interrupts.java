@@ -28,7 +28,12 @@ public class Interrupts {
 
     @SJC.Interrupt
     public static void breakpointHandler() {
-        Kernel.panic("Interrupt breakpointHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Kernel.printStackTrace("Breakpoint", null, ebp);
+        while (true) {
+        }
     }
 
     @SJC.Interrupt

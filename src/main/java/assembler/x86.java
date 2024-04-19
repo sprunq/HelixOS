@@ -42,4 +42,5 @@ public class x86 {
     public static void hlt() {
         MAGIC.inline(0xF4);
     }
+
 }
