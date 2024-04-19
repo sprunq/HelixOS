@@ -1,6 +1,8 @@
-package kernel.hardware.keyboard;
+package kernel.tasks;
 
 import assembler.x86;
+import kernel.hardware.keyboard.IKeyboardEventListener;
+import kernel.hardware.keyboard.Key;
 
 /*
  * Halts the system when the user presses Ctrl + Alt.
@@ -37,5 +39,10 @@ public class Breaker implements IKeyboardEventListener {
             default:
                 return false;
         }
+    }
+
+    @Override
+    public String name() {
+        return "Breaker";
     }
 }

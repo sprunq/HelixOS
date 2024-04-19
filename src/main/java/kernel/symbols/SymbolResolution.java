@@ -7,30 +7,28 @@ import rte.SPackage;
 import util.logging.Logger;
 
 public class SymbolResolution {
-    private static SClassDesc cd;
-    private static SMthdBlock bootloader;
+    private static SClassDesc bootloaderClassDesc;
+    private static SMthdBlock bootloaderMethod;
 
     public static void initialize() {
-        cd = new SClassDesc();
-        cd.name = "Bootloader";
-        bootloader = new SMthdBlock();
-        bootloader.namePar = "bootloader()";
-        bootloader.nextMthd = null;
-        bootloader.owner = cd;
+        bootloaderClassDesc = new SClassDesc();
+        bootloaderClassDesc.name = "Bootloader";
+        bootloaderMethod = new SMthdBlock();
+        bootloaderMethod.namePar = "bootloader()";
+        bootloaderMethod.owner = bootloaderClassDesc;
+        bootloaderMethod.nextMthd = null;
 
         Logger.info("SymRes", "Initialized SymbolResolution");
     }
 
-    @SJC.Inline
     public static SMthdBlock resolve(int addr) {
         if (MemoryLayout.BOOTLOADER_START <= addr && addr <= MemoryLayout.BOOTLOADER_END) {
-            return bootloader;
+            return bootloaderMethod;
         }
         return resolveInPackage(addr, SPackage.root);
     }
 
-    @SJC.Inline
-    public static SMthdBlock resolveInPackage(int addr, SPackage pkg) {
+    private static SMthdBlock resolveInPackage(int addr, SPackage pkg) {
         while (pkg != null) {
             SMthdBlock found = resolveInPackage(addr, pkg.subPacks);
             if (found != null) {
@@ -46,8 +44,7 @@ public class SymbolResolution {
         return null;
     }
 
-    @SJC.Inline
-    public static SMthdBlock resolveInClass(int addr, SClassDesc cls) {
+    private static SMthdBlock resolveInClass(int addr, SClassDesc cls) {
         while (cls != null) {
             SMthdBlock found = resolveInMethodBlock(addr, cls.mthds);
             if (found != null) {
@@ -58,8 +55,7 @@ public class SymbolResolution {
         return null;
     }
 
-    @SJC.Inline
-    public static SMthdBlock resolveInMethodBlock(int addr, SMthdBlock mths) {
+    private static SMthdBlock resolveInMethodBlock(int addr, SMthdBlock mths) {
         while (mths != null) {
             int start = MAGIC.cast2Ref(mths);
             int end = start + mths._r_scalarSize;

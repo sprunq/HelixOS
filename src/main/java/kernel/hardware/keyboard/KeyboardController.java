@@ -39,6 +39,7 @@ public class KeyboardController {
     }
 
     public static void addListener(IKeyboardEventListener listener, int priority) {
+        Logger.info("KeyC", "Adding Listener ".append(listener.name()));
         _listeners.addListener(listener, priority);
     }
 

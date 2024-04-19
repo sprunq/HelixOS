@@ -19,6 +19,7 @@ import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
 import kernel.symbols.SymbolResolution;
+import kernel.tasks.Breaker;
 import rte.SMthdBlock;
 import util.logging.Logger;
 import util.vector.VectorVesaMode;
@@ -33,10 +34,12 @@ public class Kernel {
         MemoryManager.initialize();
         Logger.initialize(Logger.TRACE, 200);
         SymbolResolution.initialize();
-        KeyboardController.initialize(QWERTZ.Instance);
         PIT.initialize();
         IDT.initialize();
         IDT.enable();
+
+        KeyboardController.initialize(QWERTZ.Instance);
+        KeyboardController.addListener(new Breaker(), 20);
 
         VectorVesaMode modes = VesaQuery.AvailableModes();
         Logger.info("VESA", "Available VESA modes:");
