@@ -4,6 +4,7 @@ import gui.WindowManager;
 import gui.displays.Homebar;
 import gui.displays.Splashscreen;
 import gui.displays.windows.LogTextField;
+import gui.displays.windows.MemMapTextField;
 import kernel.bios.call.DisplayModes;
 import kernel.display.text.TM3Color;
 import kernel.display.vesa.VESAGraphics;
@@ -65,7 +66,7 @@ public class Kernel {
 
         WindowManager winManSplashScreen = new WindowManager(Display);
         buildSplashScreen(winManSplashScreen);
-        winManSplashScreen.staticDisplayFor(3000);
+        winManSplashScreen.staticDisplayFor(000);
 
         WindowManager windowManager = new WindowManager(Display);
         buildGuiEnvironment(windowManager);
@@ -113,23 +114,27 @@ public class Kernel {
                 Kernel.Display.Width(),
                 Kernel.Display.Height());
 
+        int heightMinusHomebar = Display.Height() - homebar.Height - 1;
+
         LogTextField logTextField = new LogTextField(
-                Display.Width() / 3,
-                200,
+                "Log Entries",
+                0,
+                0,
                 4,
                 Display.Width() / 2,
-                Kernel.Display.Height() / 2 - homebar.Height,
+                heightMinusHomebar,
                 8,
                 0,
                 2,
                 Font7x8.Instance);
 
-        LogTextField logTextField2 = new LogTextField(
-                Display.Width() / 8,
-                100,
+        MemMapTextField memMapTextField = new MemMapTextField(
+                "System Memory Map",
+                Display.Width() / 2,
+                0,
                 5,
-                (int) (Display.Width() / 1.5),
-                Kernel.Display.Height() / 2,
+                Display.Width() / 2,
+                heightMinusHomebar,
                 8,
                 0,
                 2,
@@ -137,7 +142,7 @@ public class Kernel {
 
         windowManager.addWindow(homebar);
         windowManager.addWindow(logTextField);
-        windowManager.addWindow(logTextField2);
+        windowManager.addWindow(memMapTextField);
     }
 
     public static void panic(String msg) {

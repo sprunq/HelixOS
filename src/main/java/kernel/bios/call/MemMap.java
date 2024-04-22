@@ -6,7 +6,6 @@ import util.StrBuilder;
 import util.logging.Logger;
 
 public class MemMap extends BIOS {
-
     public static MemMapEntry memMap(int idx) {
         Logger.trace("BIOS", new StrBuilder().append("memMap(").append(idx).append(")").toString());
         execMemMap(idx);

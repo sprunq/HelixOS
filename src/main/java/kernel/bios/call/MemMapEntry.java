@@ -10,4 +10,9 @@ public class MemMapEntry {
         this.Length = length;
         this.Type = type;
     }
+
+    public boolean isFree() {
+        return Type == 1;
+    }
+
 }

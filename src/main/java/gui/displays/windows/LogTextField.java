@@ -17,6 +17,7 @@ public class LogTextField extends AWindow {
     private TextField _textField;
 
     public LogTextField(
+            String title,
             int x,
             int y,
             int z,
@@ -26,7 +27,7 @@ public class LogTextField extends AWindow {
             int charSpacing,
             int lineSpacing,
             AFont font) {
-        super(x, y, z, width, height, "Log Entries");
+        super(x, y, z, width, height, title);
 
         COL_FATAL = Kernel.Display.rgb(255, 0, 0);
         COL_ERROR = Kernel.Display.rgb(200, 0, 0);
