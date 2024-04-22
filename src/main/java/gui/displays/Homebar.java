@@ -1,7 +1,7 @@
 package gui.displays;
 
+import formats.images.Image;
 import gui.ADisplayElement;
-import gui.images.BinImage;
 import gui.images.Logo25;
 import kernel.Kernel;
 import kernel.display.ADisplay;
@@ -9,7 +9,7 @@ import kernel.display.ADisplay;
 public class Homebar extends ADisplayElement {
     private final int COL_HOMEBAR;
     private static final int HOMEBAR_HEIGHT = 45;
-    private BinImage _logo;
+    private Image _logo;
     private TextClockTime _time;
     private TextClockDate _date;
 
@@ -53,7 +53,7 @@ public class Homebar extends ADisplayElement {
         return _time.needsRedraw() || _date.needsRedraw();
     }
 
-    private void setLogoBackGround(BinImage logo) {
+    private void setLogoBackGround(Image logo) {
         for (int i = 0; i < logo.Width; i++) {
             for (int j = 0; j < logo.Height; j++) {
                 if (logo.PixelData[i][j] == 0) {

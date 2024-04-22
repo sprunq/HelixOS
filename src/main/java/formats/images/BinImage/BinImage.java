@@ -1,19 +1,21 @@
-package gui.images;
+package formats.images.BinImage;
 
+import formats.images.Image;
 import kernel.Kernel;
 
-public abstract class BinImage {
-    public final int Width;
-    public final int Height;
-    public final int[][] PixelData;
-
+/*
+ * One of the worst possible image formats (self-made).
+ * Format:
+ * 4 bytes: width
+ * 4 bytes: height
+ * width * height * 3 bytes: pixel data (RGB)
+ */
+public abstract class BinImage extends Image {
     protected BinImage(byte[] data) {
-        int width = get_width(data);
-        int height = get_height(data);
-        int[][] pixelData = decode_data(data);
-        this.Width = width;
-        this.Height = height;
-        this.PixelData = pixelData;
+        super();
+        Width = get_width(data);
+        Height = get_height(data);
+        PixelData = decode_data(data);
     }
 
     protected static int[][] decode_data(byte[] data) {

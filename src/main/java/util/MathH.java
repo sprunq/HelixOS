@@ -1,5 +1,7 @@
 package util;
 
+import kernel.Kernel;
+
 public class MathH {
     public static int pow(int base, int exp) {
         int result = 1;
@@ -42,5 +44,23 @@ public class MathH {
         } else {
             return 0;
         }
+    }
+
+    /**
+     * Returns the product of the arguments,
+     * throwing an exception if the result overflows an {@code int}.
+     *
+     * @param x the first value
+     * @param y the second value
+     * @return the result
+     * @throws ArithmeticException if the result overflows an int
+     * @since 1.8
+     */
+    public static int multiplyExact(int x, int y) {
+        long r = (long) x * (long) y;
+        if ((int) r != r) {
+            Kernel.panic("integer overflow");
+        }
+        return (int) r;
     }
 }

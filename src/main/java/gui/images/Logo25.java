@@ -1,14 +1,18 @@
 package gui.images;
 
-public class Logo25 extends BinImage {
-    protected Logo25(byte[] data) {
-        super(data);
-    }
+import formats.images.QOI.QOIDecoder;
+import formats.images.QOI.QOIImage;
+
+public class Logo25 extends QOIImage {
 
     @SuppressWarnings("static-access")
-    public static final byte[] DATA = binimp.ByteData.logo_25;
+    public static final byte[] DATA = binimp.ByteData.logo_25_qoi;
 
-    public static BinImage load() {
-        return new Logo25(DATA);
+    protected Logo25(int width, int height, int channels, int colorSpace, int[][] pixelData) {
+        super(width, height, channels, colorSpace, pixelData);
+    }
+
+    public static QOIImage load() {
+        return QOIDecoder.decode(DATA, 3);
     }
 }

@@ -1,15 +1,15 @@
 package gui.displays;
 
+import formats.images.Image;
 import gui.ADisplayElement;
-import gui.images.BinImage;
-import gui.images.Logo;
 import gui.images.LogoText;
+import gui.images.Logo;
 import kernel.Kernel;
 import kernel.display.ADisplay;
 
 public class Splashscreen extends ADisplayElement {
-    private BinImage logo;
-    private BinImage logoText;
+    private Image logo;
+    private Image logoText;
     private int spaceBetween;
     private int combinedHeight;
     private int backColor;

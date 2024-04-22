@@ -66,7 +66,7 @@ public class Kernel {
 
         WindowManager winManSplashScreen = new WindowManager(Display);
         buildSplashScreen(winManSplashScreen);
-        winManSplashScreen.staticDisplayFor(000);
+        winManSplashScreen.staticDisplayFor(3000);
 
         WindowManager windowManager = new WindowManager(Display);
         buildGuiEnvironment(windowManager);
@@ -120,7 +120,7 @@ public class Kernel {
                 "Log Entries",
                 0,
                 0,
-                4,
+                6,
                 Display.Width() / 2,
                 heightMinusHomebar,
                 8,
@@ -146,18 +146,15 @@ public class Kernel {
     }
 
     public static void panic(String msg) {
-
         int ebp = 0;
         MAGIC.inline(0x89, 0x6D);
         MAGIC.inlineOffset(1, ebp);
         printStackTrace("PANIC", msg, ebp);
         while (true) {
-
         }
     }
 
     public static void todo(String msg) {
-
         int ebp = 0;
         MAGIC.inline(0x89, 0x6D);
         MAGIC.inlineOffset(1, ebp);
