@@ -11,6 +11,8 @@ import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
 import kernel.display.ADisplay;
+import kernel.display.text.TM3;
+import kernel.display.text.TM3Color;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
@@ -30,6 +32,7 @@ public class Kernel {
 
     public static void main() {
         MemoryManager.initialize();
+
         MAGIC.doStaticInit();
         Logger.initialize(Logger.TRACE, 100);
         SymbolResolution.initialize();

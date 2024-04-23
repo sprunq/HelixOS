@@ -6,6 +6,10 @@ public class EmptyObject extends Object {
     public EmptyObject nextEmptyObject;
     public EmptyObject prevEmptyObject;
 
+    public int Top() {
+        return MAGIC.cast2Ref(this) + _r_scalarSize;
+    }
+
     public int Size() {
         return _r_scalarSize + _r_relocEntries * MAGIC.ptrSize;
     }

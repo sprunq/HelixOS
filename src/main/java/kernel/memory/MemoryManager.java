@@ -3,13 +3,15 @@ package kernel.memory;
 import kernel.Kernel;
 import kernel.MemoryLayout;
 import kernel.bios.call.MemMap;
+import kernel.display.text.TM3;
+import kernel.display.text.TM3Color;
 import rte.SClassDesc;
 import util.BitHelper;
 
 public class MemoryManager {
     public static final BootableImage BOOT_IMAGE = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
 
-    private static EmptyObject _firstEmptyObject = null;
+    public static EmptyObject _firstEmptyObject = null;
 
     public static void initialize() {
         initEmptyObjects();
@@ -28,18 +30,19 @@ public class MemoryManager {
 
             if (!isFree
                     || base < MemoryLayout.BIOS_STKEND
-                    || length < EmptyObject.BaseSize()) {
+                    || length <= MAGIC.getInstScalarSize("EmptyObject")
+                            + MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize) {
                 continue;
             }
 
-            boolean segmentContainsStaticObjects = base <= lastStaticObjAddr && lastStaticObjAddr <= base + length;
+            boolean segmentContainsStaticObjects = base <= lastStaticObjAddr && lastStaticObjAddr <= base + length - 1;
             if (!segmentContainsStaticObjects) {
                 Kernel.panic("unimplemented");
             } else {
                 int emptyLength = ((int) length) - EmptyObject.BaseSize();
                 int ptrNextFree = getPtrNextFree(lastStaticObj);
                 Object emptyObj = writeObject(ptrNextFree,
-                        emptyLength,
+                        BitHelper.alignDown(emptyLength - lastStaticObjAddr - 1, 4),
                         EmptyObject.RelocEntries(),
                         EmptyObject.Type());
 
@@ -61,52 +64,44 @@ public class MemoryManager {
     }
 
     public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
-
         int alignScalarSize = BitHelper.align(scalarSize, 4);
-        int newObjectSize = alignScalarSize + relocEntries * MAGIC.ptrSize;
+        int newObjectTotalSize = alignScalarSize + relocEntries * MAGIC.ptrSize;
 
-        EmptyObject emptyObj = findEmptyObject(newObjectSize);
+        EmptyObject emptyObj = findEmptyObjectFitting(newObjectTotalSize);
         if (emptyObj == null) {
             Kernel.panic("Out of memory");
         }
 
-        int emptyObjAddr = MAGIC.cast2Ref(emptyObj);
-
-        if (emptyObj.Size() == newObjectSize) {
-            return writePerfectlyFittingObject(scalarSize, relocEntries, type, emptyObj, emptyObjAddr);
+        if (objectSize(emptyObj) == newObjectTotalSize) {
+            Kernel.panic("perfect fit not implemented");
         }
 
-        int emptyObjEnd = emptyObjAddr + emptyObj.Size();
-        int newObjInEOAddr = BitHelper.align(emptyObjEnd - newObjectSize, 4);
-        Object newObjInEO = writeObject(newObjInEOAddr, scalarSize, relocEntries, type);
+        int emptyObjectTop = emptyObj.Top();
+        int newObjectBottom = emptyObjectTop - newObjectTotalSize;
+        // TM3.sprint(newObjectTotalSize, 10, 240, TM3Color.VIOLET);
 
-        // Update the empty object
-        int newEmptyObjSize = newObjInEOAddr - emptyObjAddr;
-        MAGIC.assign(emptyObj._r_scalarSize, newEmptyObjSize);
+        Object newObject = writeObject(newObjectBottom, scalarSize, relocEntries, type);
 
-        return newObjInEO;
+        MAGIC.assign(emptyObj._r_scalarSize, emptyObj._r_scalarSize - newObjectTotalSize);
+
+        return newObject;
     }
 
-    private static Object writePerfectlyFittingObject(
-            int scalarSize,
-            int relocEntries,
-            SClassDesc type,
-            EmptyObject emptyObj,
-            int emptyObjAddr) {
-        if (emptyObj.prevEmptyObject != null) {
-            emptyObj.prevEmptyObject.nextEmptyObject = emptyObj.nextEmptyObject;
-        }
-        if (emptyObj.nextEmptyObject != null) {
-            emptyObj.nextEmptyObject.prevEmptyObject = emptyObj.prevEmptyObject;
-        }
-        if (_firstEmptyObject == emptyObj) {
-            _firstEmptyObject = emptyObj.nextEmptyObject;
-        }
-
-        return writeObject(emptyObjAddr, scalarSize, relocEntries, type);
+    private static int objectSize(Object o) {
+        return o._r_scalarSize + o._r_relocEntries * MAGIC.ptrSize;
     }
 
-    private static EmptyObject findEmptyObject(int objectSize) {
+    private static int objectSize(int scalarSize, int relocEntries) {
+        int alignScalarSize = BitHelper.align(scalarSize, 4);
+        return alignScalarSize + relocEntries * MAGIC.ptrSize;
+    }
+
+    public static void shrinkEmptyObject(EmptyObject obj, int shrinkBy) {
+        int newEmptyObjSize = obj.Size() - shrinkBy;
+        MAGIC.assign(obj._r_scalarSize, newEmptyObjSize);
+    }
+
+    private static EmptyObject findEmptyObjectFitting(int objectSize) {
         EmptyObject emptyObj = _firstEmptyObject;
         while (emptyObj != null) {
             if (emptyObj.fits(objectSize)) {
@@ -153,6 +148,7 @@ public class MemoryManager {
      * @param type         The type of the object.
      * @return The allocated object.
      */
+    @SJC.Inline
     private static Object writeObject(int ptrNextFree, int scalarSize, int relocEntries, SClassDesc type) {
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;

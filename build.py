@@ -34,7 +34,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
                             "-o", "boot",                   # output
                             "-y",                           # use byte strings
                             "-s", "1440k",                  # max size
-                            "-t", "ia32", "-T", "sse3",  # architecture
+                            "-t", "ia32", "-T", "nsop",  # architecture
                             "-x",                           # generate stack extreme check
                             "-u", "rte",                    # rte symbol generator
                             "-g",                           # generate all unit-descriptors 
@@ -53,7 +53,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
     
     subprocess.run([
         "qemu-system-x86_64", 
-        "-m", "200", 
+        "-m", "100", 
         "-boot", "a", 
         "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy", 
         "-rtc", "base=localtime",

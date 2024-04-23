@@ -58,6 +58,21 @@ public class BitHelper {
     }
 
     /**
+     * Aligns a base value to the specified alignment.
+     * 
+     * @param base      the base value to align
+     * @param alignment the alignment value
+     * @return the aligned value
+     */
+    @SJC.Inline
+    public static int alignDown(int base, int alignment) {
+        if (base % alignment != 0) {
+            base -= alignment - base % alignment;
+        }
+        return base;
+    }
+
+    /**
      * A utility class which converts longs in binary form into their actual binary
      * values.
      * Was created because SJC does not support binary literals
