@@ -1,9 +1,9 @@
 package gui.components;
 
+import formats.fonts.AFont;
 import gui.ADisplayElement;
 import kernel.Kernel;
 import kernel.display.ADisplay;
-import kernel.display.font.AFont;
 import kernel.hardware.keyboard.Key;
 
 public class TextField extends ADisplayElement {

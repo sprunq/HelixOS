@@ -1,9 +1,9 @@
 package gui.displays.windows;
 
+import formats.fonts.AFont;
 import gui.components.TextField;
 import kernel.Kernel;
 import kernel.display.ADisplay;
-import kernel.display.font.AFont;
 import util.logging.LogEntry;
 import util.logging.Logger;
 

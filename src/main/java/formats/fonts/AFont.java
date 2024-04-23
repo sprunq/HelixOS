@@ -1,4 +1,4 @@
-package kernel.display.font;
+package formats.fonts;
 
 import kernel.display.ADisplay;
 import util.BitHelper;

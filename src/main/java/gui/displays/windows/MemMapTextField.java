@@ -1,11 +1,11 @@
 package gui.displays.windows;
 
+import formats.fonts.AFont;
 import gui.components.TextField;
 import kernel.Kernel;
 import kernel.bios.call.MemMap;
 import kernel.bios.call.MemMapEntry;
 import kernel.display.ADisplay;
-import kernel.display.font.AFont;
 import util.StrBuilder;
 
 public class MemMapTextField extends AWindow {

@@ -1,7 +1,6 @@
 package kernel.display.vm13;
 
 import kernel.MemoryLayout;
-import kernel.display.font.AFont;
 import kernel.memory.Memory;
 import util.BitHelper;
 import util.MathH;
@@ -46,31 +45,6 @@ public class VM13 {
     @SJC.Inline
     public static int offset(int x, int y) {
         return WIDTH * y + x;
-    }
-
-    public static void putChar(byte c, int x, int y, AFont font, byte color) {
-        int fontWidth = font.getWidth();
-        int fontHeight = font.getHeight();
-        boolean fontVertical = font.isVertical();
-
-        for (int charLine = 0; charLine < fontHeight; charLine++) {
-            int b = font.getCharacterBitmapLine(c, charLine);
-            for (int lineBit = 0; lineBit < fontWidth; lineBit++) {
-                int bit = BitHelper.getBit(b, lineBit);
-                if (bit == 1) {
-                    int posX = x + charLine;
-                    int posY = y + lineBit;
-                    if (fontVertical) {
-                        posX = x + charLine;
-                        posY = y + lineBit;
-                    } else {
-                        posX = x + lineBit;
-                        posY = y + charLine;
-                    }
-                    setPixel(posX, posY, color);
-                }
-            }
-        }
     }
 
     public static void fillrect(int x, int y, int width, int height, byte color) {

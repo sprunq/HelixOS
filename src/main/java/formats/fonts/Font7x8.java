@@ -1,4 +1,4 @@
-package kernel.display.font;
+package formats.fonts;
 
 /*
  * Bitmap from:

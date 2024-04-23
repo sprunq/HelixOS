@@ -1,9 +1,9 @@
 package gui.displays;
 
+import formats.fonts.Font8x8;
 import gui.ADisplayElement;
 import gui.components.TextField;
 import kernel.display.ADisplay;
-import kernel.display.font.Font8x8;
 import kernel.hardware.RTC;
 import util.StrBuilder;
 

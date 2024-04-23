@@ -1,11 +1,11 @@
 package gui.displays.windows;
 
+import formats.fonts.AFont;
+import formats.fonts.Font9x16;
 import gui.ADisplayElement;
 import gui.components.TextField;
 import kernel.Kernel;
 import kernel.display.ADisplay;
-import kernel.display.font.AFont;
-import kernel.display.font.Font9x16;
 
 public abstract class AWindow extends ADisplayElement {
     public final int FrameSize;

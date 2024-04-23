@@ -1,5 +1,6 @@
 package kernel;
 
+import formats.fonts.Font7x8;
 import gui.WindowManager;
 import gui.displays.Homebar;
 import gui.displays.Splashscreen;
@@ -11,7 +12,6 @@ import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
 import kernel.display.ADisplay;
-import kernel.display.font.Font7x8;
 import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
