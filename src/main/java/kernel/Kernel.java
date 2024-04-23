@@ -7,22 +7,19 @@ import gui.displays.Homebar;
 import gui.displays.Splashscreen;
 import gui.displays.windows.LogTextField;
 import gui.displays.windows.MemMapTextField;
-import kernel.bios.call.DisplayModes;
-import kernel.display.text.TM3Color;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
 import kernel.display.ADisplay;
-import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
-import kernel.symbols.SymbolResolution;
 import kernel.tasks.Breaker;
-import rte.SMthdBlock;
+import kernel.trace.Bluescreen;
+import kernel.trace.SymbolResolution;
 import util.logging.Logger;
 import util.vector.VectorVesaMode;
 
@@ -67,7 +64,7 @@ public class Kernel {
 
         WindowManager winManSplashScreen = new WindowManager(Display);
         buildSplashScreen(winManSplashScreen);
-        winManSplashScreen.staticDisplayFor(3000);
+        winManSplashScreen.staticDisplayFor(000);
 
         WindowManager windowManager = new WindowManager(Display);
         buildGuiEnvironment(windowManager);
@@ -151,7 +148,7 @@ public class Kernel {
         MAGIC.inline(0x89, 0x6D);
         MAGIC.inlineOffset(1, ebp);
         int eip = x86.eipForFunction(ebp);
-        printStackTrace("PANIC", msg, ebp, eip);
+        Bluescreen.Show("PANIC", msg, ebp, eip);
         while (true) {
         }
     }
@@ -161,43 +158,7 @@ public class Kernel {
         MAGIC.inline(0x89, 0x6D);
         MAGIC.inlineOffset(1, ebp);
         int eip = x86.eipForFunction(ebp);
-        printStackTrace("TODO", msg, ebp, eip);
+        Bluescreen.Show("TODO", msg, ebp, eip);
         Timer.sleep(-1);
-    }
-
-    public static void printStackTrace(String title, String message, int ebp, int eip) {
-        DisplayModes.activateTextMode();
-        TM3 out = new TM3();
-        out.clearScreen();
-        out.Brush.setFg(TM3Color.RED);
-        out.println(title);
-        if (message != null) {
-            out.Brush.setFg(TM3Color.RED);
-            out.print("Message: ");
-            out.Brush.setFg(TM3Color.LIGHT_RED);
-            out.println(message);
-        }
-        out.println();
-        out.Brush.setFg(TM3Color.RED);
-        out.println("Stacktrace: ");
-        out.Brush.setFg(TM3Color.LIGHT_RED);
-        do {
-            out.print("  ");
-            out.print("ebp: 0x");
-            out.print(ebp, 16);
-            out.print(", esp: 0x");
-            out.print(eip, 16);
-            out.print(", method: ");
-
-            SMthdBlock m = SymbolResolution.resolve(eip);
-            if (m != null) {
-                out.print(m.namePar);
-            } else {
-                out.print("no method found");
-            }
-            out.println();
-            ebp = MAGIC.rMem32(ebp);
-            eip = MAGIC.rMem32(ebp + 4);
-        } while (ebp <= 0x9BFFC && ebp > 0 && out.getCurrentLine() < TM3.LINE_COUNT);
     }
 }

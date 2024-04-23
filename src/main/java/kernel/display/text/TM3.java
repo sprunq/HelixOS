@@ -152,9 +152,38 @@ public class TM3 {
         return position + len;
     }
 
+    public static int directPrint(int n, int base, int leftpadBy, char leftpadChar, int position, int color) {
+        int max_len = MAX_CURSOR - position;
+        int len = NoAllocConv.itoa(MAGIC.cast2Ref(VidMem) + position * 2, 2, max_len, n, base);
+
+        if (len < leftpadBy) {
+            int shiftCharsBy = leftpadBy - len;
+            for (int i = 0; i <= len; i++) {
+                VidMem.Cells[position + len + shiftCharsBy - i].Character = VidMem.Cells[position + len - i].Character;
+            }
+
+            for (int i = 0; i < shiftCharsBy; i++) {
+                VidMem.Cells[position + i].Character = (byte) leftpadChar;
+            }
+
+            len += shiftCharsBy;
+        }
+
+        for (int i = 0; i < len; i++) {
+            VidMem.Cells[position + i].Color = (byte) color;
+        }
+
+        return position + len;
+    }
+
     @SJC.Inline
     public static int newLinePos(int cursor) {
         return (cursor / LINE_LENGTH + 1) * LINE_LENGTH;
+    }
+
+    @SJC.Inline
+    public static int getLine(int cursor) {
+        return cursor / LINE_LENGTH;
     }
 
     /**
@@ -207,6 +236,11 @@ public class TM3 {
      * operation and adjusts the cursor position accordingly.
      */
     private void setCharacterByte(byte b) {
+        if (b == '\n') {
+            _cursorPos = newLinePos(_cursorPos);
+            shiftIfOutOfBounds();
+            return;
+        }
         shiftIfOutOfBounds();
         VidMem.Cells[_cursorPos].Character = b;
         VidMem.Cells[_cursorPos].Color = Brush.get_color();

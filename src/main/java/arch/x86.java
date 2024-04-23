@@ -47,7 +47,7 @@ public class x86 {
         return MAGIC.rMem32(ebp + 4);
     }
 
-    public static int ebpForInterrupt(int ebp, int numOfParams) {
+    public static int eipForInterrupt(int ebp, int numOfParams) {
         return MAGIC.rMem32(ebp + 4 * 9 + numOfParams);
     }
 

@@ -4,6 +4,7 @@ import arch.x86;
 import kernel.Kernel;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
+import kernel.trace.Bluescreen;
 import util.logging.Logger;
 
 public class Interrupts {
@@ -32,8 +33,21 @@ public class Interrupts {
         int ebp = 0;
         MAGIC.inline(0x89, 0x6D);
         MAGIC.inlineOffset(1, ebp);
-        int eip = x86.ebpForInterrupt(ebp, 0);
-        Kernel.printStackTrace("Breakpoint", null, ebp, eip);
+
+        // Read registers from stack (pushed by x86.interrupt())
+        int edi = MAGIC.rMem32(ebp + 4);
+        int esi = MAGIC.rMem32(ebp + 8);
+        int ebp2 = MAGIC.rMem32(ebp + 12);
+        int esp = MAGIC.rMem32(ebp + 16);
+        int ebx = MAGIC.rMem32(ebp + 20);
+        int edx = MAGIC.rMem32(ebp + 24);
+        int ecx = MAGIC.rMem32(ebp + 28);
+        int eax = MAGIC.rMem32(ebp + 32);
+
+        // Read old EIP from stack
+        // 4 bytes before first pushed register + parameters
+        int oldEip = x86.eipForInterrupt(ebp, 0);
+        Bluescreen.Show("Breakpoint", "Breakpoint hit", ebp, oldEip, edi, esi, ebp2, esp, ebx, edx, ecx, eax);
         while (true) {
         }
     }

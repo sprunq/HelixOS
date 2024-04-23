@@ -34,7 +34,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
                             "-o", "boot",                   # output
                             "-y",                           # use byte strings
                             "-s", "1440k",                  # max size
-                            "-t", "ia32opt", "-T", "nsop",  # architecture
+                            "-t", "ia32opt", "-T", "sse3",  # architecture
                             "-x",                           # generate stack extreme check
                             "-u", "rte",                    # rte symbol generator
                             "-g",                           # generate all unit-descriptors 

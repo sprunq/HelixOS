@@ -1,4 +1,4 @@
-package kernel.symbols;
+package kernel.trace;
 
 import kernel.MemoryLayout;
 import rte.SClassDesc;
