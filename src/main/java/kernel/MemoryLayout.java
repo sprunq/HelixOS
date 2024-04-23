@@ -37,6 +37,7 @@ public class MemoryLayout {
 
     public static final int PROGRAM_STACK_TOP = INTERNAL_FREE_MEMORY_END;
     public static final int PROGRAM_STACK_BOTTOM = BIOS_STKEND;
+    public static final int PROGRAM_STACK_COMPILER_TOP = 0x9BFFC;
 
     public static final int VGA_VID_BUFFER_START = 0xA0000;
     public static final int VGA_TEXT_BUFFER_START = 0xB8000;

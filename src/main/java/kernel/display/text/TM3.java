@@ -27,24 +27,29 @@ public class TM3 {
         this.Brush = new TM3Brush();
     }
 
+    @SJC.Inline
     public void setCursor(int line, int column) {
         _cursorPos = index1d(line, column);
         updateCursorCaretDisplay();
     }
 
-    public void set_cursorPos(int idx) {
+    @SJC.Inline
+    public void setCursorPos(int idx) {
         _cursorPos = idx;
         updateCursorCaretDisplay();
     }
 
+    @SJC.Inline
     public int get_cursorPos() {
         return _cursorPos;
     }
 
+    @SJC.Inline
     public int getCurrentLine() {
         return _cursorPos / LINE_LENGTH;
     }
 
+    @SJC.Inline
     public void print(byte b) {
         setCharacterByte(b);
         updateCursorCaretDisplay();
@@ -64,11 +69,13 @@ public class TM3 {
         updateCursorCaretDisplay();
     }
 
+    @SJC.Inline
     public void print(char c) {
         setCharacterByte((byte) c);
         updateCursorCaretDisplay();
     }
 
+    @SJC.Inline
     public void print(boolean b) {
         print(b ? "true" : "false");
     }
@@ -85,16 +92,19 @@ public class TM3 {
         updateCursorCaretDisplay();
     }
 
+    @SJC.Inline
     public void print(int n) {
         print(n, 10);
     }
 
+    @SJC.Inline
     public void println() {
         _cursorPos = sNewLine(_cursorPos);
         shiftIfOutOfBounds();
         updateCursorCaretDisplay();
     }
 
+    @SJC.Inline
     public void println(byte b) {
         print(b);
         println();
@@ -105,26 +115,31 @@ public class TM3 {
         println();
     }
 
+    @SJC.Inline
     public void println(boolean b) {
         print(b);
         println();
     }
 
+    @SJC.Inline
     public void println(char c) {
         print(c);
         println();
     }
 
+    @SJC.Inline
     public void println(String str) {
         print(str);
         println();
     }
 
+    @SJC.Inline
     public void println(int n, int base) {
         print(n, base);
         println();
     }
 
+    @SJC.Inline
     public void println(int n) {
         print(n);
         println();
@@ -137,6 +152,7 @@ public class TM3 {
         return position + 1;
     }
 
+    @SJC.Inline
     public static int sprintln(char c, int position, int color) {
         int newPos = sprint(c, position, color);
         return sNewLine(newPos);
@@ -149,7 +165,6 @@ public class TM3 {
         return position + s.length();
     }
 
-    // if cut off, add "..." at the end
     public static int sprint(String s, int position, int color, int maxLen) {
         int len = MathH.min(s.length(), maxLen - 3);
         for (int i = 0; i < len; i++) {
@@ -163,6 +178,7 @@ public class TM3 {
         return position + len;
     }
 
+    @SJC.Inline
     public static int sprintln(String s, int position, int color) {
         int newPos = sprint(s, position, color);
         return sNewLine(newPos);
@@ -201,6 +217,7 @@ public class TM3 {
         return position + len;
     }
 
+    @SJC.Inline
     public static int sprintln(int n, int base, int leftpadBy, char leftpadChar, int position, int color) {
         int newPos = sprint(n, base, leftpadBy, leftpadChar, position, color);
         return sNewLine(newPos);
@@ -226,11 +243,19 @@ public class TM3 {
         MAGIC.wIOs8(0x3D5, (byte) ((pos >> 8) & 0xFF));
     }
 
+    @SJC.Inline
+    public static void disableCursorCaret() {
+        MAGIC.wIOs8(0x3D4, (byte) 0x0A);
+        MAGIC.wIOs8(0x3D5, (byte) 0x20);
+    }
+
+    @SJC.Inline
     public void clearScreen() {
         clearScreenS();
         _cursorPos = 0;
     }
 
+    @SJC.Inline
     public static void clearScreenS() {
         byte colClear = TM3Color.set(TM3Color.GREY, TM3Color.BLACK);
         for (int i = 0; i < LINE_COUNT; i++) {
@@ -281,7 +306,6 @@ public class TM3 {
      * Updates the cursor caret position if it has changed.
      * Used to avoid unnecessary I/O operations to update the cursor position.
      */
-    @SJC.Inline
     private void updateCursorCaretDisplay() {
         if (_onScreenCursorPos != _cursorPos) {
             setCursorCaret(_cursorPos);

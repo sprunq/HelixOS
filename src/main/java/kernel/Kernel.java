@@ -64,7 +64,7 @@ public class Kernel {
 
         WindowManager winManSplashScreen = new WindowManager(Display);
         buildSplashScreen(winManSplashScreen);
-        winManSplashScreen.staticDisplayFor(000);
+        winManSplashScreen.staticDisplayFor(2000);
 
         WindowManager windowManager = new WindowManager(Display);
         buildGuiEnvironment(windowManager);

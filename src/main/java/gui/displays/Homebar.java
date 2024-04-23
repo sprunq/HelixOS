@@ -62,5 +62,4 @@ public class Homebar extends ADisplayElement {
             }
         }
     }
-
 }

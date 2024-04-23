@@ -43,12 +43,13 @@ public class x86 {
         MAGIC.inline(0xF4);
     }
 
+    @SJC.Inline
     public static int eipForFunction(int ebp) {
         return MAGIC.rMem32(ebp + 4);
     }
 
+    @SJC.Inline
     public static int eipForInterrupt(int ebp, int numOfParams) {
         return MAGIC.rMem32(ebp + 4 * 9 + numOfParams);
     }
-
 }
