@@ -1,6 +1,6 @@
 package kernel.interrupt;
 
-import assembler.x86;
+import arch.x86;
 import kernel.MemoryLayout;
 import rte.SClassDesc;
 import util.BitHelper;

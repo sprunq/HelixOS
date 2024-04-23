@@ -31,14 +31,14 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
                             "-jar", sjc_jar_absolute, 
                             "../src/main",
                             "../include",
-                            "-o", "boot",               # output
-                            "-y",                       # use byte strings
-                            "-s", "1M",                 # max size
-                            "-t", "ia32", "-T", "nsop", # architecture
-                            "-x",                       # generate stack extreme check
-                            "-u", "rte",                # rte symbol generator
-                            "-g",                       # generate all unit-descriptors 
-                            "-G",                       # generate all mthd-code-bodies
+                            "-o", "boot",                   # output
+                            "-y",                           # use byte strings
+                            "-s", "1440k",                  # max size
+                            "-t", "ia32opt", "-T", "nsop",  # architecture
+                            "-x",                           # generate stack extreme check
+                            "-u", "rte",                    # rte symbol generator
+                            "-g",                           # generate all unit-descriptors 
+                            "-G",                           # generate all mthd-code-bodies
                             ],
                        capture_output=True,
                        text=True) 

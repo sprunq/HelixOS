@@ -1,5 +1,6 @@
 package kernel;
 
+import arch.x86;
 import formats.fonts.Font7x8;
 import gui.WindowManager;
 import gui.displays.Homebar;
@@ -149,7 +150,8 @@ public class Kernel {
         int ebp = 0;
         MAGIC.inline(0x89, 0x6D);
         MAGIC.inlineOffset(1, ebp);
-        printStackTrace("PANIC", msg, ebp);
+        int eip = x86.eipForFunction(ebp);
+        printStackTrace("PANIC", msg, ebp, eip);
         while (true) {
         }
     }
@@ -158,12 +160,12 @@ public class Kernel {
         int ebp = 0;
         MAGIC.inline(0x89, 0x6D);
         MAGIC.inlineOffset(1, ebp);
-        printStackTrace("TODO", msg, ebp);
+        int eip = x86.eipForFunction(ebp);
+        printStackTrace("TODO", msg, ebp, eip);
         Timer.sleep(-1);
     }
 
-    public static void printStackTrace(String title, String message, int ebp) {
-        int eip = MAGIC.rMem32(ebp + 4 * 9);
+    public static void printStackTrace(String title, String message, int ebp, int eip) {
         DisplayModes.activateTextMode();
         TM3 out = new TM3();
         out.clearScreen();
@@ -183,7 +185,7 @@ public class Kernel {
             out.print("  ");
             out.print("ebp: 0x");
             out.print(ebp, 16);
-            out.print(", eip: 0x");
+            out.print(", esp: 0x");
             out.print(eip, 16);
             out.print(", method: ");
 

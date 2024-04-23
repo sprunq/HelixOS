@@ -1,5 +1,6 @@
 package kernel.interrupt;
 
+import arch.x86;
 import kernel.Kernel;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
@@ -31,7 +32,8 @@ public class Interrupts {
         int ebp = 0;
         MAGIC.inline(0x89, 0x6D);
         MAGIC.inlineOffset(1, ebp);
-        Kernel.printStackTrace("Breakpoint", null, ebp);
+        int eip = x86.ebpForInterrupt(ebp, 0);
+        Kernel.printStackTrace("Breakpoint", null, ebp, eip);
         while (true) {
         }
     }

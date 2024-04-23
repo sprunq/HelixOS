@@ -1,6 +1,6 @@
 package kernel.hardware;
 
-import assembler.x86;
+import arch.x86;
 
 public class Timer {
     private static int _tickCount = 0;

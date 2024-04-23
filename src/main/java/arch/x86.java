@@ -1,4 +1,4 @@
-package assembler;
+package arch;
 
 public class x86 {
     /*
@@ -41,6 +41,14 @@ public class x86 {
     @SJC.Inline
     public static void hlt() {
         MAGIC.inline(0xF4);
+    }
+
+    public static int eipForFunction(int ebp) {
+        return MAGIC.rMem32(ebp + 4);
+    }
+
+    public static int ebpForInterrupt(int ebp, int numOfParams) {
+        return MAGIC.rMem32(ebp + 4 * 9 + numOfParams);
     }
 
 }

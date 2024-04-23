@@ -1,6 +1,6 @@
 package kernel.tasks;
 
-import assembler.x86;
+import arch.x86;
 import kernel.hardware.keyboard.IKeyboardEventListener;
 import kernel.hardware.keyboard.Key;
 
