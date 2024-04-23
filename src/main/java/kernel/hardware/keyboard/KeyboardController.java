@@ -89,7 +89,8 @@ public class KeyboardController {
             if (isBreak) {
                 consumed = listener.onKeyReleased((char) logicalKey);
             } else {
-                consumed = listener.onKeyPressed((char) logicalKey);
+                consumed = listener
+                        .onKeyPressed((char) logicalKey);
             }
             if (consumed) {
                 Logger.trace("Key", "Event consumed by ".append(Integer.toString(i, 10)));

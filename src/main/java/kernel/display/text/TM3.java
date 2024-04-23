@@ -2,6 +2,7 @@ package kernel.display.text;
 
 import kernel.MemoryLayout;
 import kernel.memory.Memory;
+import util.MathH;
 import util.NoAllocConv;
 
 public class TM3 {
@@ -89,7 +90,7 @@ public class TM3 {
     }
 
     public void println() {
-        _cursorPos = newLinePos(_cursorPos);
+        _cursorPos = sNewLine(_cursorPos);
         shiftIfOutOfBounds();
         updateCursorCaretDisplay();
     }
@@ -130,20 +131,44 @@ public class TM3 {
     }
 
     @SJC.Inline
-    public static int directPrint(char c, int position, int color) {
+    public static int sprint(char c, int position, int color) {
         VidMem.Cells[position].Character = (byte) c;
         VidMem.Cells[position].Color = (byte) color;
         return position + 1;
     }
 
-    public static int directPrint(String s, int position, int color) {
+    public static int sprintln(char c, int position, int color) {
+        int newPos = sprint(c, position, color);
+        return sNewLine(newPos);
+    }
+
+    public static int sprint(String s, int position, int color) {
         for (int i = 0; i < s.length(); i++) {
-            directPrint((char) s.get(i), position + i, color);
+            sprint((char) s.get(i), position + i, color);
         }
         return position + s.length();
     }
 
-    public static int directPrint(int n, int base, int position, int color) {
+    // if cut off, add "..." at the end
+    public static int sprint(String s, int position, int color, int maxLen) {
+        int len = MathH.min(s.length(), maxLen - 3);
+        for (int i = 0; i < len; i++) {
+            sprint((char) s.get(i), position + i, color);
+        }
+        if (len < s.length()) {
+            sprint('.', position + len, color);
+            sprint('.', position + len + 1, color);
+            sprint('.', position + len + 2, color);
+        }
+        return position + len;
+    }
+
+    public static int sprintln(String s, int position, int color) {
+        int newPos = sprint(s, position, color);
+        return sNewLine(newPos);
+    }
+
+    public static int sprint(int n, int base, int position, int color) {
         int max_len = MAX_CURSOR - position;
         int len = NoAllocConv.itoa(MAGIC.cast2Ref(VidMem) + position * 2, 2, max_len, n, base);
         for (int i = 0; i < len; i++) {
@@ -152,7 +177,7 @@ public class TM3 {
         return position + len;
     }
 
-    public static int directPrint(int n, int base, int leftpadBy, char leftpadChar, int position, int color) {
+    public static int sprint(int n, int base, int leftpadBy, char leftpadChar, int position, int color) {
         int max_len = MAX_CURSOR - position;
         int len = NoAllocConv.itoa(MAGIC.cast2Ref(VidMem) + position * 2, 2, max_len, n, base);
 
@@ -176,8 +201,13 @@ public class TM3 {
         return position + len;
     }
 
+    public static int sprintln(int n, int base, int leftpadBy, char leftpadChar, int position, int color) {
+        int newPos = sprint(n, base, leftpadBy, leftpadChar, position, color);
+        return sNewLine(newPos);
+    }
+
     @SJC.Inline
-    public static int newLinePos(int cursor) {
+    public static int sNewLine(int cursor) {
         return (cursor / LINE_LENGTH + 1) * LINE_LENGTH;
     }
 
@@ -237,7 +267,7 @@ public class TM3 {
      */
     private void setCharacterByte(byte b) {
         if (b == '\n') {
-            _cursorPos = newLinePos(_cursorPos);
+            _cursorPos = sNewLine(_cursorPos);
             shiftIfOutOfBounds();
             return;
         }
