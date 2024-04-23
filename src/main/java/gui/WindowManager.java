@@ -2,14 +2,14 @@ package gui;
 
 import kernel.display.ADisplay;
 import kernel.hardware.Timer;
-import util.vector.VectorWindow;
+import util.vector.VecWindow;
 
 public class WindowManager {
-    private VectorWindow windows;
+    private VecWindow windows;
     private ADisplay display;
 
     public WindowManager(ADisplay display) {
-        windows = new VectorWindow();
+        windows = new VecWindow();
         this.display = display;
     }
 

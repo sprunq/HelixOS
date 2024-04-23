@@ -3,17 +3,17 @@ package util.vector;
 import kernel.Kernel;
 import kernel.hardware.keyboard.IKeyboardEventListener;
 
-public class VectorKeyboardEventListener {
+public class VecKeyboardEventListener {
     private static final int DEFAULT_CAPACITY = 10;
     private IKeyboardEventListener[] elements;
     private int size;
 
-    public VectorKeyboardEventListener() {
+    public VecKeyboardEventListener() {
         this.elements = new IKeyboardEventListener[DEFAULT_CAPACITY];
         this.size = 0;
     }
 
-    public VectorKeyboardEventListener(int initialCapacity) {
+    public VecKeyboardEventListener(int initialCapacity) {
         if (initialCapacity < 0)
             Kernel.panic("Illegal Capacity");
         this.elements = new IKeyboardEventListener[initialCapacity];

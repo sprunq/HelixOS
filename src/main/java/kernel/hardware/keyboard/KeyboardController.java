@@ -3,7 +3,8 @@ package kernel.hardware.keyboard;
 import kernel.hardware.keyboard.layout.ALayout;
 import util.BitHelper;
 import util.logging.Logger;
-import util.vector.VectorKeyboardEventListener;
+import util.queue.QueueByte;
+import util.vector.VecKeyboardEventListener;
 
 public class KeyboardController {
     private static final int PORT_KEYCODE = 0x60;
@@ -15,7 +16,7 @@ public class KeyboardController {
     private static final int MASK_1000000010000000 = (1 << 7) | (1 << 15);
     private static final int MASK_0111111101111111 = ~MASK_1000000010000000;
 
-    private static RingBuffer _inputBuffer;
+    private static QueueByte _inputBuffer;
     private static ALayout _layout;
 
     private static boolean _shiftPressed;
@@ -30,12 +31,12 @@ public class KeyboardController {
      * A listener can consume an event, preventing other listeners from receiving
      * it.
      */
-    private static VectorKeyboardEventListener _listeners;
+    private static VecKeyboardEventListener _listeners;
 
     public static void initialize(ALayout keyBoardLayout) {
-        _inputBuffer = new RingBuffer(256);
+        _inputBuffer = new QueueByte(256);
         _layout = keyBoardLayout;
-        _listeners = new VectorKeyboardEventListener();
+        _listeners = new VecKeyboardEventListener();
         Logger.info("Key", "Initialized");
     }
 

@@ -1,23 +1,21 @@
 package util.vector;
 
 import kernel.Kernel;
-import util.Array;
-import util.MathH;
 
-public class VectorByte {
+public class VecChar {
     private static final int DEFAULT_CAPACITY = 10;
-    private byte[] elements;
+    private char[] elements;
     private int size;
 
-    public VectorByte() {
-        this.elements = new byte[DEFAULT_CAPACITY];
+    public VecChar() {
+        this.elements = new char[DEFAULT_CAPACITY];
         this.size = 0;
     }
 
-    public VectorByte(int initialCapacity) {
+    public VecChar(int initialCapacity) {
         if (initialCapacity < 0)
             Kernel.panic("Illegal Capacity");
-        this.elements = new byte[initialCapacity];
+        this.elements = new char[initialCapacity];
         this.size = 0;
     }
 
@@ -29,12 +27,12 @@ public class VectorByte {
     }
 
     @SJC.Inline
-    public void add(byte element) {
+    public void add(char element) {
         ensureCapacity(size + 1);
         elements[size++] = element;
     }
 
-    public void addAll(byte[] toAdd) {
+    public void addAll(char[] toAdd) {
         ensureCapacity(size + toAdd.length);
         for (int i = 0; i < toAdd.length; i++) {
             this.elements[size + i] = toAdd[i];
@@ -43,7 +41,7 @@ public class VectorByte {
     }
 
     @SJC.Inline
-    public byte get(int index) {
+    public char get(int index) {
         if (index < 0 || index >= size)
             Kernel.panic("Index out of bounds for vector access");
         return elements[index];
@@ -59,8 +57,8 @@ public class VectorByte {
         return elements.length;
     }
 
-    public byte[] toArray() {
-        byte[] array = new byte[size];
+    public char[] toArray() {
+        char[] array = new char[size];
         for (int i = 0; i < size; i++) {
             array[i] = elements[i];
         }
@@ -68,12 +66,17 @@ public class VectorByte {
     }
 
     private void ensureCapacity(int minCapacity) {
-        if (minCapacity > capacity()) {
-            int newCapacity = MathH.max(capacity() * 2, minCapacity);
+        if (minCapacity > elements.length) {
+            int newCapacity = elements.length * 2;
             if (newCapacity < minCapacity) {
-                Kernel.panic("Vector capacity overflow");
+                newCapacity = minCapacity;
             }
-            elements = Array.copyOf(elements, newCapacity);
+
+            char[] newElements = new char[newCapacity];
+            for (int i = 0; i < size; i++) {
+                newElements[i] = elements[i];
+            }
+            elements = newElements;
         }
     }
 }

@@ -2,11 +2,10 @@ package util.logging;
 
 import kernel.hardware.RTC;
 import util.StrBuilder;
+import util.queue.QueueLogEntry;
 
 public class Logger {
-    private static LogEntry[] logBuffer;
-    private static int logIndex = 0;
-    private static int entryCount = 0;
+    private static QueueLogEntry logBuffer;
     private static byte minimumLogLevel = 0;
     private static boolean initialized = false;
     private static int logTicks = 0;
@@ -19,13 +18,12 @@ public class Logger {
     public static final byte FATAL = 5;
 
     public static void initialize(byte logLevel, int capactiy) {
-        logBuffer = new LogEntry[capactiy];
+        logBuffer = new QueueLogEntry(capactiy);
         for (int i = 0; i < capactiy; i++) {
-            logBuffer[i] = new LogEntry("", "", NONE, "");
+            logBuffer.put(new LogEntry("", "", NONE, ""));
         }
         initialized = true;
         minimumLogLevel = logLevel;
-
         Logger.info("Logger", "Initialized");
     }
 
@@ -58,37 +56,18 @@ public class Logger {
         if (priority < minimumLogLevel || !initialized)
             return;
 
-        logBuffer[logIndex].setCategory(category);
-        logBuffer[logIndex].setMessage(message);
-        logBuffer[logIndex].setPriority(priority);
-        logBuffer[logIndex].setTime_HMS(getTimeHMS());
-        logIndex++;
+        LogEntry log = logBuffer.get();
+        log.setCategory(category);
+        log.setMessage(message);
+        log.setPriority(priority);
+        log.setTime_HMS(getTimeHMS());
+        logBuffer.put(log);
         logTicks++;
-        if (logIndex >= logBuffer.length) {
-            logIndex = 0;
-        }
-        if (entryCount < logBuffer.length) {
-            entryCount++;
-        }
     }
 
     @SJC.Inline
     public static LogEntry getChronologicalLog(int i) {
-        return logBuffer[internalIndex(i)];
-    }
-
-    @SJC.Inline
-    public static int getNumberOfLogs() {
-        return entryCount;
-    }
-
-    @SJC.Inline
-    private static int internalIndex(int i) {
-        int index = (logIndex - i - 1);
-        if (index < 0) {
-            index += logBuffer.length;
-        }
-        return index;
+        return logBuffer.peek_back(i);
     }
 
     @SJC.Inline

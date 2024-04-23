@@ -1,29 +1,43 @@
-package kernel.hardware.keyboard;
+package util.queue;
 
-public class RingBuffer {
+import util.logging.LogEntry;
+
+public class QueueLogEntry {
     private final int _size;
-    private final byte[] _buffer;
+    private final LogEntry[] _buffer;
     private int _headIdx;
     private int _tailIdx;
     private int _count;
 
-    public RingBuffer(int size) {
+    public QueueLogEntry(int size) {
         this._size = size;
-        _buffer = new byte[size];
+        _buffer = new LogEntry[size];
         _headIdx = 0;
         _tailIdx = 0;
         _count = 0;
     }
 
-    public void put(byte c) {
+    public void put(LogEntry c) {
         _buffer[_headIdx] = c;
         incHead();
     }
 
-    public byte get() {
-        byte c = _buffer[_tailIdx];
+    public LogEntry get() {
+        LogEntry c = _buffer[_tailIdx];
         incTail();
         return c;
+    }
+
+    public LogEntry peek() {
+        return _buffer[_tailIdx];
+    }
+
+    public LogEntry peek(int offset) {
+        return _buffer[(_tailIdx + offset) % _size];
+    }
+
+    public LogEntry peek_back(int i) {
+        return _buffer[(_headIdx - i + _size - 1) % _size];
     }
 
     @SJC.Inline

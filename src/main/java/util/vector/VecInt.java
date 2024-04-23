@@ -1,31 +1,30 @@
 package util.vector;
 
-import gui.ADisplayElement;
 import kernel.Kernel;
 
-public class VectorWindow {
+public class VecInt {
     private static final int DEFAULT_CAPACITY = 10;
-    private ADisplayElement[] elements;
+    private int[] elements;
     private int size;
 
-    public VectorWindow() {
-        this.elements = new ADisplayElement[DEFAULT_CAPACITY];
+    public VecInt() {
+        this.elements = new int[DEFAULT_CAPACITY];
         this.size = 0;
     }
 
-    public VectorWindow(int initialCapacity) {
+    public VecInt(int initialCapacity) {
         if (initialCapacity < 0)
             Kernel.panic("Illegal Capacity");
-        this.elements = new ADisplayElement[initialCapacity];
+        this.elements = new int[initialCapacity];
         this.size = 0;
     }
 
-    public void add(ADisplayElement element) {
+    public void add(int element) {
         ensureCapacity(size + 1);
         elements[size++] = element;
     }
 
-    public ADisplayElement get(int index) {
+    public int get(int index) {
         if (index < 0 || index >= size)
             Kernel.panic("Index out of bounds for vector access");
         return elements[index];
@@ -42,23 +41,11 @@ public class VectorWindow {
                 newCapacity = minCapacity;
             }
 
-            ADisplayElement[] newElements = new ADisplayElement[newCapacity];
+            int[] newElements = new int[newCapacity];
             for (int i = 0; i < size; i++) {
                 newElements[i] = elements[i];
             }
             elements = newElements;
-        }
-    }
-
-    public void SortByZ() {
-        for (int i = 0; i < size; i++) {
-            for (int j = i + 1; j < size; j++) {
-                if (elements[i].Z > elements[j].Z) {
-                    ADisplayElement temp = elements[i];
-                    elements[i] = elements[j];
-                    elements[j] = temp;
-                }
-            }
         }
     }
 }

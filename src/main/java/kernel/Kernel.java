@@ -21,7 +21,7 @@ import kernel.tasks.Breaker;
 import kernel.trace.Bluescreen;
 import kernel.trace.SymbolResolution;
 import util.logging.Logger;
-import util.vector.VectorVesaMode;
+import util.vector.VecVesaMode;
 
 public class Kernel {
     public static final int RESOLUTION = 0;
@@ -29,9 +29,9 @@ public class Kernel {
     public static ADisplay Display;
 
     public static void main() {
-        MAGIC.doStaticInit();
         MemoryManager.initialize();
-        Logger.initialize(Logger.TRACE, 200);
+        MAGIC.doStaticInit();
+        Logger.initialize(Logger.TRACE, 100);
         SymbolResolution.initialize();
         PIT.initialize();
         IDT.initialize();
@@ -40,7 +40,7 @@ public class Kernel {
         KeyboardController.initialize(QWERTZ.Instance);
         KeyboardController.addListener(new Breaker());
 
-        VectorVesaMode modes = VesaQuery.AvailableModes();
+        VecVesaMode modes = VesaQuery.AvailableModes();
         Logger.info("VESA", "Available VESA modes:");
         for (int i = 0; i < modes.size(); i++) {
             Logger.info("VESA", modes.get(i).dbg());

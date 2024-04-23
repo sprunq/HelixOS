@@ -1,52 +1,38 @@
 package util.vector;
 
+import gui.ADisplayElement;
 import kernel.Kernel;
 
-public class VectorLines {
+public class VecWindow {
     private static final int DEFAULT_CAPACITY = 10;
-    private VectorChar[] elements;
+    private ADisplayElement[] elements;
     private int size;
 
-    public VectorLines() {
-        this.elements = new VectorChar[DEFAULT_CAPACITY];
+    public VecWindow() {
+        this.elements = new ADisplayElement[DEFAULT_CAPACITY];
         this.size = 0;
     }
 
-    public VectorLines(int initialCapacity) {
+    public VecWindow(int initialCapacity) {
         if (initialCapacity < 0)
             Kernel.panic("Illegal Capacity");
-        this.elements = new VectorChar[initialCapacity];
+        this.elements = new ADisplayElement[initialCapacity];
         this.size = 0;
     }
 
-    public void clearKeepCapacity() {
-        for (int i = 0; i < size; i++) {
-            elements[i] = null;
-        }
-        size = 0;
-    }
-
-    @SJC.Inline
-    public void add(VectorChar element) {
+    public void add(ADisplayElement element) {
         ensureCapacity(size + 1);
         elements[size++] = element;
     }
 
-    @SJC.Inline
-    public VectorChar get(int index) {
+    public ADisplayElement get(int index) {
         if (index < 0 || index >= size)
             Kernel.panic("Index out of bounds for vector access");
         return elements[index];
     }
 
-    @SJC.Inline
     public int size() {
         return size;
-    }
-
-    @SJC.Inline
-    public int capacity() {
-        return elements.length;
     }
 
     private void ensureCapacity(int minCapacity) {
@@ -56,11 +42,23 @@ public class VectorLines {
                 newCapacity = minCapacity;
             }
 
-            VectorChar[] newElements = new VectorChar[newCapacity];
+            ADisplayElement[] newElements = new ADisplayElement[newCapacity];
             for (int i = 0; i < size; i++) {
                 newElements[i] = elements[i];
             }
             elements = newElements;
+        }
+    }
+
+    public void SortByZ() {
+        for (int i = 0; i < size; i++) {
+            for (int j = i + 1; j < size; j++) {
+                if (elements[i].Z > elements[j].Z) {
+                    ADisplayElement temp = elements[i];
+                    elements[i] = elements[j];
+                    elements[j] = temp;
+                }
+            }
         }
     }
 }

@@ -1,17 +1,17 @@
 package util;
 
-import util.vector.VectorByte;
+import util.vector.VecByte;
 
 public class StrBuilder {
-    private VectorByte strBuffer;
+    private VecByte strBuffer;
     private static final int DEFAULT_CAPACITY = 16;
 
     public StrBuilder() {
-        this.strBuffer = new VectorByte(DEFAULT_CAPACITY);
+        this.strBuffer = new VecByte(DEFAULT_CAPACITY);
     }
 
     public StrBuilder(int initialCapacity) {
-        this.strBuffer = new VectorByte(initialCapacity);
+        this.strBuffer = new VecByte(initialCapacity);
     }
 
     public void clearKeepCapacity() {

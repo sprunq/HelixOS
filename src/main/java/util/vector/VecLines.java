@@ -1,38 +1,52 @@
 package util.vector;
 
 import kernel.Kernel;
-import kernel.display.vesa.VESAMode;
 
-public class VectorVesaMode {
+public class VecLines {
     private static final int DEFAULT_CAPACITY = 10;
-    private VESAMode[] elements;
+    private VecChar[] elements;
     private int size;
 
-    public VectorVesaMode() {
-        this.elements = new VESAMode[DEFAULT_CAPACITY];
+    public VecLines() {
+        this.elements = new VecChar[DEFAULT_CAPACITY];
         this.size = 0;
     }
 
-    public VectorVesaMode(int initialCapacity) {
+    public VecLines(int initialCapacity) {
         if (initialCapacity < 0)
             Kernel.panic("Illegal Capacity");
-        this.elements = new VESAMode[initialCapacity];
+        this.elements = new VecChar[initialCapacity];
         this.size = 0;
     }
 
-    public void add(VESAMode element) {
+    public void clearKeepCapacity() {
+        for (int i = 0; i < size; i++) {
+            elements[i] = null;
+        }
+        size = 0;
+    }
+
+    @SJC.Inline
+    public void add(VecChar element) {
         ensureCapacity(size + 1);
         elements[size++] = element;
     }
 
-    public VESAMode get(int index) {
+    @SJC.Inline
+    public VecChar get(int index) {
         if (index < 0 || index >= size)
             Kernel.panic("Index out of bounds for vector access");
         return elements[index];
     }
 
+    @SJC.Inline
     public int size() {
         return size;
+    }
+
+    @SJC.Inline
+    public int capacity() {
+        return elements.length;
     }
 
     private void ensureCapacity(int minCapacity) {
@@ -42,7 +56,7 @@ public class VectorVesaMode {
                 newCapacity = minCapacity;
             }
 
-            VESAMode[] newElements = new VESAMode[newCapacity];
+            VecChar[] newElements = new VecChar[newCapacity];
             for (int i = 0; i < size; i++) {
                 newElements[i] = elements[i];
             }
