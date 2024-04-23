@@ -52,13 +52,15 @@ public class MemMapTextField extends AWindow {
 
     private String getMemMapStr() {
         StrBuilder sb = new StrBuilder(500);
-        int contIndex = 0;
         int i = 0;
-        do {
-            MemMapEntry entry = MemMap.memMap(contIndex);
-            contIndex = MemMap.getMemMapContinuationIndex();
-            sb
-                    .append("Entry #")
+        MemMap memMap = new MemMap();
+        while (true) {
+            MemMapEntry entry = memMap.next();
+            if (entry == null) {
+                break;
+            }
+
+            sb.append("Entry #")
                     .append(i).append(":")
                     .append(entry.isFree() ? "free" : "reserved")
                     .appendLine()
@@ -72,7 +74,7 @@ public class MemMapTextField extends AWindow {
                     .appendLine()
                     .appendLine();
             i++;
-        } while (contIndex != 0);
+        }
         return sb.toString();
     }
 

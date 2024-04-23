@@ -6,17 +6,52 @@ import kernel.trace.logging.Logger;
 import util.StrBuilder;
 
 public class MemMap extends BIOS {
+
+    private int memMapContinuationIndex = -1;
+    private boolean _first = true;
+
+    public MemMap() {
+        super();
+    }
+
+    public boolean hasNext() {
+        return memMapContinuationIndex != 0;
+    }
+
+    public MemMapEntry next() {
+        if (_first) {
+            _first = false;
+            MemMapEntry e = memMap(0);
+            memMapContinuationIndex = getMemMapContinuationIndex();
+            return e;
+        }
+        if (memMapContinuationIndex == 0) {
+            return null;
+        }
+        MemMapEntry e = memMap(memMapContinuationIndex);
+        memMapContinuationIndex = getMemMapContinuationIndex();
+        return e;
+    }
+
+    public MemMapEntry nextFree() {
+        MemMapEntry e = null;
+        while (hasNext()) {
+            e = next();
+            if (e.isFree()) {
+                return e;
+            }
+        }
+        return null;
+    }
+
     public static MemMapEntry memMap(int idx) {
-        Logger.trace("BIOS", new StrBuilder().append("memMap(").append(idx).append(")").toString());
+        // Logger.trace("BIOS", new
+        // StrBuilder().append("memMap(").append(idx).append(")").toString());
         execMemMap(idx);
         return readMemMap();
     }
 
-    public static int getMemMapContinuationIndex() {
-        return Registers.EBX;
-    }
-
-    private static void execMemMap(int idx) {
+    public static void execMemMap(int idx) {
         Registers.EAX = 0x0000E820;
         Registers.EDX = 0x534D4150;
         Registers.EBX = idx;
@@ -26,10 +61,35 @@ public class MemMap extends BIOS {
         rint(0x15);
     }
 
+    @SJC.Inline
+    public static int getMemMapContinuationIndex() {
+        return Registers.EBX;
+    }
+
+    @SJC.Inline
+    public static long getMemMapBase() {
+        return MAGIC.rMem64(MemoryLayout.BIOS_BUFFER_MEMMAP_START);
+    }
+
+    @SJC.Inline
+    public static long getMemMapLength() {
+        return MAGIC.rMem64(MemoryLayout.BIOS_BUFFER_MEMMAP_START + 8);
+    }
+
+    @SJC.Inline
+    public static int getMemMapType() {
+        return MAGIC.rMem32(MemoryLayout.BIOS_BUFFER_MEMMAP_START + 16);
+    }
+
+    @SJC.Inline
+    public static boolean memMapTypeIsFree() {
+        return MAGIC.rMem32(MemoryLayout.BIOS_BUFFER_MEMMAP_START + 16) == 1;
+    }
+
     private static MemMapEntry readMemMap() {
-        long base = MAGIC.rMem64(MemoryLayout.BIOS_BUFFER_MEMMAP_START);
-        long length = MAGIC.rMem64(MemoryLayout.BIOS_BUFFER_MEMMAP_START + 8);
-        int type = MAGIC.rMem32(MemoryLayout.BIOS_BUFFER_MEMMAP_START + 16);
+        long base = getMemMapBase();
+        long length = getMemMapLength();
+        int type = getMemMapType();
         return new MemMapEntry(base, length, type);
     }
 }
