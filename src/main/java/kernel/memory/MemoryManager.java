@@ -150,16 +150,8 @@ public class MemoryManager {
         MAGIC.assign(obj._r_scalarSize, scalarSize);
         MAGIC.assign(obj._r_relocEntries, relocEntries);
 
-        allocationChunk += lengthOfObject;
-        if (allocationChunk > 64 * 1024) {
-            allocationChunk = 0;
-            // Logger.warning("Alloc 64kb - no GC /('o.o)\\");
-        }
-
         return obj;
     }
-
-    private static int allocationChunk = 0;
 
     @SJC.Inline
     private static int getDynamicHeapStart() {
