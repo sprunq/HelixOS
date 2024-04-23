@@ -45,4 +45,9 @@ public class Breaker implements IKeyboardEventListener {
     public String name() {
         return "Breaker";
     }
+
+    @Override
+    public int priority() {
+        return 20;
+    }
 }

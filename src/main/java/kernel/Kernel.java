@@ -38,7 +38,7 @@ public class Kernel {
         IDT.enable();
 
         KeyboardController.initialize(QWERTZ.Instance);
-        KeyboardController.addListener(new Breaker(), 20);
+        KeyboardController.addListener(new Breaker());
 
         VectorVesaMode modes = VesaQuery.AvailableModes();
         Logger.info("VESA", "Available VESA modes:");

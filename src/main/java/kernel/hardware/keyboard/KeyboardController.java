@@ -3,6 +3,7 @@ package kernel.hardware.keyboard;
 import kernel.hardware.keyboard.layout.ALayout;
 import util.BitHelper;
 import util.logging.Logger;
+import util.vector.VectorKeyboardEventListener;
 
 public class KeyboardController {
     private static final int PORT_KEYCODE = 0x60;
@@ -29,18 +30,19 @@ public class KeyboardController {
      * A listener can consume an event, preventing other listeners from receiving
      * it.
      */
-    private static ListenerPriorityMap _listeners;
+    private static VectorKeyboardEventListener _listeners;
 
     public static void initialize(ALayout keyBoardLayout) {
         _inputBuffer = new RingBuffer(256);
         _layout = keyBoardLayout;
-        _listeners = new ListenerPriorityMap(16);
+        _listeners = new VectorKeyboardEventListener();
         Logger.info("Key", "Initialized");
     }
 
-    public static void addListener(IKeyboardEventListener listener, int priority) {
+    public static void addListener(IKeyboardEventListener listener) {
         Logger.info("KeyC", "Adding Listener ".append(listener.name()));
-        _listeners.addListener(listener, priority);
+        _listeners.add(listener);
+        _listeners.SortByPriority();
     }
 
     @SJC.Inline
