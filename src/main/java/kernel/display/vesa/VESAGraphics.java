@@ -4,8 +4,8 @@ import kernel.Kernel;
 import kernel.bios.call.DisplayModes;
 import kernel.display.ADisplay;
 import kernel.memory.Memory;
+import kernel.trace.logging.Logger;
 import util.MathH;
-import util.logging.Logger;
 
 public class VESAGraphics extends ADisplay {
     public VESAMode curMode;

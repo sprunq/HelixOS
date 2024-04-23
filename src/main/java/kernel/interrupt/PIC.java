@@ -1,6 +1,6 @@
 package kernel.interrupt;
 
-import util.logging.Logger;
+import kernel.trace.logging.Logger;
 
 /**
  * Programmable Interrupt Controller

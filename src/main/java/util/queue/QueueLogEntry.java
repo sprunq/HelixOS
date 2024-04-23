@@ -1,6 +1,6 @@
 package util.queue;
 
-import util.logging.LogEntry;
+import kernel.trace.logging.LogEntry;
 
 public class QueueLogEntry {
     private final int _size;

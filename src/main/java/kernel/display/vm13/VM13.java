@@ -2,9 +2,9 @@ package kernel.display.vm13;
 
 import kernel.MemoryLayout;
 import kernel.memory.Memory;
+import kernel.trace.logging.Logger;
 import util.BitHelper;
 import util.MathH;
-import util.logging.Logger;
 
 public class VM13 {
     private static final VM13Memory VidMem = (VM13Memory) MAGIC.cast2Struct(MemoryLayout.VGA_VID_BUFFER_START);

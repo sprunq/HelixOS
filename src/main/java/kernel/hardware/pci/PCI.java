@@ -1,9 +1,9 @@
 package kernel.hardware.pci;
 
 import kernel.Kernel;
+import kernel.trace.logging.Logger;
 import util.BitHelper;
 import util.StrBuilder;
-import util.logging.Logger;
 
 public class PCI {
     public static final int MAX_DEVICES = 32;

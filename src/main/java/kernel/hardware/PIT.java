@@ -1,6 +1,6 @@
 package kernel.hardware;
 
-import util.logging.Logger;
+import kernel.trace.logging.Logger;
 
 /**
  * The Programmable Interval Timer class represents a hardware timer used

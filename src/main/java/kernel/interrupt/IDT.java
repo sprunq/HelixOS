@@ -2,9 +2,9 @@ package kernel.interrupt;
 
 import arch.x86;
 import kernel.MemoryLayout;
+import kernel.trace.logging.Logger;
 import rte.SClassDesc;
 import util.BitHelper;
-import util.logging.Logger;
 
 /**
  * The Interrupt Descriptor Table

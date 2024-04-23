@@ -20,7 +20,7 @@ import kernel.memory.MemoryManager;
 import kernel.tasks.Breaker;
 import kernel.trace.Bluescreen;
 import kernel.trace.SymbolResolution;
-import util.logging.Logger;
+import kernel.trace.logging.Logger;
 import util.vector.VecVesaMode;
 
 public class Kernel {

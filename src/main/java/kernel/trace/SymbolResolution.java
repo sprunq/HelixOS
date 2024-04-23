@@ -1,10 +1,10 @@
 package kernel.trace;
 
 import kernel.MemoryLayout;
+import kernel.trace.logging.Logger;
 import rte.SClassDesc;
 import rte.SMthdBlock;
 import rte.SPackage;
-import util.logging.Logger;
 
 public class SymbolResolution {
     private static SClassDesc bootloaderClassDesc;

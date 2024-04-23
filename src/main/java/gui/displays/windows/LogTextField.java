@@ -4,8 +4,8 @@ import formats.fonts.AFont;
 import gui.components.TextField;
 import kernel.Kernel;
 import kernel.display.ADisplay;
-import util.logging.LogEntry;
-import util.logging.Logger;
+import kernel.trace.logging.LogEntry;
+import kernel.trace.logging.Logger;
 
 public class LogTextField extends AWindow {
     private final int COL_FATAL;

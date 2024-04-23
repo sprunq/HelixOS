@@ -1,8 +1,8 @@
 package kernel.hardware.keyboard;
 
 import kernel.hardware.keyboard.layout.ALayout;
+import kernel.trace.logging.Logger;
 import util.BitHelper;
-import util.logging.Logger;
 import util.queue.QueueByte;
 import util.vector.VecKeyboardEventListener;
 

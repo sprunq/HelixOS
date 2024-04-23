@@ -5,7 +5,7 @@ import kernel.Kernel;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.trace.Bluescreen;
-import util.logging.Logger;
+import kernel.trace.logging.Logger;
 
 public class Interrupts {
     @SJC.Interrupt
