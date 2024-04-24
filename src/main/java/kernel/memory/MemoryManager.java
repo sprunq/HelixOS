@@ -70,7 +70,6 @@ public class MemoryManager {
 
         Object newObject = null;
         if (ObjectSize(emptyObj) == newObjectTotalSize) {
-            Kernel.panic("trace - perfect fit");
             // The new object fits exactly into the empty object
             // We can replace the empty object with the new object
             Object objPointingToEmpty = ObjectPointingTo(emptyObj);
@@ -81,14 +80,15 @@ public class MemoryManager {
             // The empty object will be overwritten
             newObject = WriteObject(emptyObj.AddressBottom(), scalarSize, relocEntries, type);
             InsertIntoNextChain(objPointingToEmpty, newObject);
-        } else if (emptyObj.UnreservedScalarSize() > newObjectTotalSize) {
+        } else if (emptyObj.UnreservedScalarSize() >= newObjectTotalSize) {
             // The new object does not fit exactly into the empty object
             // We need to split the empty object
             int emptyObjectTop = emptyObj.AddressTop();
             int newObjectBottom = emptyObjectTop - newObjectTotalSize;
-            if (newObjectBottom < emptyObj.AddressBottom()) {
+            if (newObjectBottom <= MAGIC.cast2Ref(emptyObj) + MAGIC.getInstScalarSize("EmptyObject")) {
                 Kernel.panic("trace - new object bottom is below empty object bottom");
             }
+
             newObject = WriteObject(newObjectBottom, scalarSize, relocEntries, type);
             emptyObj.ShrinkBy(newObjectTotalSize);
             InsertIntoNextChain(emptyObj, newObject);
@@ -113,8 +113,7 @@ public class MemoryManager {
 
             if (!isFree
                     || base < MemoryLayout.BIOS_STKEND
-                    || length <= MAGIC.getInstScalarSize("EmptyObject")
-                            + MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize) {
+                    || length <= EmptyObject.ClassSize()) {
                 continue;
             }
 

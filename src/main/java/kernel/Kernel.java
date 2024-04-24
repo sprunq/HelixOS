@@ -74,16 +74,18 @@ public class Kernel {
 
         byte[] _ = new byte[1024 * 1024 * 506 + 1024 * 500]; // damit der loop nicht so lange läuft
 
+        int i = 0;
         while (true) {
-
             windowManager.DrawWindows();
+            Display.Rectangle(400, 200, 100, 100, Display.Rgb(i % 255, 0, 0));
             Display.Swap();
 
-            byte[] buffer = new byte[50];
+            byte[] buffer = new byte[100];
 
             Logger.Warning("LOOP", Integer.toString(MAGIC.cast2Ref(buffer)));
 
-            // Timer.Sleep(1000 / 200);
+            // Timer.Sleep(1000 / 60);
+            i++;
         }
     }
 
