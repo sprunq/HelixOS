@@ -70,8 +70,8 @@ public class VesaQuery {
     }
 
     public static VESAMode GetMode(VecVesaMode modes, int xRes, int yRes, int colDepth, boolean graphical) {
-        for (int i = 0; i < modes.size(); i++) {
-            VESAMode mode = modes.get(i);
+        for (int i = 0; i < modes.Size(); i++) {
+            VESAMode mode = modes.Get(i);
             if (mode.XRes == xRes && mode.YRes == yRes && mode.ColorDepth == colDepth && mode.Graphical == graphical) {
                 return mode;
             }
@@ -81,9 +81,9 @@ public class VesaQuery {
 
     public static String ModesToStr(VecVesaMode modes) {
         StrBuilder sb = new StrBuilder();
-        for (int i = 0; i < modes.size(); i++) {
-            VESAMode mode = modes.get(i);
-            sb.dbgLine(mode);
+        for (int i = 0; i < modes.Size(); i++) {
+            VESAMode mode = modes.Get(i);
+            sb.AppendLine(mode);
         }
         return sb.toString();
     }

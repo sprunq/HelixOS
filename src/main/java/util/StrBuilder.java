@@ -14,13 +14,13 @@ public class StrBuilder {
         this.strBuffer = new VecByte(initialCapacity);
     }
 
-    public void clearKeepCapacity() {
-        strBuffer.clearKeepCapacity();
+    public void ClearKeepCapacity() {
+        strBuffer.ClearKeepCapacity();
     }
 
     @SJC.Inline
     public int length() {
-        return strBuffer.size();
+        return strBuffer.Size();
     }
 
     public String toString() {
@@ -29,92 +29,92 @@ public class StrBuilder {
     }
 
     @SJC.Inline
-    public StrBuilder appendLine() {
-        return append('\n');
+    public StrBuilder AppendLine() {
+        return Append('\n');
     }
 
     @SJC.Inline
-    public StrBuilder append(byte c) {
+    public StrBuilder Append(byte c) {
         strBuffer.add(c);
         return this;
     }
 
     @SJC.Inline
     public StrBuilder appendLine(byte c) {
-        return append(c).appendLine();
+        return Append(c).AppendLine();
     }
 
     @SJC.Inline
-    public StrBuilder dbg(IDebug dbg) {
-        return append(dbg.dbg());
+    public StrBuilder append(IDebug dbg) {
+        return Append(dbg.Debug());
     }
 
     @SJC.Inline
-    public StrBuilder dbgLine(IDebug dbg) {
-        return append(dbg.dbg()).appendLine();
+    public StrBuilder AppendLine(IDebug dbg) {
+        return Append(dbg.Debug()).AppendLine();
     }
 
-    public StrBuilder append(String str) {
+    public StrBuilder Append(String str) {
         if (str == null)
             str = "null";
 
         byte[] bytes = str.getBytes();
-        strBuffer.addAll(bytes);
+        strBuffer.AddAll(bytes);
         return this;
     }
 
     @SJC.Inline
-    public StrBuilder appendLine(String str) {
-        return append(str).appendLine();
+    public StrBuilder AppendLine(String str) {
+        return Append(str).AppendLine();
     }
 
     @SJC.Inline
-    public StrBuilder append(char c) {
-        return append((byte) c);
+    public StrBuilder Append(char c) {
+        return Append((byte) c);
     }
 
     @SJC.Inline
-    public StrBuilder appendLine(char c) {
-        return append(c).appendLine();
+    public StrBuilder AppendLine(char c) {
+        return Append(c).AppendLine();
     }
 
     @SJC.Inline
-    public StrBuilder append(int i, int base) {
-        return append(Integer.toString(i, base));
+    public StrBuilder Append(int i, int base) {
+        return Append(Integer.toString(i, base));
     }
 
     @SJC.Inline
     public StrBuilder appendLine(int i, int base) {
-        return append(i, base).appendLine();
+        return Append(i, base).AppendLine();
     }
 
     @SJC.Inline
-    public StrBuilder append(int i) {
-        return append(Integer.toString(i, 10));
+    public StrBuilder Append(int i) {
+        return Append(Integer.toString(i, 10));
     }
 
     @SJC.Inline
-    public StrBuilder appendLine(int i) {
-        return append(i, 10).appendLine();
+    public StrBuilder AppendLine(int i) {
+        return Append(i, 10).AppendLine();
     }
 
     @SJC.Inline
-    public StrBuilder append(long i, int base) {
-        return append(Long.toString(i, base));
+    public StrBuilder Append(long i, int base) {
+        return Append(Long.toString(i, base));
     }
 
     @SJC.Inline
-    public StrBuilder appendLine(long i, int base) {
-        return append(i, base).appendLine();
+    public StrBuilder AppendLine(long i, int base) {
+        return Append(i, base).AppendLine();
     }
 
     @SJC.Inline
-    public StrBuilder append(boolean b) {
-        return append(b ? "true" : "false");
+    public StrBuilder Append(boolean b) {
+        return Append(b ? "true" : "false");
     }
 
     @SJC.Inline
-    public StrBuilder appendLine(boolean b) {
-        return append(b).appendLine();
+    public StrBuilder AppendLine(boolean b) {
+        return Append(b).AppendLine();
     }
 }

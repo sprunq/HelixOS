@@ -29,22 +29,22 @@ public class Kernel {
     public static ADisplay Display;
 
     public static void main() {
-        MemoryManager.initialize();
+        MemoryManager.Initialize();
 
         MAGIC.doStaticInit();
-        Logger.initialize(Logger.TRACE, 100);
-        SymbolResolution.initialize();
-        PIT.initialize();
+        Logger.Initialize(Logger.TRACE, 100);
+        SymbolResolution.Initialize();
+        PIT.Initialize();
         IDT.initialize();
-        IDT.enable();
+        IDT.Enable();
 
-        KeyboardController.initialize(QWERTZ.Instance);
-        KeyboardController.addListener(new Breaker());
+        KeyboardController.Initialize(QWERTZ.Instance);
+        KeyboardController.AddListener(new Breaker());
 
         VecVesaMode modes = VesaQuery.AvailableModes();
-        Logger.info("VESA", "Available VESA modes:");
-        for (int i = 0; i < modes.size(); i++) {
-            // Logger.info("VESA", modes.get(i).dbg());
+        Logger.Info("VESA", "Available VESA modes:");
+        for (int i = 0; i < modes.Size(); i++) {
+            Logger.Info("VESA", modes.Get(i).Debug());
         }
 
         VESAMode mode;
@@ -61,54 +61,54 @@ public class Kernel {
         }
 
         Display = new VESAGraphics(mode);
-        Display.activate();
+        Display.Activate();
 
         WindowManager winManSplashScreen = new WindowManager(Display);
-        buildSplashScreen(winManSplashScreen);
-        winManSplashScreen.staticDisplayFor(2000);
+        BuildSplashScreen(winManSplashScreen);
+        winManSplashScreen.StaticDisplayFor(2000);
 
         WindowManager windowManager = new WindowManager(Display);
-        buildGuiEnvironment(windowManager);
+        BuildGuiEnvironment(windowManager);
 
         int averageOver = 200;
         int avg = 0;
         int avgIndex = 0;
         while (true) {
-            while (KeyboardController.hasNewEvent()) {
-                KeyboardController.readEvent();
+            while (KeyboardController.HasNewEvent()) {
+                KeyboardController.ReadEvent();
             }
 
-            int startTick = Timer.getTick();
+            int startTick = Timer.Ticks();
 
-            windowManager.drawWindows();
-            Display.swap();
+            windowManager.DrawWindows();
+            Display.Swap();
 
-            int endTick = Timer.getTick();
+            int endTick = Timer.Ticks();
             int diff = endTick - startTick;
             avg += diff;
             avgIndex++;
             if (avgIndex >= averageOver) {
                 avg /= averageOver;
                 avgIndex = 0;
-                int msAvg = Timer.getTickDifferenceMs(avg);
-                Logger.trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
+                int msAvg = Timer.TickDifferenceMs(avg);
+                Logger.Trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
                 avg = 0;
             }
-            Timer.sleep(1000 / 60);
+            Timer.Sleep(1000 / 60);
         }
     }
 
-    private static void buildSplashScreen(WindowManager winManSplashScreen) {
+    private static void BuildSplashScreen(WindowManager winManSplashScreen) {
         Splashscreen splash = new Splashscreen(
                 0,
                 0,
                 0,
                 Kernel.Display.Width(),
                 Kernel.Display.Height());
-        winManSplashScreen.addWindow(splash);
+        winManSplashScreen.AddWindow(splash);
     }
 
-    private static void buildGuiEnvironment(WindowManager windowManager) {
+    private static void BuildGuiEnvironment(WindowManager windowManager) {
         Homebar homebar = new Homebar(
                 Kernel.Display.Width(),
                 Kernel.Display.Height());
@@ -139,9 +139,9 @@ public class Kernel {
                 2,
                 Font7x8.Instance);
 
-        windowManager.addWindow(homebar);
-        windowManager.addWindow(logTextField);
-        windowManager.addWindow(memMapTextField);
+        windowManager.AddWindow(homebar);
+        windowManager.AddWindow(logTextField);
+        windowManager.AddWindow(memMapTextField);
     }
 
     public static void panic(String msg) {
@@ -160,6 +160,6 @@ public class Kernel {
         MAGIC.inlineOffset(1, ebp);
         int eip = x86.eipForFunction(ebp);
         Bluescreen.Show("TODO", msg, ebp, eip);
-        Timer.sleep(-1);
+        Timer.Sleep(-1);
     }
 }

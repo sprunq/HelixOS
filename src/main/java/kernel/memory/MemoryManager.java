@@ -11,20 +11,20 @@ public class MemoryManager {
 
     public static EmptyObject FirstEmptyObject = null;
 
-    public static void initialize() {
-        initEmptyObjects();
+    public static void Initialize() {
+        InitEmptyObjects();
     }
 
-    private static void initEmptyObjects() {
+    private static void InitEmptyObjects() {
         Object lastStaticObj = GetStaticAllocLast();
         int lastStaticObjAddr = MAGIC.cast2Ref(lastStaticObj);
         int continuationIndex = 0;
         do {
-            MemMap.execMemMap(continuationIndex);
-            continuationIndex = MemMap.getMemMapContinuationIndex();
-            boolean isFree = MemMap.memMapTypeIsFree();
-            long base = MemMap.getMemMapBase();
-            long length = MemMap.getMemMapLength();
+            MemMap.ExecMemMap(continuationIndex);
+            continuationIndex = MemMap.GetMemMapContinuationIndex();
+            boolean isFree = MemMap.MemMapTypeIsFree();
+            long base = MemMap.GetMemMapBase();
+            long length = MemMap.GetMemMapLength();
 
             if (!isFree
                     || base < MemoryLayout.BIOS_STKEND
@@ -123,14 +123,14 @@ public class MemoryManager {
         MAGIC.assign(emptyObj._r_next, newObject);
     }
 
-    private static int ObjectSize(Object o) {
+    public static int ObjectSize(Object o) {
         return o._r_scalarSize + o._r_relocEntries * MAGIC.ptrSize;
     }
 
     private static EmptyObject FindEmptyObjectFitting(int objectSize) {
         EmptyObject emptyObj = FirstEmptyObject;
         while (emptyObj != null) {
-            if (emptyObj.fits(objectSize)) {
+            if (emptyObj.Fits(objectSize)) {
                 break;
             }
             emptyObj = emptyObj.nextEmptyObject;

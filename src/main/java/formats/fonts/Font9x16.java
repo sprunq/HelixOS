@@ -15,32 +15,32 @@ public class Font9x16 extends AFont {
     public static final Font9x16 Instance = new Font9x16();
 
     @Override
-    public int getWidth() {
+    public int Width() {
         return FONT_WIDTH;
     }
 
     @Override
-    public int getHeight() {
+    public int Height() {
         return FONT_HEIGHT;
     }
 
     @Override
-    public boolean isVertical() {
+    public boolean Vertical() {
         return true;
     }
 
     @Override
-    public int getSpacingW() {
+    public int SpacingW() {
         return 1;
     }
 
     @Override
-    public int getSpacingH() {
+    public int SpacingH() {
         return 0;
     }
 
     @Override
-    public int getCharacterBitmapLine(int ch, int line) {
+    public int CharacterBitmapLine(int ch, int line) {
         if (ch < FONT_CHARACHTERS_START || ch > FONT_CHARACHTERS_LAST) {
             return 0;
         }

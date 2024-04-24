@@ -17,11 +17,11 @@ public abstract class ADisplayElement {
         Height = height;
     }
 
-    public abstract void draw(ADisplay display);
+    public abstract void Draw(ADisplay display);
 
-    public abstract boolean needsRedraw();
+    public abstract boolean NeedsRedraw();
 
-    public boolean contains(int x, int y) {
+    public boolean Contains(int x, int y) {
         return x >= X && x < X + Width && y >= Y && y < Y + Height;
     }
 }

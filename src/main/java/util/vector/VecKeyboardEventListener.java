@@ -20,18 +20,18 @@ public class VecKeyboardEventListener {
         this.size = 0;
     }
 
-    public void add(IKeyboardEventListener element) {
+    public void Add(IKeyboardEventListener element) {
         ensureCapacity(size + 1);
         elements[size++] = element;
     }
 
-    public IKeyboardEventListener get(int index) {
+    public IKeyboardEventListener Get(int index) {
         if (index < 0 || index >= size)
             Kernel.panic("Index out of bounds for vector access");
         return elements[index];
     }
 
-    public int size() {
+    public int Size() {
         return size;
     }
 
@@ -53,7 +53,7 @@ public class VecKeyboardEventListener {
     public void SortByPriority() {
         for (int i = 0; i < size; i++) {
             for (int j = i + 1; j < size; j++) {
-                if (elements[i].priority() > elements[j].priority()) {
+                if (elements[i].Priority() > elements[j].Priority()) {
                     IKeyboardEventListener temp = elements[i];
                     elements[i] = elements[j];
                     elements[j] = temp;

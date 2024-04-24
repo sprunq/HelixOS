@@ -4,48 +4,48 @@ public class TM3Brush {
     private byte _color;
 
     public TM3Brush() {
-        setFg(TM3Color.GREY);
-        setBg(TM3Color.BLACK);
+        SetFg(TM3Color.GREY);
+        SetBg(TM3Color.BLACK);
     }
 
     public TM3Brush(byte fg, byte bg) {
-        setFg(fg);
-        setBg(bg);
+        SetFg(fg);
+        SetBg(bg);
     }
 
     @SJC.Inline
-    public void set(byte fg, byte bg) {
-        setFg(fg);
-        setBg(bg);
+    public void Set(byte fg, byte bg) {
+        SetFg(fg);
+        SetBg(bg);
     }
 
     @SJC.Inline
-    public void setFg(byte fg) {
-        this._color = TM3Color.setFg(this._color, fg);
+    public void SetFg(byte fg) {
+        this._color = TM3Color.SetFg(this._color, fg);
     }
 
     @SJC.Inline
-    public void setBg(byte bg) {
-        this._color = TM3Color.setBg(this._color, bg);
+    public void SetBg(byte bg) {
+        this._color = TM3Color.SetBg(this._color, bg);
     }
 
     @SJC.Inline
-    public void setFgBright(boolean isBright) {
-        this._color = TM3Color.setFgBright(this._color, isBright);
+    public void SetFgBright(boolean isBright) {
+        this._color = TM3Color.SetFgBright(this._color, isBright);
     }
 
     @SJC.Inline
-    public void setBgBright(boolean isBright) {
-        this._color = TM3Color.setBgBright(this._color, isBright);
+    public void SetBgBright(boolean isBright) {
+        this._color = TM3Color.SetBgBright(this._color, isBright);
     }
 
     @SJC.Inline
-    public byte get_color() {
+    public byte Color() {
         return _color;
     }
 
     @SJC.Inline
-    public void set_color(byte color) {
+    public void SetColor(byte color) {
         this._color = color;
     }
 }

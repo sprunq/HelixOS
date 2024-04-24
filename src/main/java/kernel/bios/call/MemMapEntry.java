@@ -11,8 +11,7 @@ public class MemMapEntry {
         this.Type = type;
     }
 
-    public boolean isFree() {
+    public boolean IsFree() {
         return Type == 1;
     }
-
 }

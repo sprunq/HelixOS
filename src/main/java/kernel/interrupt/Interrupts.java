@@ -9,27 +9,27 @@ import kernel.trace.logging.Logger;
 
 public class Interrupts {
     @SJC.Interrupt
-    public static void ignoreHandler() {
-        Logger.warning("INTR", "ignoreHandler");
+    public static void IgnoreHandler() {
+        Logger.Warning("INTR", "ignoreHandler");
     }
 
     @SJC.Interrupt
-    public static void divByZeroHandler() {
+    public static void DivByZeroHandler() {
         Kernel.panic("Interrupt divByZeroHandler");
     }
 
     @SJC.Interrupt
-    public static void debugHandler() {
+    public static void DebugHandler() {
         Kernel.panic("Interrupt debugHandler");
     }
 
     @SJC.Interrupt
-    public static void nmiHandler() {
+    public static void NmiHandler() {
         Kernel.panic("Interrupt nmiHandler");
     }
 
     @SJC.Interrupt
-    public static void breakpointHandler() {
+    public static void BreakpointHandler() {
         int ebp = 0;
         MAGIC.inline(0x89, 0x6D);
         MAGIC.inlineOffset(1, ebp);
@@ -53,49 +53,49 @@ public class Interrupts {
     }
 
     @SJC.Interrupt
-    public static void overflowHandler() {
+    public static void OverflowHandler() {
         Kernel.panic("Interrupt overflowHandler");
     }
 
     @SJC.Interrupt
-    public static void boundRangeExceededHandler() {
+    public static void BoundRangeExceededHandler() {
         Kernel.panic("Interrupt boundRangeExceededHandler");
     }
 
     @SJC.Interrupt
-    public static void invalidOpcodeHandler() {
+    public static void InvalidOpcodeHandler() {
         Kernel.panic("Interrupt invalidOpcodeHandler");
     }
 
     @SJC.Interrupt
-    public static void reservedHandler() {
+    public static void ReservedHandler() {
         Kernel.panic("Interrupt reservedHandler");
     }
 
     @SJC.Interrupt
-    public static void doubleFaultHandler() {
+    public static void DoubleFaultHandler() {
         Kernel.panic("Interrupt doubleFaultHandler");
     }
 
     @SJC.Interrupt
-    public static void generalProtectionFaultHandler() {
+    public static void GeneralProtectionFaultHandler() {
         Kernel.panic("Interrupt generalProtectionFaultHandler");
     }
 
     @SJC.Interrupt
-    public static void pageFaultHandler() {
+    public static void PageFaultHandler() {
         Kernel.panic("Interrupt pageFaultHandler");
     }
 
     @SJC.Interrupt
-    public static void timerHandler() {
-        Timer.tick();
-        PIC.acknowledge(0);
+    public static void TimerHandler() {
+        Timer.DoTick();
+        PIC.Acknowledge(0);
     }
 
     @SJC.Interrupt
-    public static void keyboardHandler() {
-        KeyboardController.handle();
-        PIC.acknowledge(1);
+    public static void KeyboardHandler() {
+        KeyboardController.Handle();
+        PIC.Acknowledge(1);
     }
 }

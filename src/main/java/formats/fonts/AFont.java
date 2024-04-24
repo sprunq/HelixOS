@@ -5,27 +5,27 @@ import util.BitHelper;
 
 public abstract class AFont {
 
-    public abstract int getWidth();
+    public abstract int Width();
 
-    public abstract int getHeight();
+    public abstract int Height();
 
-    public abstract int getSpacingW();
+    public abstract int SpacingW();
 
-    public abstract int getSpacingH();
+    public abstract int SpacingH();
 
-    public abstract int getCharacterBitmapLine(int ch, int line);
+    public abstract int CharacterBitmapLine(int ch, int line);
 
-    public abstract boolean isVertical();
+    public abstract boolean Vertical();
 
-    public void renderToDisplay(ADisplay display, int x, int y, int ch, int color) {
-        int fontWidth = getWidth();
-        int fontHeight = getHeight();
-        boolean fontVertical = isVertical();
+    public void RenderToDisplay(ADisplay display, int x, int y, int ch, int color) {
+        int fontWidth = Width();
+        int fontHeight = Height();
+        boolean fontVertical = Vertical();
 
         for (int charLine = 0; charLine < fontWidth; charLine++) {
-            int b = getCharacterBitmapLine(ch, charLine);
+            int b = CharacterBitmapLine(ch, charLine);
             for (int lineBit = 0; lineBit < fontHeight; lineBit++) {
-                int bit = BitHelper.getBit(b, lineBit);
+                int bit = BitHelper.GetBit(b, lineBit);
                 int posX = x;
                 int posY = y;
                 if (fontVertical) {
@@ -36,7 +36,7 @@ public abstract class AFont {
                     posY += charLine;
                 }
                 if (bit == 1) {
-                    display.setPixel(posX, posY, color);
+                    display.Pixel(posX, posY, color);
                 }
             }
         }

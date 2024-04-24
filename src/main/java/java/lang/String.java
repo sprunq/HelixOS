@@ -48,7 +48,7 @@ public class String {
         return copy;
     }
 
-    public String leftPad(int length, char c) {
+    public String LeftPad(int length, char c) {
         int pad = length - count;
         if (pad <= 0) {
             return this;

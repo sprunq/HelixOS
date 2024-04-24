@@ -17,39 +17,39 @@ public class QOIDecoder {
     static final byte[] QOI_PADDING = { 0, 0, 0, 0, 0, 0, 0, 1 };
     private static final int HASH_TABLE_SIZE = 64;
 
-    static int getHashTableIndexRGBA(byte r, byte g, byte b, byte a) {
+    static int GetHashTableIndexRGBA(byte r, byte g, byte b, byte a) {
         int hash = (r & 0xFF) * 3 + (g & 0xFF) * 5 + (b & 0xFF) * 7 + (a & 0xFF) * 11;
         return (hash & 0x3F) << 2;
     }
 
-    static int getHashTableIndexRGB(byte r, byte g, byte b) {
+    static int GetHashTableIndexRGB(byte r, byte g, byte b) {
         int hash = (r & 0xFF) * 3 + (g & 0xFF) * 5 + (b & 0xFF) * 7 + 0xFF * 11;
         return (hash & 0x3F) << 2;
     }
 
-    public static QOIImage decode(byte[] inputStream, int channels) {
+    public static QOIImage Decode(byte[] inputStream, int channels) {
         if (channels != 0 && channels != 3 && channels != 4) {
             Kernel.panic("Invalid channel count, must be 0, 3 or 4");
         }
 
         Input in = new Input(inputStream);
 
-        int headerMagic = in.readInt();
+        int headerMagic = in.ReadInt();
         if (headerMagic != QOI_MAGIC) {
             Kernel.panic("Invalid magic value, probably not a QOI image");
         }
 
-        int width = in.readInt();
+        int width = in.ReadInt();
         if (width < 1) {
             Kernel.panic("Invalid image width");
         }
 
-        int height = in.readInt();
+        int height = in.ReadInt();
         if (height < 1) {
             Kernel.panic("Invalid image height");
         }
 
-        int storedChannels = Integer.ubyte(in.read());
+        int storedChannels = Integer.ubyte(in.Read());
         if (storedChannels != 3 && storedChannels != 4) {
             Kernel.panic("Invalid stored channel count");
         }
@@ -58,7 +58,7 @@ public class QOIDecoder {
             channels = storedChannels;
         }
 
-        int colorSpace = in.readColorSpace();
+        int colorSpace = in.ReadColorSpace();
         if (channels != 3) {
             Kernel.panic("Invalid channel count, must be 3 - others not yet supported");
         }
@@ -86,7 +86,7 @@ public class QOIDecoder {
     }
 
     private static byte[] read3(Input in, int width, int height) {
-        int pixelDataLength = MathH.multiplyExact(MathH.multiplyExact(width, height), 3);
+        int pixelDataLength = MathH.MultiplyExact(MathH.MultiplyExact(width, height), 3);
         byte[] pixelData = new byte[pixelDataLength];
         byte[] index = new byte[HASH_TABLE_SIZE * 4];
 
@@ -96,17 +96,17 @@ public class QOIDecoder {
         byte pixelA = (byte) 0xFF;
 
         for (int pixelPos = 0; pixelPos < pixelDataLength; pixelPos += 3) {
-            int b1 = in.read() & 0xFF;
+            int b1 = in.Read() & 0xFF;
 
             if (b1 == QOI_OP_RGB) {
-                pixelR = in.read();
-                pixelG = in.read();
-                pixelB = in.read();
+                pixelR = in.Read();
+                pixelG = in.Read();
+                pixelB = in.Read();
             } else if (b1 == QOI_OP_RGBA) {
-                pixelR = in.read();
-                pixelG = in.read();
-                pixelB = in.read();
-                pixelA = in.read();
+                pixelR = in.Read();
+                pixelG = in.Read();
+                pixelB = in.Read();
+                pixelA = in.Read();
             } else {
                 switch (b1 & QOI_MASK_2) {
                     case QOI_OP_INDEX:
@@ -123,7 +123,7 @@ public class QOIDecoder {
                         break;
                     case QOI_OP_LUMA:
                         // Safe widening conversion
-                        int b2 = in.read();
+                        int b2 = in.Read();
                         int vg = (b1 & 0x3F) - 32;
                         pixelR += vg - 8 + ((b2 >> 4) & 0x0F);
                         pixelG += vg;
@@ -141,7 +141,7 @@ public class QOIDecoder {
                 }
             }
 
-            int indexPos = getHashTableIndexRGBA(pixelR, pixelG, pixelB, pixelA);
+            int indexPos = GetHashTableIndexRGBA(pixelR, pixelG, pixelB, pixelA);
             index[indexPos] = pixelR;
             index[indexPos + 1] = pixelG;
             index[indexPos + 2] = pixelB;
@@ -165,7 +165,7 @@ public class QOIDecoder {
             this.position = 0;
         }
 
-        public byte read() {
+        public byte Read() {
             if (this.position >= this.buffer.length) {
                 Kernel.panic("Unexpected end of stream");
             }
@@ -174,26 +174,26 @@ public class QOIDecoder {
 
         public byte readSkipBuffer() {
             if (this.buffer == null) {
-                return read();
+                return Read();
             }
 
             if (this.position == this.read) {
-                return read();
+                return Read();
             }
 
             return this.buffer[this.position++];
         }
 
-        public int readInt() {
-            int a = read() & 0xFF;
-            int b = read() & 0xFF;
-            int c = read() & 0xFF;
-            int d = read() & 0xFF;
+        public int ReadInt() {
+            int a = Read() & 0xFF;
+            int b = Read() & 0xFF;
+            int c = Read() & 0xFF;
+            int d = Read() & 0xFF;
             return (a << 24) | (b << 16) | (c << 8) | d;
         }
 
-        public int readColorSpace() {
-            int value = read() & 0xFF;
+        public int ReadColorSpace() {
+            int value = Read() & 0xFF;
 
             switch (value) {
                 case QOI_SRGB:

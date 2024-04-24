@@ -13,19 +13,19 @@ import kernel.Kernel;
 public abstract class BinImage extends Image {
     protected BinImage(byte[] data) {
         super();
-        Width = get_width(data);
-        Height = get_height(data);
-        PixelData = decode_data(data);
+        Width = ParseWidth(data);
+        Height = ParseHeight(data);
+        PixelData = DecodeData(data);
     }
 
-    protected static int[][] decode_data(byte[] data) {
-        int width = get_width(data);
-        int height = get_height(data);
-        int[][] pixel_data = getPixels(data, width, height);
+    protected static int[][] DecodeData(byte[] data) {
+        int width = ParseWidth(data);
+        int height = ParseHeight(data);
+        int[][] pixel_data = Pixels(data, width, height);
         return pixel_data;
     }
 
-    protected static int get_width(byte[] data) {
+    protected static int ParseWidth(byte[] data) {
         int pos = 0;
         int width = (data[pos] & 0xFF) << 24
                 | (data[pos + 1] & 0xFF) << 16
@@ -34,7 +34,7 @@ public abstract class BinImage extends Image {
         return width;
     }
 
-    protected static int get_height(byte[] data) {
+    protected static int ParseHeight(byte[] data) {
         int pos = 4;
         int height = (data[pos] & 0xFF) << 24
                 | (data[pos + 1] & 0xFF) << 16
@@ -43,7 +43,7 @@ public abstract class BinImage extends Image {
         return height;
     }
 
-    protected static int[][] getPixels(byte[] data, int width, int height) {
+    protected static int[][] Pixels(byte[] data, int width, int height) {
         int pos = 8;
         int[][] pixel_data = new int[width][height];
 
@@ -52,7 +52,7 @@ public abstract class BinImage extends Image {
                 int r = Integer.ubyte(data[pos++]);
                 int g = Integer.ubyte(data[pos++]);
                 int b = Integer.ubyte(data[pos++]);
-                int col = Kernel.Display.rgb(r, g, b);
+                int col = Kernel.Display.Rgb(r, g, b);
                 pixel_data[j][i] = col;
             }
         }

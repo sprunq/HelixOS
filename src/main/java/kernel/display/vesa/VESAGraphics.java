@@ -16,18 +16,18 @@ public class VESAGraphics extends ADisplay {
         if (mode == null) {
             Kernel.panic("VESAGraphics.setMode: mode is null");
         }
-        int size = mode.XRes * mode.YRes * mode.bytesPerColor();
+        int size = mode.XRes * mode.YRes * mode.BytesPerColor();
         buffer = new byte[size];
         needsRedraw = true;
         curMode = mode;
 
-        Logger.info("VESA", "setMode to ".append(curMode.dbg()));
+        Logger.Info("VESA", "setMode to ".append(curMode.Debug()));
     }
 
     @Override
-    public void activate() {
-        Logger.info("VESA", "activate mode ".append(curMode.dbg()));
-        DisplayModes.setVesaMode(curMode.ModeNr);
+    public void Activate() {
+        Logger.Info("VESA", "activate mode ".append(curMode.Debug()));
+        DisplayModes.SetVesaMode(curMode.ModeNr);
     }
 
     @Override
@@ -41,26 +41,26 @@ public class VESAGraphics extends ADisplay {
     }
 
     @Override
-    public int rgb(int r, int g, int b) {
+    public int Rgb(int r, int g, int b) {
         int red, green, blue;
         switch (curMode.ColorDepth) {
             case 8:
-                return MathH.clamp(r, 0, 255);
+                return MathH.Clamp(r, 0, 255);
             case 15:
             case 16:
-                red = MathH.clamp(r, 0, 255) >> 3;
-                green = MathH.clamp(g, 0, 255) >> 3;
-                blue = MathH.clamp(b, 0, 255) >> 3;
+                red = MathH.Clamp(r, 0, 255) >> 3;
+                green = MathH.Clamp(g, 0, 255) >> 3;
+                blue = MathH.Clamp(b, 0, 255) >> 3;
                 return (blue << 0) | (green << 5) | (red << 10);
             case 24:
-                red = MathH.clamp(r, 0, 255);
-                green = MathH.clamp(g, 0, 255);
-                blue = MathH.clamp(b, 0, 255);
+                red = MathH.Clamp(r, 0, 255);
+                green = MathH.Clamp(g, 0, 255);
+                blue = MathH.Clamp(b, 0, 255);
                 return (blue << 0) | (green << 8) | (red << 16);
             case 32:
-                red = MathH.clamp(r, 0, 255);
-                green = MathH.clamp(g, 0, 255);
-                blue = MathH.clamp(b, 0, 255);
+                red = MathH.Clamp(r, 0, 255);
+                green = MathH.Clamp(g, 0, 255);
+                blue = MathH.Clamp(b, 0, 255);
                 return (blue << 0) | (green << 8) | (red << 16) | (255 << 24);
             default:
                 return 0;
@@ -68,7 +68,7 @@ public class VESAGraphics extends ADisplay {
     }
 
     @Override
-    public void setPixel(int x, int y, int col) {
+    public void Pixel(int x, int y, int col) {
         if (x < 0
                 || y < 0
                 || x >= curMode.XRes
@@ -105,7 +105,7 @@ public class VESAGraphics extends ADisplay {
     }
 
     @Override
-    public void fillrect(int x, int y, int width, int height, int color) {
+    public void Rectangle(int x, int y, int width, int height, int color) {
         if (x < 0 || y < 0 || x + width > curMode.XRes || y + height > curMode.YRes) {
             Kernel.panic("VESAGraphics.fillrect: invalid parameters");
         }
@@ -129,7 +129,7 @@ public class VESAGraphics extends ADisplay {
     }
 
     @Override
-    public void setBitmap(int x, int y, int[][] bitmap) {
+    public void Bitmap(int x, int y, int[][] bitmap) {
         if (curMode == null
                 || bitmap == null
                 || bitmap.length == 0
@@ -144,24 +144,24 @@ public class VESAGraphics extends ADisplay {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 int col = bitmap[i][j];
-                setPixel(x + i, y + j, col);
+                Pixel(x + i, y + j, col);
             }
         }
     }
 
     @Override
-    public void swap() {
+    public void Swap() {
         if (needsRedraw) {
             int from = MAGIC.addr(buffer[0]);
             int to = curMode.LfbAddress;
             int len = buffer.length;
-            Memory.memcopy(from, to, len);
+            Memory.Memcopy(from, to, len);
         }
         needsRedraw = false;
     }
 
     @Override
-    public void clearScreen() {
+    public void ClearScreen() {
         int from = MAGIC.addr(buffer[0]);
         int len = buffer.length;
         Memory.Memset(from, len, (byte) 0);
@@ -172,7 +172,7 @@ public class VESAGraphics extends ADisplay {
         int addr32 = (x + y * curMode.XRes) << 2;
         int addrR32 = MAGIC.addr(buffer[addr32]);
         for (int i = 0; i < height; i++) {
-            Memory.memset32(addrR32, width, color);
+            Memory.Memset32(addrR32, width, color);
             addrR32 += curMode.XRes << 2;
         }
     }

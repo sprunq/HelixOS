@@ -25,13 +25,13 @@ public class VecVesaMode {
         elements[size++] = element;
     }
 
-    public VESAMode get(int index) {
+    public VESAMode Get(int index) {
         if (index < 0 || index >= size)
             Kernel.panic("Index out of bounds for vector access");
         return elements[index];
     }
 
-    public int size() {
+    public int Size() {
         return size;
     }
 

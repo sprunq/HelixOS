@@ -17,38 +17,38 @@ public class Logger {
     public static final byte ERROR = 4;
     public static final byte FATAL = 5;
 
-    public static void initialize(byte logLevel, int capactiy) {
+    public static void Initialize(byte logLevel, int capactiy) {
         logBuffer = new QueueLogEntry(capactiy);
         for (int i = 0; i < capactiy; i++) {
-            logBuffer.put(new LogEntry("", "", NONE, ""));
+            logBuffer.Put(new LogEntry("", "", NONE, ""));
         }
         initialized = true;
         minimumLogLevel = logLevel;
-        Logger.info("Logger", "Initialized");
+        Logger.Info("Logger", "Initialized");
     }
 
     @SJC.Inline
-    public static void trace(String category, String message) {
+    public static void Trace(String category, String message) {
         log(category, message, TRACE);
     }
 
     @SJC.Inline
-    public static void info(String category, String message) {
+    public static void Info(String category, String message) {
         log(category, message, INFO);
     }
 
     @SJC.Inline
-    public static void warning(String category, String message) {
+    public static void Warning(String category, String message) {
         log(category, message, WARNING);
     }
 
     @SJC.Inline
-    public static void error(String category, String message) {
+    public static void Error(String category, String message) {
         log(category, message, ERROR);
     }
 
     @SJC.Inline
-    public static void fatal(String category, String message) {
+    public static void Fatal(String category, String message) {
         log(category, message, FATAL);
     }
 
@@ -56,47 +56,47 @@ public class Logger {
         if (priority < minimumLogLevel || !initialized)
             return;
 
-        LogEntry log = logBuffer.get();
-        log.setCategory(category);
-        log.setMessage(message);
-        log.setPriority(priority);
-        log.setTime_HMS(getTimeHMS());
-        logBuffer.put(log);
+        LogEntry log = logBuffer.Get();
+        log.SetCategory(category);
+        log.SetMessage(message);
+        log.SetPriority(priority);
+        log.SetTimeHMS(GetTimeHMS());
+        logBuffer.Put(log);
         logTicks++;
     }
 
     @SJC.Inline
-    public static LogEntry getChronologicalLog(int i) {
-        return logBuffer.peek_back(i);
+    public static LogEntry GetChronologicalLog(int i) {
+        return logBuffer.PeekBack(i);
     }
 
     @SJC.Inline
-    public static int getLogTicks() {
+    public static int LogTicks() {
         return logTicks;
     }
 
-    private static String getTimeHMS() {
-        int hours = RTC.readHour();
-        int minutes = RTC.readMinute();
-        int seconds = RTC.readSecond();
+    private static String GetTimeHMS() {
+        int hours = RTC.ReadHour();
+        int minutes = RTC.ReadMinute();
+        int seconds = RTC.ReadSecond();
         boolean hoursIsTwoDigits = hours >= 10;
         boolean minutesIsTwoDigits = minutes >= 10;
         boolean secondsIsTwoDigits = seconds >= 10;
         StrBuilder sb = new StrBuilder(10);
         if (!hoursIsTwoDigits) {
-            sb.append('0');
+            sb.Append('0');
         }
-        sb.append(hours);
-        sb.append(':');
+        sb.Append(hours);
+        sb.Append(':');
         if (!minutesIsTwoDigits) {
-            sb.append('0');
+            sb.Append('0');
         }
-        sb.append(minutes);
-        sb.append(':');
+        sb.Append(minutes);
+        sb.Append(':');
         if (!secondsIsTwoDigits) {
-            sb.append('0');
+            sb.Append('0');
         }
-        sb.append(seconds);
+        sb.Append(seconds);
         return sb.toString();
     }
 }

@@ -21,7 +21,7 @@ public class VecByte {
         this.size = 0;
     }
 
-    public void clearKeepCapacity() {
+    public void ClearKeepCapacity() {
         for (int i = 0; i < size; i++) {
             elements[i] = 0;
         }
@@ -34,7 +34,7 @@ public class VecByte {
         elements[size++] = element;
     }
 
-    public void addAll(byte[] toAdd) {
+    public void AddAll(byte[] toAdd) {
         ensureCapacity(size + toAdd.length);
         for (int i = 0; i < toAdd.length; i++) {
             this.elements[size + i] = toAdd[i];
@@ -50,7 +50,7 @@ public class VecByte {
     }
 
     @SJC.Inline
-    public int size() {
+    public int Size() {
         return size;
     }
 
@@ -69,11 +69,11 @@ public class VecByte {
 
     private void ensureCapacity(int minCapacity) {
         if (minCapacity > capacity()) {
-            int newCapacity = MathH.max(capacity() * 2, minCapacity);
+            int newCapacity = MathH.Max(capacity() * 2, minCapacity);
             if (newCapacity < minCapacity) {
                 Kernel.panic("Vector capacity overflow");
             }
-            elements = Array.copyOf(elements, newCapacity);
+            elements = Array.CopyOf(elements, newCapacity);
         }
     }
 }

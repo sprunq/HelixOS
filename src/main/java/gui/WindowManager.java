@@ -13,24 +13,24 @@ public class WindowManager {
         this.display = display;
     }
 
-    public void addWindow(ADisplayElement window) {
+    public void AddWindow(ADisplayElement window) {
         windows.add(window);
         windows.SortByZ();
     }
 
-    public void drawWindows() {
+    public void DrawWindows() {
         for (int i = 0; i < windows.size(); i++) {
             ADisplayElement window = windows.get(i);
-            if (window.needsRedraw()) {
-                window.draw(display);
+            if (window.NeedsRedraw()) {
+                window.Draw(display);
             }
         }
     }
 
-    public void staticDisplayFor(int ms) {
-        drawWindows();
-        display.swap();
-        Timer.sleep(ms);
-        display.clearScreen();
+    public void StaticDisplayFor(int ms) {
+        DrawWindows();
+        display.Swap();
+        Timer.Sleep(ms);
+        display.ClearScreen();
     }
 }

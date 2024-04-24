@@ -23,9 +23,9 @@ public abstract class AWindow extends ADisplayElement {
     public AWindow(int x, int y, int z, int width, int height, String title) {
         super(x, y, z, width, height);
 
-        COL_BORDER = Kernel.Display.rgb(180, 180, 180);
-        COL_TITLEBAR = Kernel.Display.rgb(80, 80, 80);
-        COL_TITLE = Kernel.Display.rgb(255, 255, 255);
+        COL_BORDER = Kernel.Display.Rgb(180, 180, 180);
+        COL_TITLEBAR = Kernel.Display.Rgb(80, 80, 80);
+        COL_TITLE = Kernel.Display.Rgb(255, 255, 255);
         FrameSize = 2;
         TitleBarSize = 20;
 
@@ -34,24 +34,24 @@ public abstract class AWindow extends ADisplayElement {
         ContentWidth = Width - FrameSize * 2;
         ContentHeight = Height - FrameSize * 2 - TitleBarSize;
         AFont font = Font9x16.Instance;
-        int centerFontH = (TitleBarSize - font.getHeight()) / 2;
+        int centerFontH = (TitleBarSize - font.Height()) / 2;
         int shiftRight = 5;
         Title = new TextField(X + 5,
                 Y + centerFontH,
                 Z,
                 Width - shiftRight,
-                font.getHeight(),
+                font.Height(),
                 0,
                 0,
                 0,
                 COL_TITLE,
                 COL_TITLEBAR,
                 font);
-        Title.write(title);
+        Title.Write(title);
     }
 
     @Override
-    public void draw(ADisplay display) {
+    public void Draw(ADisplay display) {
         DrawFrame(display);
         DrawTitleBar(display);
         DrawContent(display);
@@ -60,11 +60,11 @@ public abstract class AWindow extends ADisplayElement {
     public abstract void DrawContent(ADisplay display);
 
     public void DrawFrame(ADisplay display) {
-        display.fillrect(X, Y, Width, Height, COL_BORDER);
+        display.Rectangle(X, Y, Width, Height, COL_BORDER);
     }
 
     public void DrawTitleBar(ADisplay display) {
-        display.fillrect(X, Y, Width, TitleBarSize, COL_TITLEBAR);
-        Title.draw(display);
+        display.Rectangle(X, Y, Width, TitleBarSize, COL_TITLEBAR);
+        Title.Draw(display);
     }
 }

@@ -5,28 +5,28 @@ import kernel.Kernel;
 public class BitHelper {
 
     @SJC.Inline
-    public static int getBit(int value, int n) {
+    public static int GetBit(int value, int n) {
         return ((value >> n) & 1);
     }
 
     @SJC.Inline
-    public static boolean getFlag(int value, int n) {
-        int flag = BitHelper.getBit(value, n);
+    public static boolean GetFlag(int value, int n) {
+        int flag = BitHelper.GetBit(value, n);
         return flag == 1;
     }
 
     @SJC.Inline
-    public static int setFlag(int value, int n, boolean flag) {
+    public static int SetFlag(int value, int n, boolean flag) {
         return ((value & ~(1 << n)) | ((flag ? 1 : 0) << n));
     }
 
     @SJC.Inline
-    public static int clearFlag(int value, int n) {
+    public static int ClearFlag(int value, int n) {
         return value & ~(1 << n);
     }
 
     @SJC.Inline
-    public static int setRange(int base, int start, int length, int value) {
+    public static int SetRange(int base, int start, int length, int value) {
         int highBits = (1 << length) - 1;
         int loadMask = highBits << start;
         int storeMask = (value & highBits) << start;
@@ -34,7 +34,7 @@ public class BitHelper {
     }
 
     @SJC.Inline
-    public static int getRange(int value, int start, int length) {
+    public static int GetRange(int value, int start, int length) {
         return (value >> start) & ((1 << length) - 1);
     }
 
@@ -110,19 +110,19 @@ public class BitHelper {
             result |= rightmost_bit;
             number_length += 1;
         }
-        result = BitHelper.reverse32Bit(result);
-        result = BitHelper.rotateRight32Bit(result, 32 - number_length);
+        result = BitHelper.Reverse32Bit(result);
+        result = BitHelper.RotateRight32Bit(result, 32 - number_length);
         return result;
     }
 
     /// https://stackoverflow.com/a/5844096
     @SJC.Inline
-    public static int rotateRight32Bit(int bits, int k) {
+    public static int RotateRight32Bit(int bits, int k) {
         return (bits >>> k) | (bits << (32 - k));
     }
 
     /// https://stackoverflow.com/a/9144870
-    public static int reverse32Bit(int value) {
+    public static int Reverse32Bit(int value) {
         value = ((value >> 1) & 0x55555555) | ((value & 0x55555555) << 1);
         value = ((value >> 2) & 0x33333333) | ((value & 0x33333333) << 2);
         value = ((value >> 4) & 0x0f0f0f0f) | ((value & 0x0f0f0f0f) << 4);

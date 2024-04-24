@@ -11,7 +11,7 @@ public class Logo extends QOIImage {
         super(width, height, channels, colorSpace, pixelData);
     }
 
-    public static QOIImage load() {
-        return QOIDecoder.decode(DATA, 3);
+    public static QOIImage Load() {
+        return QOIDecoder.Decode(DATA, 3);
     }
 }

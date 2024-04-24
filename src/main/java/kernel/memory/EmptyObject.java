@@ -34,11 +34,11 @@ public class EmptyObject extends Object {
         return (SClassDesc) MAGIC.clssDesc("EmptyObject");
     }
 
-    public boolean fits(int size) {
+    public boolean Fits(int size) {
         return _r_scalarSize >= size;
     }
 
-    public boolean canBeReplacedBy(int size) {
+    public boolean CanBeReplacedBy(int size) {
         return _r_scalarSize - size >= ClassSize();
     }
 

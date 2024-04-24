@@ -15,7 +15,7 @@ public class Long {
             BUFFER[j] = (byte) 0;
         }
 
-        int digitCount = NoAllocConv.itoa(BUFFER, BUFFER.length, i, base);
+        int digitCount = NoAllocConv.ItoA(BUFFER, BUFFER.length, i, base);
 
         int newLength = digitCount;
         if (i < 0) {

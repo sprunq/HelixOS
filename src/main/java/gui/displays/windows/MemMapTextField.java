@@ -21,8 +21,8 @@ public class MemMapTextField extends AWindow {
             int lineSpacing,
             AFont font) {
         super(x, y, z, width, height, title);
-        int bg = Kernel.Display.rgb(100, 100, 100);
-        int fg = Kernel.Display.rgb(255, 255, 255);
+        int bg = Kernel.Display.Rgb(100, 100, 100);
+        int fg = Kernel.Display.Rgb(255, 255, 255);
         _textField = new TextField(
                 ContentX,
                 ContentY,
@@ -35,7 +35,7 @@ public class MemMapTextField extends AWindow {
                 fg,
                 bg,
                 font);
-        _memmapText = getMemMapStr();
+        _memmapText = BuildMemMapStr();
         _needsRedraw = true;
     }
 
@@ -44,42 +44,42 @@ public class MemMapTextField extends AWindow {
     private String _memmapText;
 
     public void DrawContent(ADisplay display) {
-        _textField.clearText();
-        _textField.write(_memmapText);
-        _textField.draw(display);
+        _textField.ClearText();
+        _textField.Write(_memmapText);
+        _textField.Draw(display);
         _needsRedraw = false;
     }
 
-    private String getMemMapStr() {
+    private String BuildMemMapStr() {
         StrBuilder sb = new StrBuilder(500);
         int i = 0;
         MemMap memMap = new MemMap();
         while (true) {
-            MemMapEntry entry = memMap.next();
+            MemMapEntry entry = memMap.Next();
             if (entry == null) {
                 break;
             }
 
-            sb.append("Entry #")
-                    .append(i).append(":")
-                    .append(entry.isFree() ? "free" : "reserved")
-                    .appendLine()
-                    .append("    ")
-                    .append("Base: ")
-                    .append(entry.Base, 10)
-                    .appendLine()
-                    .append("    ")
-                    .append("Length: ")
-                    .append(entry.Length, 10)
-                    .appendLine()
-                    .appendLine();
+            sb.Append("Entry #")
+                    .Append(i).Append(":")
+                    .Append(entry.IsFree() ? "free" : "reserved")
+                    .AppendLine()
+                    .Append("    ")
+                    .Append("Base: ")
+                    .Append(entry.Base, 10)
+                    .AppendLine()
+                    .Append("    ")
+                    .Append("Length: ")
+                    .Append(entry.Length, 10)
+                    .AppendLine()
+                    .AppendLine();
             i++;
         }
         return sb.toString();
     }
 
     @Override
-    public boolean needsRedraw() {
+    public boolean NeedsRedraw() {
         return _needsRedraw;
     }
 }

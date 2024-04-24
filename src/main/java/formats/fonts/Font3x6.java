@@ -15,31 +15,31 @@ public class Font3x6 extends AFont {
     public static final Font3x6 Instance = new Font3x6();
 
     @Override
-    public int getWidth() {
+    public int Width() {
         return FONT_WIDTH;
     }
 
     @Override
-    public int getHeight() {
+    public int Height() {
         return FONT_HEIGHT;
     }
 
     @Override
-    public boolean isVertical() {
+    public boolean Vertical() {
         return true;
     }
 
     @Override
-    public int getSpacingW() {
+    public int SpacingW() {
         return 1;
     }
 
     @Override
-    public int getSpacingH() {
+    public int SpacingH() {
         return 0;
     }
 
-    public int getCharacterBitmapLine(int ch, int offset) {
+    public int CharacterBitmapLine(int ch, int offset) {
         if (ch < FONT_CHARACHTERS_START || ch > FONT_CHARACHTERS_LAST) {
             return 0;
         }

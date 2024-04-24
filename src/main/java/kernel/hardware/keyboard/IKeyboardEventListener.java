@@ -1,11 +1,11 @@
 package kernel.hardware.keyboard;
 
 public interface IKeyboardEventListener {
-    boolean onKeyPressed(char keyCode);
+    boolean OnKeyPressed(char keyCode);
 
-    boolean onKeyReleased(char keyCode);
+    boolean OnKeyReleased(char keyCode);
 
-    String name();
+    String Name();
 
-    int priority();
+    int Priority();
 }

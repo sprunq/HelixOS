@@ -12,7 +12,7 @@ public class Breaker implements IKeyboardEventListener {
     private boolean _altDown = false;
 
     @Override
-    public boolean onKeyPressed(char keyCode) {
+    public boolean OnKeyPressed(char keyCode) {
         switch ((int) keyCode) {
             case Key.LALT:
                 _altDown = true;
@@ -28,7 +28,7 @@ public class Breaker implements IKeyboardEventListener {
     }
 
     @Override
-    public boolean onKeyReleased(char keyCode) {
+    public boolean OnKeyReleased(char keyCode) {
         switch ((int) keyCode) {
             case Key.LALT:
                 _altDown = false;
@@ -42,12 +42,12 @@ public class Breaker implements IKeyboardEventListener {
     }
 
     @Override
-    public String name() {
+    public String Name() {
         return "Breaker";
     }
 
     @Override
-    public int priority() {
+    public int Priority() {
         return 20;
     }
 }
