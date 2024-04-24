@@ -1,7 +1,7 @@
 package kernel.memory;
 
 public class Memory {
-    public static void memset(int start, int len, byte value) {
+    public static void Memset(int start, int len, byte value) {
         int end = start + len;
         if (len % 4 == 0) {
             memset32(start, len / 4, value);

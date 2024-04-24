@@ -2,8 +2,6 @@ package kernel.bios.call;
 
 import kernel.MemoryLayout;
 import kernel.bios.BIOS;
-import kernel.trace.logging.Logger;
-import util.StrBuilder;
 
 public class MemMap extends BIOS {
 

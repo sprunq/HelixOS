@@ -11,8 +11,6 @@ import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
 import kernel.display.ADisplay;
-import kernel.display.text.TM3;
-import kernel.display.text.TM3Color;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
@@ -46,7 +44,7 @@ public class Kernel {
         VecVesaMode modes = VesaQuery.AvailableModes();
         Logger.info("VESA", "Available VESA modes:");
         for (int i = 0; i < modes.size(); i++) {
-            Logger.info("VESA", modes.get(i).dbg());
+            // Logger.info("VESA", modes.get(i).dbg());
         }
 
         VESAMode mode;

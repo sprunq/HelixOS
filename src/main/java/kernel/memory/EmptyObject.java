@@ -6,20 +6,28 @@ public class EmptyObject extends Object {
     public EmptyObject nextEmptyObject;
     public EmptyObject prevEmptyObject;
 
-    public int Top() {
+    public int AddressTop() {
         return MAGIC.cast2Ref(this) + _r_scalarSize;
     }
 
-    public int Size() {
+    public int AddressBottom() {
+        return MAGIC.cast2Ref(this) - RelocEntriesSize();
+    }
+
+    public int ReservedSize() {
         return _r_scalarSize + _r_relocEntries * MAGIC.ptrSize;
     }
 
-    public static int BaseSize() {
+    public static int ClassSize() {
         return MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize + MAGIC.getInstScalarSize("EmptyObject");
     }
 
     public static int RelocEntries() {
         return MAGIC.getInstRelocEntries("EmptyObject");
+    }
+
+    public static int RelocEntriesSize() {
+        return MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize;
     }
 
     public static SClassDesc Type() {
@@ -28,5 +36,13 @@ public class EmptyObject extends Object {
 
     public boolean fits(int size) {
         return _r_scalarSize >= size;
+    }
+
+    public boolean canBeReplacedBy(int size) {
+        return _r_scalarSize - size >= ClassSize();
+    }
+
+    public void ShrinkBy(int newObjectTotalSize) {
+        MAGIC.assign(_r_scalarSize, _r_scalarSize - newObjectTotalSize);
     }
 }

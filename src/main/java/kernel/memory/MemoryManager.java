@@ -3,22 +3,20 @@ package kernel.memory;
 import kernel.Kernel;
 import kernel.MemoryLayout;
 import kernel.bios.call.MemMap;
-import kernel.display.text.TM3;
-import kernel.display.text.TM3Color;
 import rte.SClassDesc;
 import util.BitHelper;
 
 public class MemoryManager {
     public static final BootableImage BOOT_IMAGE = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
 
-    public static EmptyObject _firstEmptyObject = null;
+    public static EmptyObject FirstEmptyObject = null;
 
     public static void initialize() {
         initEmptyObjects();
     }
 
     private static void initEmptyObjects() {
-        Object lastStaticObj = getStaticAllocLast();
+        Object lastStaticObj = GetStaticAllocLast();
         int lastStaticObjAddr = MAGIC.cast2Ref(lastStaticObj);
         int continuationIndex = 0;
         do {
@@ -35,74 +33,102 @@ public class MemoryManager {
                 continue;
             }
 
+            // Check if the segment contains static objects
+            // If so, we need to create an empty object only for the remaining space;
+            // otherwise, we create an empty object for the whole segment.
             boolean segmentContainsStaticObjects = base <= lastStaticObjAddr && lastStaticObjAddr <= base + length - 1;
-            if (!segmentContainsStaticObjects) {
-                Kernel.panic("unimplemented");
-            } else {
-                int emptyLength = ((int) length) - EmptyObject.BaseSize();
-                int ptrNextFree = getPtrNextFree(lastStaticObj);
-                Object emptyObj = writeObject(ptrNextFree,
-                        BitHelper.alignDown(emptyLength - lastStaticObjAddr - 1, 4),
-                        EmptyObject.RelocEntries(),
-                        EmptyObject.Type());
+            int emptyObjStart = segmentContainsStaticObjects ? GetPtrNextFree(lastStaticObj) : (int) base;
+            int emptyObjEnd = (int) (base + length);
+            int emptyObjScalarSize = emptyObjEnd - emptyObjStart - EmptyObject.RelocEntriesSize();
 
-                MAGIC.assign(lastStaticObj._r_next, emptyObj);
+            EmptyObject eo = (EmptyObject) WriteObject(
+                    emptyObjStart,
+                    emptyObjScalarSize,
+                    EmptyObject.RelocEntries(),
+                    EmptyObject.Type());
+            InsertIntoEmptyObjectChain(eo);
 
-                if (_firstEmptyObject == null) {
-                    _firstEmptyObject = (EmptyObject) emptyObj;
-                } else {
-                    EmptyObject t = _firstEmptyObject;
-                    while (t.nextEmptyObject != null) {
-                        t = t.nextEmptyObject;
-                    }
-                    t.nextEmptyObject = (EmptyObject) emptyObj;
-                    ((EmptyObject) emptyObj).prevEmptyObject = t;
-                }
+            // If the segment contains static objects, we need to update the _r_next field
+            // of the last static object.
+            // This can only happen once, so we can always use the last static object.
+            if (segmentContainsStaticObjects) {
+                MAGIC.assign(lastStaticObj._r_next, (Object) eo);
             }
 
         } while (continuationIndex != 0);
     }
 
     public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
-        int alignScalarSize = BitHelper.align(scalarSize, 4);
+        int alignScalarSize = BitHelper.Align(scalarSize, 4);
         int newObjectTotalSize = alignScalarSize + relocEntries * MAGIC.ptrSize;
 
-        EmptyObject emptyObj = findEmptyObjectFitting(newObjectTotalSize);
+        EmptyObject emptyObj = FindEmptyObjectFitting(newObjectTotalSize);
         if (emptyObj == null) {
             Kernel.panic("Out of memory");
         }
 
-        if (objectSize(emptyObj) == newObjectTotalSize) {
-            Kernel.panic("perfect fit not implemented");
+        Object newObject = null;
+        if (ObjectSize(emptyObj) == newObjectTotalSize) {
+            // The new object fits exactly into the empty object
+            // We can replace the empty object with the new object
+            RemoveFromEmptyObjectChain(emptyObj);
+            newObject = WriteObject(emptyObj.AddressBottom(), scalarSize, relocEntries, type);
+        } else {
+            // The new object does not fit exactly into the empty object
+            // We need to split the empty object
+            int emptyObjectTop = emptyObj.AddressTop();
+            int newObjectBottom = emptyObjectTop - newObjectTotalSize;
+            newObject = WriteObject(newObjectBottom, scalarSize, relocEntries, type);
+            emptyObj.ShrinkBy(newObjectTotalSize);
+            InsertIntoChainAfter(emptyObj, newObject);
         }
-
-        int emptyObjectTop = emptyObj.Top();
-        int newObjectBottom = emptyObjectTop - newObjectTotalSize;
-        // TM3.sprint(newObjectTotalSize, 10, 240, TM3Color.VIOLET);
-
-        Object newObject = writeObject(newObjectBottom, scalarSize, relocEntries, type);
-
-        MAGIC.assign(emptyObj._r_scalarSize, emptyObj._r_scalarSize - newObjectTotalSize);
 
         return newObject;
     }
 
-    private static int objectSize(Object o) {
+    private static void RemoveFromEmptyObjectChain(EmptyObject emptyObj) {
+        if (emptyObj.prevEmptyObject != null) {
+            emptyObj.prevEmptyObject.nextEmptyObject = emptyObj.nextEmptyObject;
+        } else {
+            FirstEmptyObject = emptyObj.nextEmptyObject;
+        }
+        if (emptyObj.nextEmptyObject != null) {
+            emptyObj.nextEmptyObject.prevEmptyObject = emptyObj.prevEmptyObject;
+        }
+    }
+
+    /*
+     * Adds an empty object to the chain of empty objects.
+     * The chain is sorted by the address of the empty objects.
+     */
+    private static void InsertIntoEmptyObjectChain(EmptyObject emptyObj) {
+        if (FirstEmptyObject == null) {
+            FirstEmptyObject = emptyObj;
+        } else {
+            int emptyObjAddr = MAGIC.cast2Ref(emptyObj);
+            EmptyObject t = FirstEmptyObject;
+            while (t.nextEmptyObject != null) {
+                if (MAGIC.cast2Ref(t.nextEmptyObject) > emptyObjAddr) {
+                    break;
+                }
+                t = t.nextEmptyObject;
+            }
+            t.nextEmptyObject = emptyObj;
+            emptyObj.prevEmptyObject = t;
+        }
+    }
+
+    private static void InsertIntoChainAfter(EmptyObject emptyObj, Object newObject) {
+        MAGIC.assign(newObject._r_next, emptyObj._r_next);
+        MAGIC.assign(emptyObj._r_next, newObject);
+    }
+
+    private static int ObjectSize(Object o) {
         return o._r_scalarSize + o._r_relocEntries * MAGIC.ptrSize;
     }
 
-    private static int objectSize(int scalarSize, int relocEntries) {
-        int alignScalarSize = BitHelper.align(scalarSize, 4);
-        return alignScalarSize + relocEntries * MAGIC.ptrSize;
-    }
-
-    public static void shrinkEmptyObject(EmptyObject obj, int shrinkBy) {
-        int newEmptyObjSize = obj.Size() - shrinkBy;
-        MAGIC.assign(obj._r_scalarSize, newEmptyObjSize);
-    }
-
-    private static EmptyObject findEmptyObjectFitting(int objectSize) {
-        EmptyObject emptyObj = _firstEmptyObject;
+    private static EmptyObject FindEmptyObjectFitting(int objectSize) {
+        EmptyObject emptyObj = FirstEmptyObject;
         while (emptyObj != null) {
             if (emptyObj.fits(objectSize)) {
                 break;
@@ -112,10 +138,10 @@ public class MemoryManager {
         return emptyObj;
     }
 
-    private static int getPtrNextFree(Object lastAlloc) {
+    private static int GetPtrNextFree(Object lastAlloc) {
         int lastAllocAddr = MAGIC.cast2Ref(lastAlloc);
         int lastAllocEnd = lastAllocAddr + lastAlloc._r_scalarSize;
-        int ptrNextFree = BitHelper.align(lastAllocEnd, 4);
+        int ptrNextFree = BitHelper.Align(lastAllocEnd, 4);
         return ptrNextFree;
     }
 
@@ -123,7 +149,7 @@ public class MemoryManager {
      * Returns the first object in the static allocation.
      */
     @SJC.Inline
-    public static Object getStaticAllocRoot() {
+    public static Object GetStaticAllocRoot() {
         return MAGIC.cast2Obj(BOOT_IMAGE.firstHeapObject);
     }
 
@@ -131,8 +157,8 @@ public class MemoryManager {
      * Returns the last object in the static allocation.
      */
     @SJC.Inline
-    public static Object getStaticAllocLast() {
-        Object obj = getStaticAllocRoot();
+    public static Object GetStaticAllocLast() {
+        Object obj = GetStaticAllocRoot();
         while (obj._r_next != null) {
             obj = obj._r_next;
         }
@@ -149,7 +175,7 @@ public class MemoryManager {
      * @return The allocated object.
      */
     @SJC.Inline
-    private static Object writeObject(int ptrNextFree, int scalarSize, int relocEntries, SClassDesc type) {
+    private static Object WriteObject(int ptrNextFree, int scalarSize, int relocEntries, SClassDesc type) {
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
 
@@ -163,7 +189,7 @@ public class MemoryManager {
         }
 
         // Clear the memory
-        Memory.memset(startOfObject, lengthOfObject, (byte) 0);
+        Memory.Memset(startOfObject, lengthOfObject, (byte) 0);
 
         // cast2Obj expects the pointer to the first scalar field.
         // It needs space because relocs will be stored in front of the object
@@ -178,8 +204,8 @@ public class MemoryManager {
     }
 
     @SJC.Inline
-    public static int getDynamicHeapStart() {
+    public static int GetDynamicHeapStart() {
         int adr = BOOT_IMAGE.memoryStart + BOOT_IMAGE.memorySize;
-        return BitHelper.align(adr, 4);
+        return BitHelper.Align(adr, 4);
     }
 }

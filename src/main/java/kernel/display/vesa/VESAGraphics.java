@@ -164,7 +164,7 @@ public class VESAGraphics extends ADisplay {
     public void clearScreen() {
         int from = MAGIC.addr(buffer[0]);
         int len = buffer.length;
-        Memory.memset(from, len, (byte) 0);
+        Memory.Memset(from, len, (byte) 0);
     }
 
     @SJC.Inline

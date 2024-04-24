@@ -34,7 +34,7 @@ public class VM13 {
     }
 
     public static void clearBackBuffer() {
-        Memory.memset(MAGIC.addr(_backBuffer[0]), SIZE, (byte) 0);
+        Memory.Memset(MAGIC.addr(_backBuffer[0]), SIZE, (byte) 0);
     }
 
     @SJC.Inline
