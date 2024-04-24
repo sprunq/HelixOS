@@ -5,32 +5,32 @@ import kernel.hardware.Timer;
 import util.vector.VecWindow;
 
 public class WindowManager {
-    private VecWindow windows;
-    private ADisplay display;
+    private VecWindow _windows;
+    private ADisplay _display;
 
     public WindowManager(ADisplay display) {
-        windows = new VecWindow();
-        this.display = display;
+        _windows = new VecWindow();
+        this._display = display;
     }
 
     public void AddWindow(ADisplayElement window) {
-        windows.add(window);
-        windows.SortByZ();
+        _windows.add(window);
+        _windows.SortByZ();
     }
 
     public void DrawWindows() {
-        for (int i = 0; i < windows.size(); i++) {
-            ADisplayElement window = windows.get(i);
+        for (int i = 0; i < _windows.size(); i++) {
+            ADisplayElement window = _windows.get(i);
             if (window.NeedsRedraw()) {
-                window.Draw(display);
+                window.Draw(_display);
             }
         }
     }
 
     public void StaticDisplayFor(int ms) {
         DrawWindows();
-        display.Swap();
+        _display.Swap();
         Timer.Sleep(ms);
-        display.ClearScreen();
+        _display.ClearScreen();
     }
 }

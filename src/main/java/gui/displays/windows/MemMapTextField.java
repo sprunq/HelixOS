@@ -9,6 +9,10 @@ import kernel.display.ADisplay;
 import util.StrBuilder;
 
 public class MemMapTextField extends AWindow {
+    private TextField _textField;
+    private boolean _needsRedraw;
+    private String _memmapText;
+
     public MemMapTextField(
             String title,
             int x,
@@ -38,10 +42,6 @@ public class MemMapTextField extends AWindow {
         _memmapText = BuildMemMapStr();
         _needsRedraw = true;
     }
-
-    private TextField _textField;
-    private boolean _needsRedraw;
-    private String _memmapText;
 
     public void DrawContent(ADisplay display) {
         _textField.ClearText();
