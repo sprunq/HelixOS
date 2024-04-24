@@ -54,4 +54,14 @@ public class EmptyObject extends Object {
     public void ShrinkBy(int newObjectTotalSize) {
         MAGIC.assign(_r_scalarSize, _r_scalarSize - newObjectTotalSize);
     }
+
+    @SJC.Inline
+    public int ReservedSize() {
+        return ReservedSize() + RelocEntriesSize();
+    }
+
+    @SJC.Inline
+    public int UnreservedScalarSize() {
+        return _r_scalarSize - MAGIC.getInstScalarSize("EmptyObject");
+    }
 }

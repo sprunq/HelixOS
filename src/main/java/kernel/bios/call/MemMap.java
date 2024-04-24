@@ -43,8 +43,6 @@ public class MemMap extends BIOS {
     }
 
     public static MemMapEntry Exec(int idx) {
-        // Logger.trace("BIOS", new
-        // StrBuilder().append("memMap(").append(idx).append(")").toString());
         ExecMemMap(idx);
         return ReadMemMap();
     }

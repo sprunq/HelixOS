@@ -5,7 +5,7 @@ import kernel.MemoryLayout;
 import kernel.memory.MemoryManager;
 
 public class DynamicRuntime {
-    static final int SIZE_FOR_PANIC_CALL = 512;
+    static final int SIZE_FOR_PANIC_CALL = 1024;
     static int stackExtreme = MemoryLayout.PROGRAM_STACK_BOTTOM + SIZE_FOR_PANIC_CALL;
 
     /*

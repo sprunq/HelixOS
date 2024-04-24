@@ -65,10 +65,14 @@ public class Kernel {
 
         WindowManager winManSplashScreen = new WindowManager(Display);
         BuildSplashScreen(winManSplashScreen);
-        winManSplashScreen.StaticDisplayFor(2000);
+        winManSplashScreen.StaticDisplayFor(000);
 
         WindowManager windowManager = new WindowManager(Display);
         BuildGuiEnvironment(windowManager);
+
+        // Kernel.panic(Integer.toString(MemoryManager.GetFirstEmptyObject().AddressBottom()));
+
+        byte[] b = new byte[1024 * 1024 * 506]; // damit der loop nicht so lange läuft
 
         int averageOver = 200;
         int avg = 0;
@@ -94,7 +98,11 @@ public class Kernel {
                 Logger.Trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
                 avg = 0;
             }
-            Timer.Sleep(1000 / 60);
+            byte[] buffer = new byte[100];
+
+            Logger.Warning("LOOP", Integer.toString(MAGIC.cast2Ref(buffer)));
+
+            // Timer.Sleep(1000 / 200);
         }
     }
 
@@ -152,14 +160,5 @@ public class Kernel {
         Bluescreen.Show("PANIC", msg, ebp, eip);
         while (true) {
         }
-    }
-
-    public static void todo(String msg) {
-        int ebp = 0;
-        MAGIC.inline(0x89, 0x6D);
-        MAGIC.inlineOffset(1, ebp);
-        int eip = x86.eipForFunction(ebp);
-        Bluescreen.Show("TODO", msg, ebp, eip);
-        Timer.Sleep(-1);
     }
 }

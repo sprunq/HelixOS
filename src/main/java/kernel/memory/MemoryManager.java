@@ -20,6 +20,10 @@ public class MemoryManager {
 
     public static void Initialize() {
         InitEmptyObjects();
+        if (_firstEmptyObject == null) {
+            Kernel.panic("No viable memory regions found");
+        }
+
         _dynamicAllocRoot = (DynamicAllocRoot) allocObject(
                 MAGIC.getInstScalarSize("DynamicAllocRoot"),
                 MAGIC.getInstRelocEntries("DynamicAllocRoot"),
@@ -76,7 +80,7 @@ public class MemoryManager {
             // The empty object will be overwritten
             newObject = WriteObject(emptyObj.AddressBottom(), scalarSize, relocEntries, type);
             InsertIntoNextChain(objPointingToEmpty, newObject);
-        } else {
+        } else if (emptyObj.UnreservedScalarSize() > newObjectTotalSize) {
             // The new object does not fit exactly into the empty object
             // We need to split the empty object
             int emptyObjectTop = emptyObj.AddressTop();
@@ -86,6 +90,9 @@ public class MemoryManager {
             InsertIntoNextChain(emptyObj, newObject);
         }
 
+        if (newObject == null) {
+            Kernel.panic("Failed to allocate object");
+        }
         return newObject;
     }
 
@@ -126,7 +133,7 @@ public class MemoryManager {
             // of the last static object.
             // This can only happen once, so we can always use the last static object.
             if (segmentContainsStaticObjects) {
-                InsertIntoNextChain(lastStaticObj, eo);
+                MAGIC.assign(lastStaticObj._r_next, (Object) eo);
             }
 
         } while (continuationIndex != 0);
@@ -212,12 +219,13 @@ public class MemoryManager {
     private static EmptyObject FindEmptyObjectFitting(int objectSize) {
         EmptyObject emptyObj = _firstEmptyObject;
         while (emptyObj != null) {
-            if (ObjectSize(emptyObj) >= objectSize) {
-                break;
+            if (emptyObj.UnreservedScalarSize() >= objectSize
+                    || ObjectSize(emptyObj) == objectSize) {
+                return emptyObj;
             }
             emptyObj = emptyObj.NextEmptyObject;
         }
-        return emptyObj;
+        return null;
     }
 
     /*
@@ -233,7 +241,7 @@ public class MemoryManager {
     }
 
     @SJC.Inline
-    private static Object GetStaticAllocLast() {
+    public static Object GetStaticAllocLast() {
         Object obj = GetStaticAllocRoot();
         while (obj._r_next != null) {
             obj = obj._r_next;
@@ -242,7 +250,7 @@ public class MemoryManager {
     }
 
     @SJC.Inline
-    private static Object ObjectPointingTo(Object o) {
+    public static Object ObjectPointingTo(Object o) {
         Object obj = GetStaticAllocRoot();
         while (obj._r_next != null) {
             if (obj._r_next == o) {
