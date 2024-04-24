@@ -9,6 +9,7 @@ public class Logger {
     private static byte minimumLogLevel = 0;
     private static boolean initialized = false;
     private static int logTicks = 0;
+    private static boolean _logTime;
 
     public static final byte NONE = 0;
     public static final byte TRACE = 1;
@@ -17,13 +18,14 @@ public class Logger {
     public static final byte ERROR = 4;
     public static final byte FATAL = 5;
 
-    public static void Initialize(byte logLevel, int capactiy) {
+    public static void Initialize(byte logLevel, int capactiy, boolean logTime) {
         logBuffer = new QueueLogEntry(capactiy);
         for (int i = 0; i < capactiy; i++) {
             logBuffer.Put(new LogEntry("", "", NONE, ""));
         }
         initialized = true;
         minimumLogLevel = logLevel;
+        _logTime = logTime;
         Logger.Info("Logger", "Initialized");
     }
 
@@ -60,7 +62,8 @@ public class Logger {
         log.SetCategory(category);
         log.SetMessage(message);
         log.SetPriority(priority);
-        log.SetTimeHMS(GetTimeHMS());
+        if (_logTime)
+            log.SetTimeHMS(GetTimeHMS());
         logBuffer.Put(log);
         logTicks++;
     }

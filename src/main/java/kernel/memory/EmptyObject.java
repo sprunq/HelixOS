@@ -1,5 +1,6 @@
 package kernel.memory;
 
+import kernel.Kernel;
 import rte.SClassDesc;
 
 public class EmptyObject extends Object {
@@ -53,6 +54,9 @@ public class EmptyObject extends Object {
     @SJC.Inline
     public void ShrinkBy(int newObjectTotalSize) {
         MAGIC.assign(_r_scalarSize, _r_scalarSize - newObjectTotalSize);
+        if (_r_scalarSize < 4) {
+            Kernel.panic("EmptyObject::ShrinkBy: _r_scalarSize < 4");
+        }
     }
 
     @SJC.Inline

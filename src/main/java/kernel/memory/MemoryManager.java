@@ -70,6 +70,7 @@ public class MemoryManager {
 
         Object newObject = null;
         if (ObjectSize(emptyObj) == newObjectTotalSize) {
+            Kernel.panic("trace - perfect fit");
             // The new object fits exactly into the empty object
             // We can replace the empty object with the new object
             Object objPointingToEmpty = ObjectPointingTo(emptyObj);
@@ -85,6 +86,9 @@ public class MemoryManager {
             // We need to split the empty object
             int emptyObjectTop = emptyObj.AddressTop();
             int newObjectBottom = emptyObjectTop - newObjectTotalSize;
+            if (newObjectBottom < emptyObj.AddressBottom()) {
+                Kernel.panic("trace - new object bottom is below empty object bottom");
+            }
             newObject = WriteObject(newObjectBottom, scalarSize, relocEntries, type);
             emptyObj.ShrinkBy(newObjectTotalSize);
             InsertIntoNextChain(emptyObj, newObject);

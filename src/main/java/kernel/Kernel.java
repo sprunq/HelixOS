@@ -32,7 +32,7 @@ public class Kernel {
         MemoryManager.Initialize();
 
         MAGIC.doStaticInit();
-        Logger.Initialize(Logger.TRACE, 100);
+        Logger.Initialize(Logger.TRACE, 100, true);
         SymbolResolution.Initialize();
         PIT.Initialize();
         IDT.initialize();
@@ -72,33 +72,14 @@ public class Kernel {
 
         // Kernel.panic(Integer.toString(MemoryManager.GetFirstEmptyObject().AddressBottom()));
 
-        byte[] b = new byte[1024 * 1024 * 506]; // damit der loop nicht so lange läuft
+        byte[] _ = new byte[1024 * 1024 * 506 + 1024 * 500]; // damit der loop nicht so lange läuft
 
-        int averageOver = 200;
-        int avg = 0;
-        int avgIndex = 0;
         while (true) {
-            while (KeyboardController.HasNewEvent()) {
-                KeyboardController.ReadEvent();
-            }
-
-            int startTick = Timer.Ticks();
 
             windowManager.DrawWindows();
             Display.Swap();
 
-            int endTick = Timer.Ticks();
-            int diff = endTick - startTick;
-            avg += diff;
-            avgIndex++;
-            if (avgIndex >= averageOver) {
-                avg /= averageOver;
-                avgIndex = 0;
-                int msAvg = Timer.TickDifferenceMs(avg);
-                Logger.Trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
-                avg = 0;
-            }
-            byte[] buffer = new byte[100];
+            byte[] buffer = new byte[50];
 
             Logger.Warning("LOOP", Integer.toString(MAGIC.cast2Ref(buffer)));
 

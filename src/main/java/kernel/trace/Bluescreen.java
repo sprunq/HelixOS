@@ -102,7 +102,11 @@ public class Bluescreen {
 
             SMthdBlock m = SymbolResolution.Resolve(eip);
             if (m != null) {
-                pos = TM3.sPrint(m.namePar, pos, COL_MESSAGE, 51);
+                int maxLen = 51;
+                pos = TM3.sPrint(m.owner.name, pos, COL_MESSAGE, maxLen);
+                pos = TM3.sPrint('.', pos, COL_MESSAGE);
+                maxLen -= m.owner.name.length() + 1;
+                pos = TM3.sPrint(m.namePar, pos, COL_MESSAGE, maxLen);
             } else {
                 pos = TM3.sPrint("unable to resolve method", pos, COL_MESSAGE);
             }
