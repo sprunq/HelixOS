@@ -36,8 +36,7 @@ public class String {
 
     public String toUpperCase() {
         Kernel.panic("toUpperCase is a dummy method");
-        while (true) {
-        }
+        return "to upper case dummy method";
     }
 
     public byte[] toByteArray() {

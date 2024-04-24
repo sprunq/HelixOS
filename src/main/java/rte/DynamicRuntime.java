@@ -78,8 +78,7 @@ public class DynamicRuntime {
             check = check.parent; // Elternklasse versuchen
         }
         if (asCast)
-            while (true)
-                ; // Konvertierungsfehler
+            Kernel.panic("Conversion error"); // Konvertierungsfehler
         return false; // Objekt passt nicht zu Klasse
     }
 
@@ -98,8 +97,7 @@ public class DynamicRuntime {
             check = check.next; // nächste Interface-Map versuchen
         }
         if (asCast)
-            while (true)
-                ; // Konvertierungsfehler
+            Kernel.panic("Conversion error");// Konvertierungsfehler
         return null; // Objekt passt nicht zu Interface
     }
 
@@ -165,8 +163,7 @@ public class DynamicRuntime {
                     dest._r_dim - 1, true); // Prüfung des Arrays über isArray,
         // falls Dimension des Zielarrays größer 1 ist
         else if (dest._r_unitType == null)
-            while (true)
-                ; // Zuweisungsfehler,
+            Kernel.panic("Zuweisungsfehler"); // Zuweisungsfehler,
         // falls Zielarray aus keine Reloc-Elemente hat
         else { // Instanz-Prüfung in allen anderen Fällen
             if (dest._r_unitType._r_type == MAGIC.clssDesc("SClassDesc"))
