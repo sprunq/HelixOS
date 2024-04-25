@@ -26,7 +26,7 @@ public class VESAGraphics extends ADisplay {
 
     @Override
     public void Activate() {
-        Logger.Info("VESA", "activate mode ".append(curMode.Debug()));
+        Logger.Info("VESA", "Activate VESA Graphics Mode");
         DisplayModes.SetVesaMode(curMode.ModeNr);
     }
 

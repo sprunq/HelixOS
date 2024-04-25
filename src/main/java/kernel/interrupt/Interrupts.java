@@ -4,12 +4,10 @@ import arch.x86;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.trace.Bluescreen;
-import kernel.trace.logging.Logger;
 
 public class Interrupts {
     @SJC.Interrupt
     public static void IgnoreHandler() {
-        Logger.Warning("INTR", "ignoreHandler");
     }
 
     @SJC.Interrupt

@@ -75,8 +75,6 @@ public class Kernel {
                 KeyboardController.ReadEvent();
             }
 
-            Logger.Warning("KER", Integer.toString(MAGIC.cast2Ref(MemoryManager.LastAlloc())));
-
             int startTick = Timer.Ticks();
 
             windowManager.DrawWindows();
@@ -119,7 +117,7 @@ public class Kernel {
                 0,
                 0,
                 6,
-                Display.Width() / 2,
+                (int) (Display.Width() * 0.7),
                 heightMinusHomebar,
                 8,
                 0,
@@ -128,10 +126,10 @@ public class Kernel {
 
         MemMapTextField memMapTextField = new MemMapTextField(
                 "System Memory Map",
-                Display.Width() / 2,
+                logTextField.X + logTextField.Width,
                 0,
                 5,
-                Display.Width() / 2,
+                Display.Width() - logTextField.Width,
                 heightMinusHomebar,
                 8,
                 0,
