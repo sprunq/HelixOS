@@ -158,7 +158,9 @@ public class MemoryManager {
                 continue;
             }
 
-            int emptyObjStart = (int) BitHelper.Align(base, 4);
+            // Align the object to 4 bytes so the *way* faster memset version can be used
+            // otherwise wait 3s every boot
+            int emptyObjStart = (int) BitHelper.AlignUp(base, 4);
             int emptyObjEnd = (int) BitHelper.AlignDown(end, 4);
             int emptyObjScalarSize = emptyObjEnd - emptyObjStart - EmptyObject.RelocEntriesSize();
 

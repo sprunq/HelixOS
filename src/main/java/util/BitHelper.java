@@ -58,7 +58,7 @@ public class BitHelper {
     }
 
     @SJC.Inline
-    public static long Align(long base, int alignment) {
+    public static long AlignUp(long base, int alignment) {
         if (base % alignment != 0) {
             base += alignment - base % alignment;
         }
