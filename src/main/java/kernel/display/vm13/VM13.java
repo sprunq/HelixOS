@@ -4,7 +4,6 @@ import kernel.MemoryLayout;
 import kernel.memory.Memory;
 import kernel.trace.logging.Logger;
 import util.BitHelper;
-import util.MathH;
 
 public class VM13 {
     private static final VM13Memory VidMem = (VM13Memory) MAGIC.cast2Struct(MemoryLayout.VGA_VID_BUFFER_START);
@@ -82,9 +81,9 @@ public class VM13 {
      * return the color in the format 0xRRRGGGBB.
      */
     public static byte Rgb(int r, int g, int b) {
-        int red = MathH.Compress(r, 0, 255, 0, 7);
-        int green = MathH.Compress(g, 0, 255, 0, 7);
-        int blue = MathH.Compress(b, 0, 255, 0, 3);
+        int red = Math.Compress(r, 0, 255, 0, 7);
+        int green = Math.Compress(g, 0, 255, 0, 7);
+        int blue = Math.Compress(b, 0, 255, 0, 3);
         int color = 0;
         color = BitHelper.SetRange(color, 0, 2, blue);
         color = BitHelper.SetRange(color, 2, 3, green);
@@ -117,9 +116,9 @@ public class VM13 {
      */
     public static byte DRgb(int r, int g, int b) {
         int color = 0;
-        int red = MathH.Clamp(r, 0, 7);
-        int green = MathH.Clamp(g, 0, 7);
-        int blue = MathH.Clamp(b, 0, 3);
+        int red = Math.Clamp(r, 0, 7);
+        int green = Math.Clamp(g, 0, 7);
+        int blue = Math.Clamp(b, 0, 3);
         color = BitHelper.SetRange(color, 0, 2, blue);
         color = BitHelper.SetRange(color, 2, 3, green);
         color = BitHelper.SetRange(color, 5, 3, red);

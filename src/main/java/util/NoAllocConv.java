@@ -32,8 +32,8 @@ public class NoAllocConv {
             MAGIC.wMem8(buffer, (byte) '0');
             return 1;
         }
-        n = MathH.Abs(n);
-        max_len = MathH.Clamp(max_len, 0, max_len);
+        n = Math.Abs(n);
+        max_len = Math.Clamp(max_len, 0, max_len);
 
         // Prints each digit of the number but in reverse order
         int digit_count = 0;
@@ -76,8 +76,8 @@ public class NoAllocConv {
             buffer[0] = (byte) '0';
             return 1;
         }
-        n = MathH.Abs(n);
-        max_len = MathH.Clamp(max_len, 0, max_len);
+        n = Math.Abs(n);
+        max_len = Math.Clamp(max_len, 0, max_len);
 
         // Prints each digit of the number but in reverse order
         int digit_count = 0;

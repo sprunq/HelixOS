@@ -4,7 +4,7 @@ public class Array {
 
     public static byte[] CopyOf(byte[] original, int newLength) {
         byte[] copy = new byte[newLength];
-        for (int i = 0; i < MathH.Min(original.length, newLength); i++) {
+        for (int i = 0; i < Math.Min(original.length, newLength); i++) {
             copy[i] = original[i];
         }
         return copy;

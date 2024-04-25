@@ -2,7 +2,6 @@ package util.vector;
 
 import kernel.Kernel;
 import util.Array;
-import util.MathH;
 
 public class VecByte {
     private static final int DEFAULT_CAPACITY = 10;
@@ -69,7 +68,7 @@ public class VecByte {
 
     private void ensureCapacity(int minCapacity) {
         if (minCapacity > capacity()) {
-            int newCapacity = MathH.Max(capacity() * 2, minCapacity);
+            int newCapacity = Math.Max(capacity() * 2, minCapacity);
             if (newCapacity < minCapacity) {
                 Kernel.panic("Vector capacity overflow");
             }

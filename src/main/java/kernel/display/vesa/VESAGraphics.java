@@ -5,7 +5,6 @@ import kernel.bios.call.DisplayModes;
 import kernel.display.ADisplay;
 import kernel.memory.Memory;
 import kernel.trace.logging.Logger;
-import util.MathH;
 
 public class VESAGraphics extends ADisplay {
     public VESAMode curMode;
@@ -45,22 +44,22 @@ public class VESAGraphics extends ADisplay {
         int red, green, blue;
         switch (curMode.ColorDepth) {
             case 8:
-                return MathH.Clamp(r, 0, 255);
+                return Math.Clamp(r, 0, 255);
             case 15:
             case 16:
-                red = MathH.Clamp(r, 0, 255) >> 3;
-                green = MathH.Clamp(g, 0, 255) >> 3;
-                blue = MathH.Clamp(b, 0, 255) >> 3;
+                red = Math.Clamp(r, 0, 255) >> 3;
+                green = Math.Clamp(g, 0, 255) >> 3;
+                blue = Math.Clamp(b, 0, 255) >> 3;
                 return (blue << 0) | (green << 5) | (red << 10);
             case 24:
-                red = MathH.Clamp(r, 0, 255);
-                green = MathH.Clamp(g, 0, 255);
-                blue = MathH.Clamp(b, 0, 255);
+                red = Math.Clamp(r, 0, 255);
+                green = Math.Clamp(g, 0, 255);
+                blue = Math.Clamp(b, 0, 255);
                 return (blue << 0) | (green << 8) | (red << 16);
             case 32:
-                red = MathH.Clamp(r, 0, 255);
-                green = MathH.Clamp(g, 0, 255);
-                blue = MathH.Clamp(b, 0, 255);
+                red = Math.Clamp(r, 0, 255);
+                green = Math.Clamp(g, 0, 255);
+                blue = Math.Clamp(b, 0, 255);
                 return (blue << 0) | (green << 8) | (red << 16) | (255 << 24);
             default:
                 return 0;

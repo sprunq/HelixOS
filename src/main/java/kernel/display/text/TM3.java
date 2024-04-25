@@ -2,7 +2,6 @@ package kernel.display.text;
 
 import kernel.MemoryLayout;
 import kernel.memory.Memory;
-import util.MathH;
 import util.NoAllocConv;
 
 public class TM3 {
@@ -166,7 +165,7 @@ public class TM3 {
     }
 
     public static int sPrint(String s, int position, int color, int maxLen) {
-        int len = MathH.Min(s.length(), maxLen - 3);
+        int len = Math.Min(s.length(), maxLen - 3);
         for (int i = 0; i < len; i++) {
             sPrint((char) s.get(i), position + i, color);
         }

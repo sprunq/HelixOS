@@ -15,7 +15,7 @@ public class Homebar extends ADisplayElement {
 
     public Homebar(int displayWidth, int displayHeight) {
         super(0, displayHeight - HOMEBAR_HEIGHT, 20, displayWidth, HOMEBAR_HEIGHT);
-        COL_HOMEBAR = Kernel.Display.Rgb(0, 20, 50);
+        COL_HOMEBAR = Kernel.Display.Rgb(1, 12, 40);
         _logo = Logo25.Load();
         SetLogoBackGround(_logo);
 

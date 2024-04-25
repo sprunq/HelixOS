@@ -1,8 +1,8 @@
-package util;
+package java.lang;
 
 import kernel.Kernel;
 
-public class MathH {
+public class Math {
     public static int Pow(int base, int exp) {
         int result = 1;
         for (int i = 0; i < exp; i++) {

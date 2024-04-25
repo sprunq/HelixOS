@@ -5,6 +5,7 @@ import formats.fonts.Font7x8;
 import gui.WindowManager;
 import gui.displays.Homebar;
 import gui.displays.Splashscreen;
+import gui.displays.windows.Bounce;
 import gui.displays.windows.LogTextField;
 import gui.displays.windows.MemMapTextField;
 import kernel.display.vesa.VESAGraphics;
@@ -68,9 +69,6 @@ public class Kernel {
         int avg = 0;
         int avgIndex = 0;
         while (true) {
-            // byte[] b = new byte[10000024];
-            // TM3.sPrint(MAGIC.cast2Ref(b), 10, 0, TM3Color.WHITE);
-
             while (KeyboardController.HasNewEvent()) {
                 KeyboardController.ReadEvent();
             }
@@ -130,15 +128,24 @@ public class Kernel {
                 0,
                 5,
                 Display.Width() - logTextField.Width,
-                heightMinusHomebar,
+                heightMinusHomebar / 2,
                 8,
                 0,
                 2,
                 Font7x8.Instance);
 
+        Bounce bounce = new Bounce(
+                logTextField.X + logTextField.Width,
+                heightMinusHomebar / 2,
+                6,
+                Display.Width() - logTextField.Width,
+                heightMinusHomebar / 2,
+                "Bouncy");
+
         windowManager.AddWindow(homebar);
         windowManager.AddWindow(logTextField);
         windowManager.AddWindow(memMapTextField);
+        windowManager.AddWindow(bounce);
     }
 
     public static void panic(String msg) {

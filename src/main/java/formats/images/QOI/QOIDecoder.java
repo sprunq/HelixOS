@@ -1,7 +1,6 @@
 package formats.images.QOI;
 
 import kernel.Kernel;
-import util.MathH;
 
 public class QOIDecoder {
     static final int QOI_SRGB = 0;
@@ -86,7 +85,7 @@ public class QOIDecoder {
     }
 
     private static byte[] read3(Input in, int width, int height) {
-        int pixelDataLength = MathH.MultiplyExact(MathH.MultiplyExact(width, height), 3);
+        int pixelDataLength = Math.MultiplyExact(Math.MultiplyExact(width, height), 3);
         byte[] pixelData = new byte[pixelDataLength];
         byte[] index = new byte[HASH_TABLE_SIZE * 4];
 
