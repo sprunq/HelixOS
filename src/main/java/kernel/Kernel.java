@@ -30,23 +30,17 @@ public class Kernel {
 
     public static void main() {
         MemoryManager.Initialize();
-
         MAGIC.doStaticInit();
         Logger.Initialize(Logger.TRACE, 100, true);
         SymbolResolution.Initialize();
         PIT.Initialize();
-        IDT.initialize();
+        IDT.Initialize();
         IDT.Enable();
 
         KeyboardController.Initialize(QWERTZ.Instance);
         KeyboardController.AddListener(new Breaker());
 
         VecVesaMode modes = VesaQuery.AvailableModes();
-        Logger.Info("VESA", "Available VESA modes:");
-        for (int i = 0; i < modes.Size(); i++) {
-            Logger.Info("VESA", modes.Get(i).Debug());
-        }
-
         VESAMode mode;
         switch (RESOLUTION) {
             case 0:
@@ -70,22 +64,36 @@ public class Kernel {
         WindowManager windowManager = new WindowManager(Display);
         BuildGuiEnvironment(windowManager);
 
-        // Kernel.panic(Integer.toString(MemoryManager.GetFirstEmptyObject().AddressBottom()));
-
-        byte[] _ = new byte[1024 * 1024 * 506 + 1024 * 500]; // damit der loop nicht so lange läuft
-
-        int i = 0;
+        int averageOver = 200;
+        int avg = 0;
+        int avgIndex = 0;
         while (true) {
+            // byte[] b = new byte[10000024];
+            // TM3.sPrint(MAGIC.cast2Ref(b), 10, 0, TM3Color.WHITE);
+
+            while (KeyboardController.HasNewEvent()) {
+                KeyboardController.ReadEvent();
+            }
+
+            Logger.Warning("KER", Integer.toString(MAGIC.cast2Ref(MemoryManager.LastAlloc())));
+
+            int startTick = Timer.Ticks();
+
             windowManager.DrawWindows();
-            Display.Rectangle(400, 200, 100, 100, Display.Rgb(i % 255, 0, 0));
             Display.Swap();
 
-            byte[] buffer = new byte[100];
-
-            Logger.Warning("LOOP", Integer.toString(MAGIC.cast2Ref(buffer)));
-
-            // Timer.Sleep(1000 / 60);
-            i++;
+            int endTick = Timer.Ticks();
+            int diff = endTick - startTick;
+            avg += diff;
+            avgIndex++;
+            if (avgIndex >= averageOver) {
+                avg /= averageOver;
+                avgIndex = 0;
+                int msAvg = Timer.TickDifferenceMs(avg);
+                Logger.Trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
+                avg = 0;
+            }
+            Timer.Sleep(1000 / 60);
         }
     }
 

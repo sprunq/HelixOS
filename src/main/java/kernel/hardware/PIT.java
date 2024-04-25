@@ -15,7 +15,7 @@ public class PIT {
 
     public static void Initialize() {
         SetRate(250);
-        Logger.Info("PIT", "Set rate to 250Hz");
+        Logger.Info("PIT", "Initialized");
     }
 
     /**

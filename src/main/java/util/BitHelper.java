@@ -57,6 +57,14 @@ public class BitHelper {
         // return (base + alignment - 1) & ~(alignment - 1);
     }
 
+    @SJC.Inline
+    public static long Align(long base, int alignment) {
+        if (base % alignment != 0) {
+            base += alignment - base % alignment;
+        }
+        return base;
+    }
+
     /**
      * Aligns a base value to the specified alignment.
      * 
@@ -65,7 +73,15 @@ public class BitHelper {
      * @return the aligned value
      */
     @SJC.Inline
-    public static int alignDown(int base, int alignment) {
+    public static int AlignDown(int base, int alignment) {
+        if (base % alignment != 0) {
+            base -= alignment - base % alignment;
+        }
+        return base;
+    }
+
+    @SJC.Inline
+    public static long AlignDown(long base, int alignment) {
         if (base % alignment != 0) {
             base -= alignment - base % alignment;
         }

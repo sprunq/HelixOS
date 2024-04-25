@@ -19,9 +19,9 @@ public class IDT {
     private static final int SEGMENT_CODE = 1;
     private static final int REQUESTED_PRIV_LEVEL_OS = 0;
 
-    public static void initialize() {
+    public static void Initialize() {
         PIC.Initialize();
-        LoadTable();
+        LoadTableProtectedMode();
 
         SClassDesc cls = (SClassDesc) MAGIC.clssDesc("Interrupts");
         int dscAddr = MAGIC.cast2Ref(cls);
@@ -57,25 +57,21 @@ public class IDT {
     @SJC.Inline
     public static void Enable() {
         x86.sti();
-        Logger.Info("IDT", "Enabled");
     }
 
     @SJC.Inline
     public static void Disable() {
         x86.cli();
-        Logger.Info("IDT", "Disabled");
     }
 
     @SJC.Inline
-    public static void LoadTable() {
+    public static void LoadTableProtectedMode() {
         x86.ldit(MemoryLayout.IDT_BASE, MemoryLayout.IDT_SIZE - 1);
-        Logger.Trace("IDT", "Load (protected)");
     }
 
     @SJC.Inline
     public static void LoadTableRealMode() {
         x86.ldit(0, 1023);
-        Logger.Trace("IDT", "Load (real)");
     }
 
     private static int CodeOffset(int classDesc, int mthdOff) {

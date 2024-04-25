@@ -38,6 +38,14 @@ public class Long {
         return new String(chars);
     }
 
+    @SJC.Inline
+    public int ToIntOrPanic(long l) {
+        if (l > Integer.MAX || l < Integer.MIN) {
+            Kernel.panic("Long to int conversion failed");
+        }
+        return (int) l;
+    }
+
     public static long parseLong(String s) {
         Kernel.panic("Long.parseLong not implemented");
         return -1;

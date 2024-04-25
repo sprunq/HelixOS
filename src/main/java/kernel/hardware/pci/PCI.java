@@ -1,9 +1,7 @@
 package kernel.hardware.pci;
 
 import kernel.Kernel;
-import kernel.trace.logging.Logger;
 import util.BitHelper;
-import util.StrBuilder;
 
 public class PCI {
     public static final int MAX_DEVICES = 32;
@@ -23,7 +21,6 @@ public class PCI {
         int dataReg0 = MAGIC.rIOs32(CONFIG_DATA);
 
         if (dataReg0 == 0 || dataReg0 == -1) {
-            Logger.Warning("PCI", "Device invalid");
             return null;
         }
 
@@ -52,7 +49,6 @@ public class PCI {
                 vendorId, deviceId, command, status,
                 revision, itf, subclasscode, baseclasscode,
                 cls, latency, header, bist);
-        Logger.Info("PCI", new StrBuilder().Append("Found ").append(device).Append(")").toString());
         return device;
     }
 

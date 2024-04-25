@@ -54,7 +54,7 @@ public class BIOS {
         }
         MAGIC.inline(0x5F); // pop e/rdi
         MAGIC.inline(0x5E); // pop e/rsi
-        IDT.LoadTable(); // load idt with protected/long mode interrupt table
+        IDT.LoadTableProtectedMode(); // load idt with protected/long mode interrupt table
         MAGIC.inline(0x9D); // popf
     }
 

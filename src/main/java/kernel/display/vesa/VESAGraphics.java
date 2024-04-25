@@ -21,7 +21,7 @@ public class VESAGraphics extends ADisplay {
         needsRedraw = true;
         curMode = mode;
 
-        Logger.Info("VESA", "setMode to ".append(curMode.Debug()));
+        Logger.Info("VESA", "SetMode to ".append(curMode.Debug()));
     }
 
     @Override

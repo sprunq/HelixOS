@@ -28,6 +28,9 @@ public class WindowManager {
     }
 
     public void StaticDisplayFor(int ms) {
+        if (ms == 0) {
+            return;
+        }
         DrawWindows();
         _display.Swap();
         Timer.Sleep(ms);

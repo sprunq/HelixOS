@@ -37,7 +37,7 @@ public class KeyboardController {
         _inputBuffer = new QueueByte(256);
         _layout = keyBoardLayout;
         _listeners = new VecKeyboardEventListener();
-        Logger.Info("Key", "Initialized");
+        Logger.Info("KeyC", "Initialized");
     }
 
     public static void AddListener(IKeyboardEventListener listener) {
@@ -54,7 +54,7 @@ public class KeyboardController {
     public static void Handle() {
         byte code = MAGIC.rIOs8(PORT_KEYCODE);
         if (code >= 0xE2) {
-            Logger.Warning("Key", "Ignoring ScanCode >0xE2");
+            Logger.Warning("KeyC", "Ignoring ScanCode >0xE2");
             return;
         }
         _inputBuffer.Put(code);
@@ -73,9 +73,9 @@ public class KeyboardController {
         int logicalKey = _layout.LogicalKey(keyCode, IsUpper(), _altPressed);
 
         if (!isBreak) {
-            Logger.Trace("Key", "Pressed ".append(Key.Name(logicalKey)));
+            Logger.Trace("KeyC", "Pressed ".append(Key.Name(logicalKey)));
         } else {
-            Logger.Trace("Key", "Release ".append(Key.Name(logicalKey)));
+            Logger.Trace("KeyC", "Release ".append(Key.Name(logicalKey)));
         }
 
         UpdateKeyboardState(logicalKey, isBreak);
@@ -95,7 +95,7 @@ public class KeyboardController {
                 consumed = listener.OnKeyPressed((char) logicalKey);
             }
             if (consumed) {
-                Logger.Trace("Key", "Event consumed by ".append(Integer.toString(i, 10)));
+                Logger.Trace("KeyC", "Event consumed by ".append(Integer.toString(i, 10)));
                 break;
             }
         }

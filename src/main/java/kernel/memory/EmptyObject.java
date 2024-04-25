@@ -27,7 +27,7 @@ public class EmptyObject extends Object {
     }
 
     @SJC.Inline
-    public static int ClassSize() {
+    public static int MinimumClassSize() {
         return MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize + MAGIC.getInstScalarSize("EmptyObject");
     }
 
@@ -57,11 +57,6 @@ public class EmptyObject extends Object {
         if (_r_scalarSize < 4) {
             Kernel.panic("EmptyObject::ShrinkBy: _r_scalarSize < 4");
         }
-    }
-
-    @SJC.Inline
-    public int ReservedSize() {
-        return ReservedSize() + RelocEntriesSize();
     }
 
     @SJC.Inline

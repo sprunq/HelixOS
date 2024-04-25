@@ -1,7 +1,6 @@
 package kernel.interrupt;
 
 import arch.x86;
-import kernel.Kernel;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.trace.Bluescreen;
@@ -15,17 +14,32 @@ public class Interrupts {
 
     @SJC.Interrupt
     public static void DivByZeroHandler() {
-        Kernel.panic("Interrupt divByZeroHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Bluescreen.Show("PANIC", "Interrupt divByZeroHandler", ebp, x86.eipForInterrupt(ebp, 0));
+        while (true) {
+        }
     }
 
     @SJC.Interrupt
     public static void DebugHandler() {
-        Kernel.panic("Interrupt debugHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Bluescreen.Show("PANIC", "Interrupt debugHandler", ebp, x86.eipForInterrupt(ebp, 0));
+        while (true) {
+        }
     }
 
     @SJC.Interrupt
     public static void NmiHandler() {
-        Kernel.panic("Interrupt nmiHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Bluescreen.Show("PANIC", "Interrupt nmiHandler", ebp, x86.eipForInterrupt(ebp, 0));
+        while (true) {
+        }
     }
 
     @SJC.Interrupt
@@ -54,37 +68,72 @@ public class Interrupts {
 
     @SJC.Interrupt
     public static void OverflowHandler() {
-        Kernel.panic("Interrupt overflowHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Bluescreen.Show("PANIC", "Interrupt overflowHandler", ebp, x86.eipForInterrupt(ebp, 0));
+        while (true) {
+        }
     }
 
     @SJC.Interrupt
     public static void BoundRangeExceededHandler() {
-        Kernel.panic("Interrupt boundRangeExceededHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Bluescreen.Show("PANIC", "Interrupt boundRangeExceededHandler", ebp, x86.eipForInterrupt(ebp, 0));
+        while (true) {
+        }
     }
 
     @SJC.Interrupt
     public static void InvalidOpcodeHandler() {
-        Kernel.panic("Interrupt invalidOpcodeHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Bluescreen.Show("PANIC", "Interrupt invalidOpcodeHandler", ebp, x86.eipForInterrupt(ebp, 0));
+        while (true) {
+        }
     }
 
     @SJC.Interrupt
     public static void ReservedHandler() {
-        Kernel.panic("Interrupt reservedHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Bluescreen.Show("PANIC", "Interrupt reservedHandler", ebp, x86.eipForInterrupt(ebp, 0));
+        while (true) {
+        }
     }
 
     @SJC.Interrupt
     public static void DoubleFaultHandler() {
-        Kernel.panic("Interrupt doubleFaultHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Bluescreen.Show("PANIC", "Interrupt doubleFaultHandler", ebp, x86.eipForInterrupt(ebp, 1));
+        while (true) {
+        }
     }
 
     @SJC.Interrupt
     public static void GeneralProtectionFaultHandler() {
-        Kernel.panic("Interrupt generalProtectionFaultHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Bluescreen.Show("PANIC", "Interrupt generalProtectionFaultHandler", ebp, x86.eipForInterrupt(ebp, 1));
+        while (true) {
+        }
     }
 
     @SJC.Interrupt
     public static void PageFaultHandler() {
-        Kernel.panic("Interrupt pageFaultHandler");
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        Bluescreen.Show("PANIC", "Interrupt pageFaultHandler", ebp, x86.eipForInterrupt(ebp, 1));
+        while (true) {
+        }
     }
 
     @SJC.Interrupt
