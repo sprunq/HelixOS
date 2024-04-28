@@ -5,8 +5,8 @@ import kernel.bios.BIOS;
 import kernel.display.vesa.layout.VESAControllerInfoStruct;
 import kernel.display.vesa.layout.VESAModeInfoStruct;
 import util.StrBuilder;
-import util.vector.VectorInt;
-import util.vector.VectorVesaMode;
+import util.vector.VecInt;
+import util.vector.VecVesaMode;
 
 public class VesaQuery {
     private final static VESAControllerInfoStruct contrInfo = (VESAControllerInfoStruct) MAGIC
@@ -14,7 +14,7 @@ public class VesaQuery {
     private final static VESAModeInfoStruct modeInfo = (VESAModeInfoStruct) MAGIC
             .cast2Struct(MemoryLayout.BIOS_BUFFER_MEMMAP_START);
 
-    public static VectorVesaMode AvailableModes() {
+    public static VecVesaMode AvailableModes() {
         // get information through real mode interrupt
         contrInfo.id = 0x32454256; // VBE2
         BIOS.Registers.EAX = 0x4F00; // get controller information
@@ -35,7 +35,7 @@ public class VesaQuery {
         int modePtr = (((int) contrInfo.videoModePtrSeg & 0xFFFF) << 4) + ((int) contrInfo.videoModePtrOff & 0xFFFF);
 
         // get all available modi
-        VectorInt modeNumbers = new VectorInt();
+        VecInt modeNumbers = new VecInt();
         int modeNr;
         while ((modeNr = (int) MAGIC.rMem16(modePtr) & 0xFFFF) != 0xFFFF) {
             modeNumbers.add(modeNr);
@@ -44,7 +44,7 @@ public class VesaQuery {
 
         // get information for available modi (cannot be done above because info-struct
         // is overwritten)
-        VectorVesaMode modes = new VectorVesaMode(modeNumbers.size());
+        VecVesaMode modes = new VecVesaMode(modeNumbers.size());
         for (int i = 0; i < modeNumbers.size(); i++) {
             int vesaMode = modeNumbers.get(i);
             BIOS.Registers.EAX = 0x4F01; // get mode information
@@ -69,9 +69,9 @@ public class VesaQuery {
         return modes;
     }
 
-    public static VESAMode GetMode(VectorVesaMode modes, int xRes, int yRes, int colDepth, boolean graphical) {
-        for (int i = 0; i < modes.size(); i++) {
-            VESAMode mode = modes.get(i);
+    public static VESAMode GetMode(VecVesaMode modes, int xRes, int yRes, int colDepth, boolean graphical) {
+        for (int i = 0; i < modes.Size(); i++) {
+            VESAMode mode = modes.Get(i);
             if (mode.XRes == xRes && mode.YRes == yRes && mode.ColorDepth == colDepth && mode.Graphical == graphical) {
                 return mode;
             }
@@ -79,11 +79,11 @@ public class VesaQuery {
         return null;
     }
 
-    public static String ModesToStr(VectorVesaMode modes) {
+    public static String ModesToStr(VecVesaMode modes) {
         StrBuilder sb = new StrBuilder();
-        for (int i = 0; i < modes.size(); i++) {
-            VESAMode mode = modes.get(i);
-            sb.dbgLine(mode);
+        for (int i = 0; i < modes.Size(); i++) {
+            VESAMode mode = modes.Get(i);
+            sb.AppendLine(mode);
         }
         return sb.toString();
     }

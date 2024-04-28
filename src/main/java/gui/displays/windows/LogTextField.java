@@ -1,11 +1,11 @@
 package gui.displays.windows;
 
+import formats.fonts.AFont;
 import gui.components.TextField;
 import kernel.Kernel;
 import kernel.display.ADisplay;
-import kernel.display.font.AFont;
-import util.logging.LogEntry;
-import util.logging.Logger;
+import kernel.trace.logging.LogEntry;
+import kernel.trace.logging.Logger;
 
 public class LogTextField extends AWindow {
     private final int COL_FATAL;
@@ -17,6 +17,7 @@ public class LogTextField extends AWindow {
     private TextField _textField;
 
     public LogTextField(
+            String title,
             int x,
             int y,
             int z,
@@ -26,16 +27,16 @@ public class LogTextField extends AWindow {
             int charSpacing,
             int lineSpacing,
             AFont font) {
-        super(x, y, z, width, height, "Log Entries");
+        super(x, y, z, width, height, title);
 
-        COL_FATAL = Kernel.Display.rgb(255, 0, 0);
-        COL_ERROR = Kernel.Display.rgb(200, 0, 0);
-        COL_WARNING = Kernel.Display.rgb(255, 230, 0);
-        COL_INFO = Kernel.Display.rgb(128, 200, 255);
-        COL_TRACE = Kernel.Display.rgb(100, 220, 100);
+        COL_FATAL = Kernel.Display.Rgb(255, 0, 0);
+        COL_ERROR = Kernel.Display.Rgb(200, 0, 0);
+        COL_WARNING = Kernel.Display.Rgb(255, 230, 0);
+        COL_INFO = Kernel.Display.Rgb(128, 200, 255);
+        COL_TRACE = Kernel.Display.Rgb(100, 220, 100);
 
-        int bg = Kernel.Display.rgb(20, 20, 20);
-        int fg = Kernel.Display.rgb(255, 255, 255);
+        int bg = Kernel.Display.Rgb(20, 20, 20);
+        int fg = Kernel.Display.Rgb(255, 255, 255);
         _textField = new TextField(
                 ContentX,
                 ContentY,
@@ -51,16 +52,16 @@ public class LogTextField extends AWindow {
     }
 
     public void DrawContent(ADisplay display) {
-        _textField.clearText();
+        _textField.ClearText();
         int amountToDisplay = _textField.LineCount - 1;
         for (int i = amountToDisplay; i >= 0; i--) {
-            LogEntry log = Logger.getChronologicalLog(i);
+            LogEntry log = Logger.GetChronologicalLog(i);
             if (log != null) {
-                String msg = log.getMessage();
+                String msg = log.Message();
                 if (msg.length() != 0) {
-                    String cat = log.getCategory();
-                    byte level = (byte) log.getPriority();
-                    String time = log.getTime_HMS();
+                    String cat = log.Category();
+                    byte level = (byte) log.Priority();
+                    String time = log.TimeHMS();
                     int color = 0;
                     switch (level) {
                         case Logger.TRACE:
@@ -82,25 +83,25 @@ public class LogTextField extends AWindow {
                             Kernel.panic("LogTextField.draw: unknown log level");
                             break;
                     }
-                    _textField.setBrushColor(color);
-                    _textField.write("<");
-                    _textField.write(time);
-                    _textField.write("> ");
-                    _textField.write(cat);
-                    _textField.write(": ");
-                    _textField.write(msg);
-                    _textField.newLine();
+                    _textField.SetBrushColor(color);
+                    _textField.Write("<");
+                    _textField.Write(time);
+                    _textField.Write("> ");
+                    _textField.Write(cat);
+                    _textField.Write(": ");
+                    _textField.Write(msg);
+                    _textField.NewLine();
                 }
             }
         }
-        _textField.draw(display);
+        _textField.Draw(display);
 
-        lastLogTick = Logger.getLogTicks();
+        lastLogTick = Logger.LogTicks();
     }
 
     @Override
-    public boolean needsRedraw() {
-        int logTicks = Logger.getLogTicks();
+    public boolean NeedsRedraw() {
+        int logTicks = Logger.LogTicks();
         return logTicks != lastLogTick;
     }
 }

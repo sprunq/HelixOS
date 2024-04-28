@@ -1,8 +1,10 @@
 package kernel.hardware.keyboard;
 
 import kernel.hardware.keyboard.layout.ALayout;
+import kernel.trace.logging.Logger;
 import util.BitHelper;
-import util.logging.Logger;
+import util.queue.QueueByte;
+import util.vector.VecKeyboardEventListener;
 
 public class KeyboardController {
     private static final int PORT_KEYCODE = 0x60;
@@ -14,7 +16,7 @@ public class KeyboardController {
     private static final int MASK_1000000010000000 = (1 << 7) | (1 << 15);
     private static final int MASK_0111111101111111 = ~MASK_1000000010000000;
 
-    private static RingBuffer _inputBuffer;
+    private static QueueByte _inputBuffer;
     private static ALayout _layout;
 
     private static boolean _shiftPressed;
@@ -29,75 +31,77 @@ public class KeyboardController {
      * A listener can consume an event, preventing other listeners from receiving
      * it.
      */
-    private static ListenerPriorityMap _listeners;
+    private static VecKeyboardEventListener _listeners;
 
-    public static void initialize(ALayout keyBoardLayout) {
-        _inputBuffer = new RingBuffer(256);
+    public static void Initialize(ALayout keyBoardLayout) {
+        _inputBuffer = new QueueByte(256);
         _layout = keyBoardLayout;
-        _listeners = new ListenerPriorityMap(16);
-        Logger.info("Key", "Initialized");
+        _listeners = new VecKeyboardEventListener();
+        Logger.Info("KeyC", "Initialized");
     }
 
-    public static void addListener(IKeyboardEventListener listener, int priority) {
-        _listeners.addListener(listener, priority);
+    public static void AddListener(IKeyboardEventListener listener) {
+        Logger.Info("KeyC", "Adding Listener ".append(listener.Name()));
+        _listeners.Add(listener);
+        _listeners.SortByPriority();
     }
 
     @SJC.Inline
-    public static boolean hasNewEvent() {
-        return _inputBuffer.containsNewElements();
+    public static boolean HasNewEvent() {
+        return _inputBuffer.ContainsNewElements();
     }
 
-    public static void handle() {
+    public static void Handle() {
         byte code = MAGIC.rIOs8(PORT_KEYCODE);
         if (code >= 0xE2) {
-            Logger.warning("Key", "Ignoring ScanCode >0xE2");
+            Logger.Warning("KeyC", "Ignoring ScanCode >0xE2");
             return;
         }
-        _inputBuffer.put(code);
+        _inputBuffer.Put(code);
     }
 
-    public static void readEvent() {
-        if (!_inputBuffer.containsNewElements())
+    public static void ReadEvent() {
+        if (!_inputBuffer.ContainsNewElements())
             return;
 
-        int keyCode = readKeyCode();
-        boolean isBreak = isBreakCode(keyCode);
+        int keyCode = ReadKeyCode();
+        boolean isBreak = IsBreakCode(keyCode);
         if (isBreak) {
-            keyCode = unsetBreakCode(keyCode);
+            keyCode = UnsetBreakCode(keyCode);
         }
 
-        int logicalKey = _layout.logicalKey(keyCode, isUpper(), _altPressed);
+        int logicalKey = _layout.LogicalKey(keyCode, IsUpper(), _altPressed);
 
         if (!isBreak) {
-            Logger.trace("Key", "Pressed ".append(Key.name(logicalKey)));
+            Logger.Trace("KeyC", "Pressed ".append(Key.Name(logicalKey)));
         } else {
-            Logger.trace("Key", "Release ".append(Key.name(logicalKey)));
+            Logger.Trace("KeyC", "Release ".append(Key.Name(logicalKey)));
         }
 
-        updateKeyboardState(logicalKey, isBreak);
-        sendKeyEvent(logicalKey, isBreak);
+        UpdateKeyboardState(logicalKey, isBreak);
+        SendKeyEvent(logicalKey, isBreak);
     }
 
-    private static void sendKeyEvent(int logicalKey, boolean isBreak) {
-        for (int i = 0; i < _listeners.size(); i++) {
-            IKeyboardEventListener listener = _listeners.get(i);
+    private static void SendKeyEvent(int logicalKey, boolean isBreak) {
+        for (int i = 0; i < _listeners.Size(); i++) {
+            IKeyboardEventListener listener = _listeners.Get(i);
             if (listener == null) {
                 break;
             }
             boolean consumed = false;
             if (isBreak) {
-                consumed = listener.onKeyReleased((char) logicalKey);
+                consumed = listener.OnKeyReleased((char) logicalKey);
             } else {
-                consumed = listener.onKeyPressed((char) logicalKey);
+                consumed = listener.OnKeyPressed((char) logicalKey);
             }
             if (consumed) {
-                Logger.trace("Key", "Event consumed by ".append(Integer.toString(i, 10)));
+                Logger.Trace("KeyC", "Event consumed by ".append(Integer.toString(i, 10)));
                 break;
             }
         }
     }
 
-    private static void updateKeyboardState(int logicalKey, boolean isBreak) {
+    private static void UpdateKeyboardState(int logicalKey, boolean isBreak) {
         switch (logicalKey) {
             case Key.LSHIFT:
             case Key.RSHIFT:
@@ -133,23 +137,23 @@ public class KeyboardController {
         }
     }
 
-    private static int readKeyCode() {
-        int c0 = Integer.ubyte(_inputBuffer.get());
+    private static int ReadKeyCode() {
+        int c0 = Integer.ubyte(_inputBuffer.Get());
         int keyCode = 0;
         if (c0 == KEYCODE_EXTEND1) {
-            int c1 = Integer.ubyte(_inputBuffer.get());
+            int c1 = Integer.ubyte(_inputBuffer.Get());
 
             // 0xE0_2A
-            keyCode = BitHelper.setRange(keyCode, 8, 8, c0);
-            keyCode = BitHelper.setRange(keyCode, 0, 8, c1);
+            keyCode = BitHelper.SetRange(keyCode, 8, 8, c0);
+            keyCode = BitHelper.SetRange(keyCode, 0, 8, c1);
         } else if (c0 == KEYCODE_EXTEND2) {
-            int c1 = Integer.ubyte(_inputBuffer.get());
-            int c2 = Integer.ubyte(_inputBuffer.get());
+            int c1 = Integer.ubyte(_inputBuffer.Get());
+            int c2 = Integer.ubyte(_inputBuffer.Get());
 
             // 0xE1_2A_2A
-            keyCode = BitHelper.setRange(keyCode, 16, 8, c0);
-            keyCode = BitHelper.setRange(keyCode, 8, 8, c1);
-            keyCode = BitHelper.setRange(keyCode, 0, 8, c2);
+            keyCode = BitHelper.SetRange(keyCode, 16, 8, c0);
+            keyCode = BitHelper.SetRange(keyCode, 8, 8, c1);
+            keyCode = BitHelper.SetRange(keyCode, 0, 8, c2);
         } else {
             // 0x2A
             keyCode = Integer.ubyte(c0);
@@ -164,7 +168,7 @@ public class KeyboardController {
      * For E1 codes, the 8th and 16th bits are set.
      */
     @SJC.Inline
-    private static int unsetBreakCode(int keyCode) {
+    private static int UnsetBreakCode(int keyCode) {
         if (keyCode > 0xE10000) {
             return keyCode & MASK_0111111101111111;
         } else {
@@ -173,12 +177,12 @@ public class KeyboardController {
     }
 
     @SJC.Inline
-    private static boolean isBreakCode(int keyCode) {
+    private static boolean IsBreakCode(int keyCode) {
         return (keyCode & MASK_10000000) != 0;
     }
 
     @SJC.Inline
-    private static boolean isUpper() {
+    private static boolean IsUpper() {
         if (_shiftPressed) {
             return true;
         }

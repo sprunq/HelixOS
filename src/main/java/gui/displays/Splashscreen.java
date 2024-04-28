@@ -1,44 +1,44 @@
 package gui.displays;
 
+import formats.images.Image;
 import gui.ADisplayElement;
-import gui.images.BinImage;
-import gui.images.Logo;
 import gui.images.LogoText;
+import gui.images.Logo;
 import kernel.Kernel;
 import kernel.display.ADisplay;
 
 public class Splashscreen extends ADisplayElement {
-    private BinImage logo;
-    private BinImage logoText;
-    private int spaceBetween;
-    private int combinedHeight;
-    private int backColor;
+    private Image _logo;
+    private Image _logoText;
+    private int _spaceBetween;
+    private int _combinedHeight;
+    private int _backColor;
 
     public Splashscreen(int x, int y, int z, int width, int height) {
         super(x, y, z, width, height);
-        logo = Logo.load();
-        logoText = LogoText.load();
-        spaceBetween = 20;
-        combinedHeight = logo.Height + logoText.Height + spaceBetween;
-        backColor = Kernel.Display.rgb(0, 13, 40);
+        _logo = Logo.Load();
+        _logoText = LogoText.Load();
+        _spaceBetween = 20;
+        _combinedHeight = _logo.Height + _logoText.Height + _spaceBetween;
+        _backColor = Kernel.Display.Rgb(0, 13, 40);
     }
 
     @Override
-    public void draw(ADisplay display) {
-        Kernel.Display.fillrect(0, 0, Kernel.Display.Width(), Kernel.Display.Height(), backColor);
+    public void Draw(ADisplay display) {
+        Kernel.Display.Rectangle(0, 0, Kernel.Display.Width(), Kernel.Display.Height(), _backColor);
 
-        int x = Kernel.Display.Width() / 2 - logo.Width / 2;
-        int y = Kernel.Display.Height() / 2 - combinedHeight / 2;
-        Kernel.Display.setBitmap(x, y, logo.PixelData);
+        int x = Kernel.Display.Width() / 2 - _logo.Width / 2;
+        int y = Kernel.Display.Height() / 2 - _combinedHeight / 2;
+        Kernel.Display.Bitmap(x, y, _logo.PixelData);
 
-        int x_text = Kernel.Display.Width() / 2 - logoText.Width / 2;
-        int y_text = y + logo.Height + spaceBetween;
+        int x_text = Kernel.Display.Width() / 2 - _logoText.Width / 2;
+        int y_text = y + _logo.Height + _spaceBetween;
 
-        Kernel.Display.setBitmap(x_text, y_text, logoText.PixelData);
+        Kernel.Display.Bitmap(x_text, y_text, _logoText.PixelData);
     }
 
     @Override
-    public boolean needsRedraw() {
+    public boolean NeedsRedraw() {
         return true;
     }
 }

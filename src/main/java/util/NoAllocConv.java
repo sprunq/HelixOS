@@ -22,7 +22,7 @@ public class NoAllocConv {
      * @panic If the base is out of range or the requested
      *        length is negative.
      */
-    public static int itoa(int buffer, int byte_offset, int max_len, int n, int base) {
+    public static int ItoA(int buffer, int byte_offset, int max_len, int n, int base) {
         if (base < 2 || base > 36) {
             Kernel.panic("ConversionHelper: requested base out of range");
         }
@@ -32,8 +32,8 @@ public class NoAllocConv {
             MAGIC.wMem8(buffer, (byte) '0');
             return 1;
         }
-        n = MathH.abs(n);
-        max_len = MathH.clamp(max_len, 0, max_len);
+        n = Math.Abs(n);
+        max_len = Math.Clamp(max_len, 0, max_len);
 
         // Prints each digit of the number but in reverse order
         int digit_count = 0;
@@ -45,7 +45,7 @@ public class NoAllocConv {
             digit_count++;
         }
 
-        Array.reverseByteBuffer(buffer, byte_offset, digit_count);
+        Array.ReverseByteBuffer(buffer, byte_offset, digit_count);
         return digit_count;
     }
 
@@ -56,7 +56,7 @@ public class NoAllocConv {
      * Other values -> '\0'
      */
     @SJC.Inline
-    public static char itoc(int n) {
+    public static char ItoC(int n) {
         if (n >= 0 && n <= 9) {
             return (char) (n + '0');
         } else if (n >= 10 && n <= 36) {
@@ -66,7 +66,7 @@ public class NoAllocConv {
         }
     }
 
-    public static int itoa(byte[] buffer, int max_len, long n, int base) {
+    public static int ItoA(byte[] buffer, int max_len, long n, int base) {
         if (base < 2 || base > 36) {
             Kernel.panic("ConversionHelper: requested base out of range");
         }
@@ -76,8 +76,8 @@ public class NoAllocConv {
             buffer[0] = (byte) '0';
             return 1;
         }
-        n = MathH.abs(n);
-        max_len = MathH.clamp(max_len, 0, max_len);
+        n = Math.Abs(n);
+        max_len = Math.Clamp(max_len, 0, max_len);
 
         // Prints each digit of the number but in reverse order
         int digit_count = 0;
@@ -89,7 +89,7 @@ public class NoAllocConv {
             digit_count++;
         }
 
-        Array.reverseByteBuffer(buffer);
+        Array.ReverseByteBuffer(buffer);
         return digit_count;
     }
 

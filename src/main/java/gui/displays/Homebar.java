@@ -1,7 +1,7 @@
 package gui.displays;
 
+import formats.images.Image;
 import gui.ADisplayElement;
-import gui.images.BinImage;
 import gui.images.Logo25;
 import kernel.Kernel;
 import kernel.display.ADisplay;
@@ -9,15 +9,15 @@ import kernel.display.ADisplay;
 public class Homebar extends ADisplayElement {
     private final int COL_HOMEBAR;
     private static final int HOMEBAR_HEIGHT = 45;
-    private BinImage _logo;
+    private Image _logo;
     private TextClockTime _time;
     private TextClockDate _date;
 
     public Homebar(int displayWidth, int displayHeight) {
         super(0, displayHeight - HOMEBAR_HEIGHT, 20, displayWidth, HOMEBAR_HEIGHT);
-        COL_HOMEBAR = Kernel.Display.rgb(0, 20, 50);
-        _logo = Logo25.load();
-        setLogoBackGround(_logo);
+        COL_HOMEBAR = Kernel.Display.Rgb(1, 12, 40);
+        _logo = Logo25.Load();
+        SetLogoBackGround(_logo);
 
         // time over date
         _time = new TextClockTime(
@@ -26,7 +26,7 @@ public class Homebar extends ADisplayElement {
                 21,
                 85,
                 20,
-                Kernel.Display.rgb(255, 255, 255),
+                Kernel.Display.Rgb(255, 255, 255),
                 COL_HOMEBAR);
 
         _date = new TextClockDate(
@@ -35,25 +35,25 @@ public class Homebar extends ADisplayElement {
                 21,
                 85,
                 20,
-                Kernel.Display.rgb(255, 255, 255),
+                Kernel.Display.Rgb(255, 255, 255),
                 COL_HOMEBAR);
 
     }
 
     @Override
-    public void draw(ADisplay display) {
-        display.fillrect(X, Y, Width, Height, COL_HOMEBAR);
-        display.setBitmap(X + 10, Y + 10, _logo.PixelData);
-        _time.draw(display);
-        _date.draw(display);
+    public void Draw(ADisplay display) {
+        display.Rectangle(X, Y, Width, Height, COL_HOMEBAR);
+        display.Bitmap(X + 10, Y + 10, _logo.PixelData);
+        _time.Draw(display);
+        _date.Draw(display);
     }
 
     @Override
-    public boolean needsRedraw() {
-        return _time.needsRedraw() || _date.needsRedraw();
+    public boolean NeedsRedraw() {
+        return _time.NeedsRedraw() || _date.NeedsRedraw();
     }
 
-    private void setLogoBackGround(BinImage logo) {
+    private void SetLogoBackGround(Image logo) {
         for (int i = 0; i < logo.Width; i++) {
             for (int j = 0; j < logo.Height; j++) {
                 if (logo.PixelData[i][j] == 0) {
@@ -62,5 +62,4 @@ public class Homebar extends ADisplayElement {
             }
         }
     }
-
 }

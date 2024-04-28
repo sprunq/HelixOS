@@ -1,9 +1,9 @@
 package gui.displays;
 
+import formats.fonts.Font8x8;
 import gui.ADisplayElement;
 import gui.components.TextField;
 import kernel.display.ADisplay;
-import kernel.display.font.Font8x8;
 import kernel.hardware.RTC;
 import util.StrBuilder;
 
@@ -33,24 +33,24 @@ public class TextClockDate extends ADisplayElement {
     }
 
     @Override
-    public void draw(ADisplay display) {
-        display.fillrect(X, Y, Width, Height, _bg);
-        updateText();
-        _time.draw(display);
+    public void Draw(ADisplay display) {
+        display.Rectangle(X, Y, Width, Height, _bg);
+        UpdateText();
+        _time.Draw(display);
     }
 
-    private void updateText() {
+    private void UpdateText() {
         StrBuilder sb = new StrBuilder();
-        int day = RTC.readDayOfMonth();
-        int month = RTC.readMonthOfYear();
-        int year = RTC.readYearOfCentury();
-        sb.append(Integer.toString(day).leftPad(2, '0'))
-                .append('.')
-                .append(Integer.toString(month).leftPad(2, '0'))
-                .append('.')
-                .append(Integer.toString(year).leftPad(2, '0'));
-        _time.clearText();
-        _time.write(sb.toString());
+        int day = RTC.ReadDayOfMonth();
+        int month = RTC.ReadMonthOfYear();
+        int year = RTC.ReadYearOfCentury();
+        sb.Append(Integer.toString(day).LeftPad(2, '0'))
+                .Append('.')
+                .Append(Integer.toString(month).LeftPad(2, '0'))
+                .Append('.')
+                .Append(Integer.toString(year).LeftPad(2, '0'));
+        _time.ClearText();
+        _time.Write(sb.toString());
 
         _lastDay = day;
         _lastMonth = month;
@@ -62,9 +62,9 @@ public class TextClockDate extends ADisplayElement {
     private int _lastYear = -1;
 
     @Override
-    public boolean needsRedraw() {
-        return _lastDay != RTC.readDayOfMonth()
-                || _lastMonth != RTC.readMonthOfYear()
-                || _lastYear != RTC.readYearOfCentury();
+    public boolean NeedsRedraw() {
+        return _lastDay != RTC.ReadDayOfMonth()
+                || _lastMonth != RTC.ReadMonthOfYear()
+                || _lastYear != RTC.ReadYearOfCentury();
     }
 }

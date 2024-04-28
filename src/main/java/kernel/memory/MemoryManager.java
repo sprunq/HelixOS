@@ -2,118 +2,176 @@ package kernel.memory;
 
 import kernel.Kernel;
 import kernel.MemoryLayout;
+import kernel.bios.call.MemMap;
 import rte.SClassDesc;
 import util.BitHelper;
 
-/**
- * The MemoryManager class is responsible for managing the memory in the system.
- * It handles both static and dynamic allocations.
- * Static allocations are done at compile time and stored in the boot image.
- * Dynamic allocations are done at runtime and stored in the dynamic heap.
- * Dynamic allocations are stored in a sub list from the static allocations, so
- * that Garbage Collection can be done on the dynamic heap without affecting the
- * static heap.
- */
 public class MemoryManager {
     public static final BootableImage BOOT_IMAGE = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
 
     /*
-     * The root of the dynamic allocation. This object should never be freed.
+     * The DynamicAllocRoot marks the beginning of the dynamic allocation.
+     * It is allocated as the first object after the static allocation,
+     * and marks the beginning of the dynamic allocations.
      */
-    private static Object _dynamicAllocRoot = null;
+    private static DynamicAllocRoot _dynamicAllocRoot;
 
     /*
-     * The address of the last allocation in the dynamic heap.
-     * Cached to avoid traversing the dynamic heap every time an allocation is done.
+     * The EmptyObjectRoot marks the beginning of the empty object chain.
+     * Empty objects are used to keep track of free memory regions.
      */
-    private static int _lastAllocation = -1;
-
-    /*
-     * Initializes the memory manager. This method is called once at the start of
-     * the system and has to be called before any dynamic allocations are done.
-     */
-    public static void initialize() {
-        int dynHeapStart = getDynamicHeapStart();
-        int rootScalarSize = MAGIC.getInstScalarSize("DynamicAllocRoot");
-        int rootRelocsEntries = MAGIC.getInstRelocEntries("DynamicAllocRoot");
-        SClassDesc rootType = (SClassDesc) MAGIC.clssDesc("DynamicAllocRoot");
-        _dynamicAllocRoot = writeObject(dynHeapStart, rootScalarSize, rootRelocsEntries, rootType);
-
-        // Link the dynamicAllocRoot to the last static object
-        Object lastStaticObj = getStaticAllocLast();
-        MAGIC.assign(lastStaticObj._r_next, _dynamicAllocRoot);
-    }
+    private static EmptyObject _emptyObjectRoot;
 
     /**
-     * Allocates an object in the dynamic heap.
-     * 
-     * @param scalarSize   The size of the scalar fields in the object.
-     * @param relocEntries The number of relocation entries in the object.
-     * @param type         The type of the object.
-     * @return The allocated object.
+     * The last allocation address used by the memory manager.
+     * This variable keeps track of the last memory address that was allocated.
+     * Should only be accessed through the LastAlloc() and SetLastAlloc() methods.
      */
-    public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
-        // Get the last object in the dynamic heap
-        Object lastAlloc = getLastDynamicHeapObj();
-        int lastAllocAddr = MAGIC.cast2Ref(lastAlloc);
+    private static int _lastAllocationAddress = -1;
 
-        // Align the start of the next object to 4 bytes
-        int lastAllocEnd = lastAllocAddr + lastAlloc._r_scalarSize;
-        int ptrNextFree = BitHelper.align(lastAllocEnd, 4);
+    public static void Initialize() {
+        InitEmptyObjects();
+        if (_emptyObjectRoot == null) {
+            Kernel.panic("No viable memory regions found");
+        }
 
-        // Write the object to memory
-        Object obj = writeObject(ptrNextFree, scalarSize, relocEntries, type);
-
-        // Link the object into the chain
-        MAGIC.assign(lastAlloc._r_next, obj);
-
-        // Update the last allocation
-        _lastAllocation = MAGIC.cast2Ref(obj);
-        return obj;
+        _dynamicAllocRoot = (DynamicAllocRoot) allocObject(
+                MAGIC.getInstScalarSize("DynamicAllocRoot"),
+                MAGIC.getInstRelocEntries("DynamicAllocRoot"),
+                (SClassDesc) MAGIC.clssDesc("DynamicAllocRoot"));
     }
 
-    /*
-     * Returns the root of the dynamic allocation.
-     * The dynamic allocation is a sub list of the list returned by
-     * getStaticAllocRoot.
-     */
     @SJC.Inline
-    public static Object getDynamicAllocRoot() {
-        return _dynamicAllocRoot;
-    }
-
-    /*
-     * Returns the first object in the static allocation.
-     */
-    @SJC.Inline
-    public static Object getStaticAllocRoot() {
+    public static Object GetStaticAllocRoot() {
         return MAGIC.cast2Obj(BOOT_IMAGE.firstHeapObject);
     }
 
+    @SJC.Inline
+    public static DynamicAllocRoot GetDynamicAllocRoot() {
+        return _dynamicAllocRoot;
+    }
+
+    @SJC.Inline
+    public static EmptyObject GetEmptyObjectRoot() {
+        return _emptyObjectRoot;
+    }
+
+    @SJC.Inline
+    public static int ObjectSize(Object o) {
+        return o._r_scalarSize + o._r_relocEntries * MAGIC.ptrSize;
+    }
+
     /**
-     * Returns the last object in the static allocation.
+     * Invalidates the last allocation address.
+     * Will be needed for garbage collection.
      */
-    public static Object getStaticAllocLast() {
-        int addrDynamicRoot = MAGIC.cast2Ref(_dynamicAllocRoot);
-        Object obj = getStaticAllocRoot();
-        while (obj._r_next != null && MAGIC.cast2Ref(obj) != addrDynamicRoot) {
+    @SJC.Inline
+    public static void InvalidateLastAlloc() {
+        _lastAllocationAddress = -1;
+    }
+
+    /**
+     * Returns the last allocated object.
+     * If the last allocation address is not cached, it will be recalculated.
+     * 
+     * @return The last allocated object.
+     */
+    @SJC.Inline
+    public static Object LastAlloc() {
+        if (_lastAllocationAddress != -1) {
+            return MAGIC.cast2Obj(_lastAllocationAddress);
+        }
+
+        // Recalculate the last allocation address
+        // DynamicAllocRoot is null when we create the root object
+        Object obj = _dynamicAllocRoot != null ? _dynamicAllocRoot : GetStaticAllocRoot();
+        while (obj._r_next != null) {
             obj = obj._r_next;
         }
+        _lastAllocationAddress = MAGIC.cast2Ref(obj);
         return obj;
     }
 
     /**
-     * Returns the last object in the dynamic allocation.
+     * Sets the last allocated object cache value.
      */
-    public static Object getLastDynamicHeapObj() {
-        if (_lastAllocation <= 0) {
-            Object obj = getDynamicAllocRoot();
-            while (obj._r_next != null) {
-                obj = obj._r_next;
-            }
-            _lastAllocation = MAGIC.cast2Ref(obj);
+    @SJC.Inline
+    public static void SetLastAlloc(Object o) {
+        if (o != null) {
+            _lastAllocationAddress = MAGIC.cast2Ref(o);
+        } else {
+            InvalidateLastAlloc();
         }
-        return MAGIC.cast2Obj(_lastAllocation);
+    }
+
+    public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
+        int alignScalarSize = BitHelper.Align(scalarSize, 4);
+        int newObjectTotalSize = alignScalarSize + relocEntries * MAGIC.ptrSize;
+
+        EmptyObject emptyObj = FindEmptyObjectFitting(newObjectTotalSize);
+        if (emptyObj == null) {
+            Kernel.panic("Out of memory");
+        }
+
+        Object newObject = null;
+        if (ObjectSize(emptyObj) == newObjectTotalSize) {
+            // The new object fits exactly into the empty object
+            // We can replace the empty object with the new object
+            RemoveFromEmptyObjectChain(emptyObj);
+            // The empty object will be overwritten
+            int newObjectBottom = emptyObj.AddressBottom();
+            newObject = WriteObject(newObjectBottom, scalarSize, relocEntries, type, true);
+        } else if (emptyObj.UnreservedScalarSize() >= newObjectTotalSize) {
+            // The new object does not fit exactly into the empty object
+            // We need to split the empty object
+            int newObjectBottom = emptyObj.AddressTop() - newObjectTotalSize;
+            newObject = WriteObject(newObjectBottom, scalarSize, relocEntries, type, true);
+            emptyObj.ShrinkBy(newObjectTotalSize);
+        }
+
+        if (newObject == null) {
+            Kernel.panic("Failed to allocate object");
+        }
+
+        InsertIntoNextChain(LastAlloc(), newObject);
+        SetLastAlloc(newObject);
+        return newObject;
+    }
+
+    private static void InitEmptyObjects() {
+        int contIndex = 0;
+        do {
+            MemMap.ExecMemMap(contIndex);
+            contIndex = MemMap.GetMemMapContinuationIndex();
+            boolean isFree = MemMap.MemMapTypeIsFree();
+            long base = MemMap.GetMemMapBase();
+            long length = MemMap.GetMemMapLength();
+            long end = base + length;
+
+            if (base < BOOT_IMAGE.memoryStart + BOOT_IMAGE.memorySize) {
+                base = BOOT_IMAGE.memoryStart + BOOT_IMAGE.memorySize + 1;
+            }
+
+            if (!isFree
+                    || base >= end
+                    || length <= EmptyObject.MinimumClassSize()) {
+                continue;
+            }
+
+            // Align the object to 4 bytes so the *way* faster memset version can be used
+            // otherwise wait 3s every boot
+            int emptyObjStart = (int) BitHelper.AlignUp(base, 4);
+            int emptyObjEnd = (int) BitHelper.AlignDown(end, 4);
+            int emptyObjScalarSize = emptyObjEnd - emptyObjStart - EmptyObject.RelocEntriesSize();
+
+            EmptyObject eo = (EmptyObject) WriteObject(
+                    emptyObjStart,
+                    emptyObjScalarSize,
+                    EmptyObject.RelocEntries(),
+                    EmptyObject.Type(),
+                    true);
+            InsertIntoEmptyObjectChain(eo);
+        } while (contIndex != 0);
     }
 
     /**
@@ -125,7 +183,8 @@ public class MemoryManager {
      * @param type         The type of the object.
      * @return The allocated object.
      */
-    private static Object writeObject(int ptrNextFree, int scalarSize, int relocEntries, SClassDesc type) {
+    private static Object WriteObject(int ptrNextFree, int scalarSize, int relocEntries, SClassDesc type,
+            boolean clearMemory) {
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
 
@@ -138,8 +197,9 @@ public class MemoryManager {
             Kernel.panic("Out of memory");
         }
 
-        // Clear the memory
-        Memory.memset(startOfObject, lengthOfObject, (byte) 0);
+        if (clearMemory) {
+            Memory.Memset(startOfObject, lengthOfObject, (byte) 0);
+        }
 
         // cast2Obj expects the pointer to the first scalar field.
         // It needs space because relocs will be stored in front of the object
@@ -150,20 +210,59 @@ public class MemoryManager {
         MAGIC.assign(obj._r_scalarSize, scalarSize);
         MAGIC.assign(obj._r_relocEntries, relocEntries);
 
-        allocationChunk += lengthOfObject;
-        if (allocationChunk > 64 * 1024) {
-            allocationChunk = 0;
-            // Logger.warning("Alloc 64kb - no GC /('o.o)\\");
-        }
-
         return obj;
     }
 
-    private static int allocationChunk = 0;
+    @SJC.Inline
+    private static void InsertIntoNextChain(Object insertAfter, Object o) {
+        MAGIC.assign(o._r_next, insertAfter._r_next);
+        MAGIC.assign(insertAfter._r_next, o);
+    }
+
+    /*
+     * Adds an empty object to the chain of empty objects.
+     * The chain is sorted by the address of the empty objects.
+     */
+    @SJC.Inline
+    private static void InsertIntoEmptyObjectChain(EmptyObject emptyObj) {
+        if (_emptyObjectRoot == null) {
+            _emptyObjectRoot = emptyObj;
+        } else {
+            int emptyObjAddr = MAGIC.cast2Ref(emptyObj);
+            EmptyObject t = _emptyObjectRoot;
+            while (t.NextEmptyObject != null) {
+                if (MAGIC.cast2Ref(t.NextEmptyObject) > emptyObjAddr) {
+                    break;
+                }
+                t = t.NextEmptyObject;
+            }
+            t.NextEmptyObject = emptyObj;
+            emptyObj.PrevEmptyObject = t;
+        }
+    }
 
     @SJC.Inline
-    private static int getDynamicHeapStart() {
-        int adr = BOOT_IMAGE.memoryStart + BOOT_IMAGE.memorySize;
-        return BitHelper.align(adr, 4);
+    private static void RemoveFromEmptyObjectChain(EmptyObject emptyObj) {
+        if (emptyObj.PrevEmptyObject != null) {
+            emptyObj.PrevEmptyObject.NextEmptyObject = emptyObj.NextEmptyObject;
+        } else {
+            _emptyObjectRoot = emptyObj.NextEmptyObject;
+        }
+        if (emptyObj.NextEmptyObject != null) {
+            emptyObj.NextEmptyObject.PrevEmptyObject = emptyObj.PrevEmptyObject;
+        }
+    }
+
+    @SJC.Inline
+    private static EmptyObject FindEmptyObjectFitting(int objectSize) {
+        EmptyObject emptyObj = _emptyObjectRoot;
+        while (emptyObj != null) {
+            if (emptyObj.UnreservedScalarSize() >= objectSize
+                    || ObjectSize(emptyObj) == objectSize) {
+                return emptyObj;
+            }
+            emptyObj = emptyObj.NextEmptyObject;
+        }
+        return null;
     }
 }

@@ -15,6 +15,9 @@ public class MemoryLayout {
     public static final int REAL_MODE_INTERRUPT_TABLE_END = REAL_MODE_INTERRUPT_TABLE_START
             + REAL_MODE_INTERRUPT_TABLE_SIZE;
 
+    public static final int BOOTLOADER_START = 0x7C00;
+    public static final int BOOTLOADER_END = 0x7DFF;
+
     public static final int INTERNAL_FREE_MEMORY_START = 0x07E00;
     public static final int INTERNAL_FREE_MEMORY_END = 0x9FFFF;
 
@@ -34,6 +37,7 @@ public class MemoryLayout {
 
     public static final int PROGRAM_STACK_TOP = INTERNAL_FREE_MEMORY_END;
     public static final int PROGRAM_STACK_BOTTOM = BIOS_STKEND;
+    public static final int PROGRAM_STACK_COMPILER_TOP = 0x9BFFC;
 
     public static final int VGA_VID_BUFFER_START = 0xA0000;
     public static final int VGA_TEXT_BUFFER_START = 0xB8000;

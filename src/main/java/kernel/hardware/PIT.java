@@ -1,6 +1,6 @@
 package kernel.hardware;
 
-import util.logging.Logger;
+import kernel.trace.logging.Logger;
 
 /**
  * The Programmable Interval Timer class represents a hardware timer used
@@ -13,9 +13,9 @@ public class PIT {
     private static final double INTERNAL_CLOCK_SPEED = 1193131.666;
     private static double _rateHz = 18.2;
 
-    public static void initialize() {
-        setRate(250);
-        Logger.info("PIT", "Set rate to 250Hz");
+    public static void Initialize() {
+        SetRate(250);
+        Logger.Info("PIT", "Initialized");
     }
 
     /**
@@ -24,7 +24,7 @@ public class PIT {
      *
      * @param hz The desired rate in Hz.
      */
-    public static void setRate(int hz) {
+    public static void SetRate(int hz) {
         short divisor = (short) (INTERNAL_CLOCK_SPEED / hz);
         MAGIC.wIOs8(PIT_CTRL, PIT_SET);
         MAGIC.wIOs8(PIT_A, (byte) (divisor & 0xFF));
@@ -38,7 +38,7 @@ public class PIT {
      * @return The current rate in Hz.
      */
     @SJC.Inline
-    public static double get_rateHz() {
+    public static double RateHz() {
         return _rateHz;
     }
 }

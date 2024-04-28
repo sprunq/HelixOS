@@ -1,9 +1,9 @@
 package gui.displays;
 
+import formats.fonts.Font8x8;
 import gui.ADisplayElement;
 import gui.components.TextField;
 import kernel.display.ADisplay;
-import kernel.display.font.Font8x8;
 import kernel.hardware.RTC;
 import util.StrBuilder;
 
@@ -32,24 +32,24 @@ public class TextClockTime extends ADisplayElement {
     }
 
     @Override
-    public void draw(ADisplay display) {
-        display.fillrect(X, Y, Width, Height, _bg);
-        updateText();
-        _time.draw(display);
+    public void Draw(ADisplay display) {
+        display.Rectangle(X, Y, Width, Height, _bg);
+        UpdateText();
+        _time.Draw(display);
     }
 
-    private void updateText() {
+    private void UpdateText() {
         StrBuilder sb = new StrBuilder();
-        int hours = RTC.readHour();
-        int minutes = RTC.readMinute();
-        int seconds = RTC.readSecond();
-        sb.append(Integer.toString(hours).leftPad(2, '0'))
-                .append(':')
-                .append(Integer.toString(minutes).leftPad(2, '0'))
-                .append(':')
-                .append(Integer.toString(seconds).leftPad(2, '0'));
-        _time.clearText();
-        _time.write(sb.toString());
+        int hours = RTC.ReadHour();
+        int minutes = RTC.ReadMinute();
+        int seconds = RTC.ReadSecond();
+        sb.Append(Integer.toString(hours).LeftPad(2, '0'))
+                .Append(':')
+                .Append(Integer.toString(minutes).LeftPad(2, '0'))
+                .Append(':')
+                .Append(Integer.toString(seconds).LeftPad(2, '0'));
+        _time.ClearText();
+        _time.Write(sb.toString());
 
         _lastHour = hours;
         _lastMinute = minutes;
@@ -61,10 +61,10 @@ public class TextClockTime extends ADisplayElement {
     private int _lastSecond = -1;
 
     @Override
-    public boolean needsRedraw() {
-        return _lastSecond != RTC.readSecond()
-                || _lastMinute != RTC.readMinute()
-                || _lastHour != RTC.readHour();
+    public boolean NeedsRedraw() {
+        return _lastSecond != RTC.ReadSecond()
+                || _lastMinute != RTC.ReadMinute()
+                || _lastHour != RTC.ReadHour();
     }
 
 }

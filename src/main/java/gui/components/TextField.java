@@ -1,9 +1,9 @@
 package gui.components;
 
+import formats.fonts.AFont;
 import gui.ADisplayElement;
 import kernel.Kernel;
 import kernel.display.ADisplay;
-import kernel.display.font.AFont;
 import kernel.hardware.keyboard.Key;
 
 public class TextField extends ADisplayElement {
@@ -44,56 +44,56 @@ public class TextField extends ADisplayElement {
         _bg = bg;
         _font = font;
         SpacingBorder = borderSpacing;
-        SpacingW = charSpacing + font.getSpacingW();
-        SpacingH = lineSpacing + font.getSpacingH();
-        LineLength = (Width - borderSpacing * 2) / (font.getWidth() + SpacingW);
-        LineCount = (Height - borderSpacing * 2) / (font.getHeight() + SpacingH);
+        SpacingW = charSpacing + font.SpacingW();
+        SpacingH = lineSpacing + font.SpacingH();
+        LineLength = (Width - borderSpacing * 2) / (font.Width() + SpacingW);
+        LineCount = (Height - borderSpacing * 2) / (font.Height() + SpacingH);
         _characters = new byte[LineCount][LineLength];
         _characterColors = new int[LineCount][LineLength];
     }
 
-    public void setCursor(int x, int y) {
+    public void SetCursor(int x, int y) {
         this._cursorX = x;
         this._cursorY = y;
     }
 
-    public void setBrushColor(int color) {
+    public void SetBrushColor(int color) {
         this._fg = color;
     }
 
-    public void write(byte c) {
+    public void Write(byte c) {
         if (_cursorX >= LineLength) {
-            newLine();
+            NewLine();
         }
         if (_cursorY >= LineCount) {
-            newLine();
+            NewLine();
         }
         _characters[_cursorY][_cursorX] = c;
         _characterColors[_cursorY][_cursorX] = _fg;
         _cursorX++;
     }
 
-    public void newLine() {
+    public void NewLine() {
         _cursorX = 0;
         _cursorY++;
         if (_cursorY >= LineCount) {
-            scroll();
+            Scroll();
             _cursorY--;
         }
     }
 
-    public void write(String s) {
+    public void Write(String s) {
         for (int i = 0; i < s.length(); i++) {
             byte c = (byte) s.get(i);
             if (c == '\n') {
-                newLine();
+                NewLine();
             } else {
-                write(c);
+                Write(c);
             }
         }
     }
 
-    public void scroll() {
+    public void Scroll() {
         for (int i = 0; i < LineCount - 1; i++) {
             for (int j = 0; j < LineLength; j++) {
                 _characters[i][j] = _characters[i + 1][j];
@@ -106,32 +106,32 @@ public class TextField extends ADisplayElement {
         }
     }
 
-    public void clearText() {
+    public void ClearText() {
         for (int i = 0; i < LineCount; i++) {
             for (int j = 0; j < LineLength; j++) {
                 _characters[i][j] = (byte) 0;
             }
         }
-        setCursor(0, 0);
+        SetCursor(0, 0);
     }
 
-    public void clearLine(int line) {
+    public void ClearLine(int line) {
         for (int j = 0; j < LineLength; j++) {
             _characters[line][j] = (byte) 0;
         }
     }
 
     @Override
-    public boolean needsRedraw() {
+    public boolean NeedsRedraw() {
         return true;
     }
 
     @Override
-    public void draw(ADisplay display) {
-        Kernel.Display.fillrect(X, Y, Width, Height, _bg);
+    public void Draw(ADisplay display) {
+        Kernel.Display.Rectangle(X, Y, Width, Height, _bg);
 
-        int xFactor = _font.getWidth() + SpacingW;
-        int yFactor = _font.getHeight() + SpacingH;
+        int xFactor = _font.Width() + SpacingW;
+        int yFactor = _font.Height() + SpacingH;
         int xOffset = X + SpacingBorder;
         int yOffset = Y + SpacingBorder;
         for (int i = 0; i < LineCount; i++) {
@@ -139,12 +139,12 @@ public class TextField extends ADisplayElement {
                 int character = _characters[i][j];
                 int characterColor = _characterColors[i][j];
                 // Skip rendering if the character is not visible
-                if (characterColor == _bg || Key.ascii(character) == 0) {
+                if (characterColor == _bg || Key.Ascii(character) == 0) {
                     continue;
                 }
                 int x = xOffset + j * xFactor;
                 int y = yOffset + i * yFactor;
-                _font.renderToDisplay(display, x, y, character, characterColor);
+                _font.RenderToDisplay(display, x, y, character, characterColor);
             }
         }
     }

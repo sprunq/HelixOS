@@ -1,8 +1,7 @@
 package java.lang;
 
 public class ByteData {
-    public static final byte[] jiji_200 = {};
-    public static final byte[] logo = {};
-    public static final byte[] logo_25 = {};
-    public static final byte[] logo_text = {};
+    public static final byte[] logo_qoi = {};
+    public static final byte[] logo_25_qoi = {};
+    public static final byte[] logo_text_qoi = {};
 }

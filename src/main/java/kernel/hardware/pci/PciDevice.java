@@ -41,7 +41,7 @@ public class PciDevice implements IDebug {
         Function = function;
     }
 
-    public String baseClassName() {
+    public String BaseClassName() {
         switch (BaseClassCode) {
             case 0x00:
                 return "Old Device";
@@ -80,15 +80,15 @@ public class PciDevice implements IDebug {
     }
 
     @Override
-    public String dbg() {
+    public String Debug() {
         StrBuilder sb = new StrBuilder();
-        sb.append("PCI(B=")
-                .append(Bus, 10)
-                .append("|D=")
-                .append(Device, 10)
-                .append("|F=")
-                .append(Function, 10)
-                .append(")");
+        sb.Append("PCI(B=")
+                .Append(Bus, 10)
+                .Append("|D=")
+                .Append(Device, 10)
+                .Append("|F=")
+                .Append(Function, 10)
+                .Append(")");
         return sb.toString();
     }
 }

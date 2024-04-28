@@ -15,7 +15,7 @@ public class Long {
             BUFFER[j] = (byte) 0;
         }
 
-        int digitCount = NoAllocConv.itoa(BUFFER, BUFFER.length, i, base);
+        int digitCount = NoAllocConv.ItoA(BUFFER, BUFFER.length, i, base);
 
         int newLength = digitCount;
         if (i < 0) {
@@ -36,6 +36,14 @@ public class Long {
         }
 
         return new String(chars);
+    }
+
+    @SJC.Inline
+    public int ToIntOrPanic(long l) {
+        if (l > Integer.MAX || l < Integer.MIN) {
+            Kernel.panic("Long to int conversion failed");
+        }
+        return (int) l;
     }
 
     public static long parseLong(String s) {

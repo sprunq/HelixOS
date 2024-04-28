@@ -1,45 +1,47 @@
 package kernel;
 
+import arch.x86;
+import formats.fonts.Font7x8;
 import gui.WindowManager;
 import gui.displays.Homebar;
 import gui.displays.Splashscreen;
+import gui.displays.windows.Bounce;
 import gui.displays.windows.LogTextField;
-import kernel.bios.call.DisplayModes;
-import kernel.display.text.TM3Color;
+import gui.displays.windows.MemMapTextField;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
 import kernel.display.ADisplay;
-import kernel.display.font.Font7x8;
-import kernel.display.text.TM3;
 import kernel.hardware.PIT;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.MemoryManager;
-import util.logging.Logger;
-import util.vector.VectorVesaMode;
+import kernel.tasks.Breaker;
+import kernel.trace.Bluescreen;
+import kernel.trace.SymbolResolution;
+import kernel.trace.logging.Logger;
+import util.vector.VecVesaMode;
 
 public class Kernel {
-    public static final int RESOLUTION = 1;
+    public static final int RESOLUTION = 0;
 
     public static ADisplay Display;
 
     public static void main() {
-        MemoryManager.initialize();
-        Logger.initialize(Logger.TRACE, 200);
-        KeyboardController.initialize(QWERTZ.Instance);
-        PIT.initialize();
-        IDT.initialize();
-        IDT.enable();
+        MemoryManager.Initialize();
+        MAGIC.doStaticInit();
+        Logger.Initialize(Logger.TRACE, 100, true);
+        SymbolResolution.Initialize();
+        PIT.Initialize();
+        IDT.Initialize();
+        IDT.Enable();
 
-        VectorVesaMode modes = VesaQuery.AvailableModes();
-        Logger.info("VESA", "Available VESA modes:");
-        for (int i = 0; i < modes.size(); i++) {
-            Logger.info("VESA", modes.get(i).dbg());
-        }
+        KeyboardController.Initialize(QWERTZ.Instance);
+        KeyboardController.AddListener(new Breaker());
 
+        VecVesaMode modes = VesaQuery.AvailableModes();
         VESAMode mode;
         switch (RESOLUTION) {
             case 0:
@@ -54,111 +56,105 @@ public class Kernel {
         }
 
         Display = new VESAGraphics(mode);
-        Display.activate();
+        Display.Activate();
 
         WindowManager winManSplashScreen = new WindowManager(Display);
-        buildSplashScreen(winManSplashScreen);
-        // winManSplashScreen.staticDisplayFor(000);
+        BuildSplashScreen(winManSplashScreen);
+        winManSplashScreen.StaticDisplayFor(000);
 
         WindowManager windowManager = new WindowManager(Display);
-        buildGuiEnvironment(windowManager);
+        BuildGuiEnvironment(windowManager);
 
         int averageOver = 200;
         int avg = 0;
         int avgIndex = 0;
         while (true) {
-            while (KeyboardController.hasNewEvent()) {
-                KeyboardController.readEvent();
+            while (KeyboardController.HasNewEvent()) {
+                KeyboardController.ReadEvent();
             }
 
-            int startTick = Timer.getTick();
+            int startTick = Timer.Ticks();
 
-            windowManager.drawWindows();
-            Display.swap();
+            windowManager.DrawWindows();
+            Display.Swap();
 
-            int endTick = Timer.getTick();
+            int endTick = Timer.Ticks();
             int diff = endTick - startTick;
             avg += diff;
             avgIndex++;
             if (avgIndex >= averageOver) {
                 avg /= averageOver;
                 avgIndex = 0;
-                int msAvg = Timer.getTickDifferenceMs(avg);
-                Logger.trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
+                int msAvg = Timer.TickDifferenceMs(avg);
+                Logger.Trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
                 avg = 0;
             }
-            Timer.sleep(1000 / 60);
+            Timer.Sleep(1000 / 60);
         }
     }
 
-    private static void buildSplashScreen(WindowManager winManSplashScreen) {
+    private static void BuildSplashScreen(WindowManager winManSplashScreen) {
         Splashscreen splash = new Splashscreen(
                 0,
                 0,
                 0,
                 Kernel.Display.Width(),
                 Kernel.Display.Height());
-        winManSplashScreen.addWindow(splash);
+        winManSplashScreen.AddWindow(splash);
     }
 
-    private static void buildGuiEnvironment(WindowManager windowManager) {
-
+    private static void BuildGuiEnvironment(WindowManager windowManager) {
         Homebar homebar = new Homebar(
                 Kernel.Display.Width(),
                 Kernel.Display.Height());
 
+        int heightMinusHomebar = Display.Height() - homebar.Height - 1;
+
         LogTextField logTextField = new LogTextField(
-                Display.Width() / 3,
-                200,
-                4,
-                Display.Width() / 2,
-                Kernel.Display.Height() / 2 - homebar.Height,
+                "Log Entries",
+                0,
+                0,
+                6,
+                (int) (Display.Width() * 0.7),
+                heightMinusHomebar,
                 8,
                 0,
                 2,
                 Font7x8.Instance);
 
-        LogTextField logTextField2 = new LogTextField(
-                Display.Width() / 8,
-                100,
+        MemMapTextField memMapTextField = new MemMapTextField(
+                "System Memory Map",
+                logTextField.X + logTextField.Width,
+                0,
                 5,
-                (int) (Display.Width() / 1.5),
-                Kernel.Display.Height() / 2,
+                Display.Width() - logTextField.Width,
+                heightMinusHomebar / 2,
                 8,
                 0,
                 2,
                 Font7x8.Instance);
 
-        windowManager.addWindow(homebar);
-        windowManager.addWindow(logTextField);
-        windowManager.addWindow(logTextField2);
+        Bounce bounce = new Bounce(
+                logTextField.X + logTextField.Width,
+                heightMinusHomebar / 2,
+                6,
+                Display.Width() - logTextField.Width,
+                heightMinusHomebar / 2,
+                "Bouncy");
+
+        windowManager.AddWindow(homebar);
+        windowManager.AddWindow(logTextField);
+        windowManager.AddWindow(memMapTextField);
+        windowManager.AddWindow(bounce);
     }
 
     public static void panic(String msg) {
-        DisplayModes.activateTextMode();
-        final byte colBorder = TM3Color.set(TM3Color.BLACK, TM3Color.RED);
-        final byte colTextMsg = TM3Color.set(TM3Color.LIGHT_RED, TM3Color.BLACK);
-        final byte colTextPanic = TM3Color.set(TM3Color.RED, TM3Color.BLACK);
-        final byte clearCol = TM3Color.set(TM3Color.GREY, TM3Color.BLACK);
-
-        TM3.setLine(0, (byte) ' ', clearCol);
-        TM3.setLine(1, (byte) ' ', clearCol);
-        TM3.setLine(2, (byte) ' ', clearCol);
-
-        int pos = 0;
-        pos = TM3.directPrint(' ', pos, colBorder);
-        pos = TM3.newLinePos(pos);
-        pos = TM3.directPrint(' ', pos, colBorder);
-        pos = TM3.directPrint(" PANIC: ", pos, colTextPanic);
-        pos = TM3.directPrint(msg, pos, colTextMsg);
-        pos = TM3.newLinePos(pos);
-        pos = TM3.directPrint(' ', pos, colBorder);
-        pos = TM3.newLinePos(pos);
+        int ebp = 0;
+        MAGIC.inline(0x89, 0x6D);
+        MAGIC.inlineOffset(1, ebp);
+        int eip = x86.eipForFunction(ebp);
+        Bluescreen.Show("PANIC", msg, ebp, eip);
         while (true) {
         }
-    }
-
-    public static void todo(String msg) {
-        panic("TODO - ".append(msg));
     }
 }

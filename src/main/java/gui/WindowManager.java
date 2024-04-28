@@ -2,35 +2,38 @@ package gui;
 
 import kernel.display.ADisplay;
 import kernel.hardware.Timer;
-import util.vector.VectorWindow;
+import util.vector.VecWindow;
 
 public class WindowManager {
-    private VectorWindow windows;
-    private ADisplay display;
+    private VecWindow _windows;
+    private ADisplay _display;
 
     public WindowManager(ADisplay display) {
-        windows = new VectorWindow();
-        this.display = display;
+        _windows = new VecWindow();
+        this._display = display;
     }
 
-    public void addWindow(ADisplayElement window) {
-        windows.add(window);
-        windows.SortByZ();
+    public void AddWindow(ADisplayElement window) {
+        _windows.add(window);
+        _windows.SortByZ();
     }
 
-    public void drawWindows() {
-        for (int i = 0; i < windows.size(); i++) {
-            ADisplayElement window = windows.get(i);
-            if (window.needsRedraw()) {
-                window.draw(display);
+    public void DrawWindows() {
+        for (int i = 0; i < _windows.size(); i++) {
+            ADisplayElement window = _windows.get(i);
+            if (window.NeedsRedraw()) {
+                window.Draw(_display);
             }
         }
     }
 
-    public void staticDisplayFor(int ms) {
-        drawWindows();
-        display.swap();
-        Timer.sleep(ms);
-        display.clearScreen();
+    public void StaticDisplayFor(int ms) {
+        if (ms == 0) {
+            return;
+        }
+        DrawWindows();
+        _display.Swap();
+        Timer.Sleep(ms);
+        _display.ClearScreen();
     }
 }

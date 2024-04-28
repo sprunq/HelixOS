@@ -22,18 +22,18 @@ public class VESAMode implements IDebug {
     }
 
     @Override
-    public String dbg() {
+    public String Debug() {
         StrBuilder sb = new StrBuilder(30);
-        sb.append("VESA[").append(ModeNr).append("] (")
-                .append(Graphical ? "Graphic" : "Text")
-                .append(", bbp: ").append(ColorDepth)
-                .append(", x: ").append(XRes)
-                .append(", y: ").append(YRes)
-                .append(")");
+        sb.Append("VESA[").Append(ModeNr).Append("] (")
+                .Append(Graphical ? "Graphic" : "Text")
+                .Append(", bbp: ").Append(ColorDepth)
+                .Append(", x: ").Append(XRes)
+                .Append(", y: ").Append(YRes)
+                .Append(")");
         return sb.toString();
     }
 
-    public int bytesPerColor() {
+    public int BytesPerColor() {
         switch (ColorDepth) {
             case 8:
                 return 1;

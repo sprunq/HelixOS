@@ -1,12 +1,12 @@
 package kernel.hardware;
 
-import assembler.x86;
+import arch.x86;
 
 public class Timer {
     private static int _tickCount = 0;
 
     @SJC.Inline
-    public static void tick() {
+    public static void DoTick() {
         _tickCount++;
         if (_tickCount < 0) {
             _tickCount = 0;
@@ -14,26 +14,26 @@ public class Timer {
     }
 
     @SJC.Inline
-    public static int getTick() {
+    public static int Ticks() {
         return _tickCount;
     }
 
-    public static void sleep(int ms) {
-        double rate = PIT.get_rateHz();
+    public static void Sleep(int ms) {
+        double rate = PIT.RateHz();
         int ticks = (int) (rate / 1000.0 * (double) ms);
-        int start = getTick();
-        while (getTick() - start < ticks) {
+        int start = Ticks();
+        while (Ticks() - start < ticks) {
             // wait until next interrupt fires
             x86.hlt();
         }
     }
 
-    public static int getTickDifferenceMs(int start, int end) {
-        double rate = PIT.get_rateHz();
+    public static int TickDifferenceMs(int start, int end) {
+        double rate = PIT.RateHz();
         return (int) ((end - start) / rate * 1000.0);
     }
 
-    public static int getTickDifferenceMs(int ticks) {
-        return getTickDifferenceMs(0, ticks);
+    public static int TickDifferenceMs(int ticks) {
+        return TickDifferenceMs(0, ticks);
     }
 }
