@@ -40,12 +40,12 @@ public class StrBuilder {
     }
 
     @SJC.Inline
-    public StrBuilder appendLine(byte c) {
+    public StrBuilder AppendLine(byte c) {
         return Append(c).AppendLine();
     }
 
     @SJC.Inline
-    public StrBuilder append(IDebug dbg) {
+    public StrBuilder Append(IDebug dbg) {
         return Append(dbg.Debug());
     }
 

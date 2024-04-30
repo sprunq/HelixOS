@@ -1,10 +1,12 @@
 package kernel.memory;
 
+import arch.x86;
 import kernel.Kernel;
 import kernel.MemoryLayout;
 import kernel.bios.call.MemMap;
 import rte.SClassDesc;
 import util.BitHelper;
+import util.StrBuilder;
 
 public class MemoryManager {
     public static final BootableImage BOOT_IMAGE = (BootableImage) MAGIC.cast2Struct(MAGIC.imageBase);
@@ -104,6 +106,68 @@ public class MemoryManager {
         }
     }
 
+    public static int GetEmptyObjectCount() {
+        int count = 0;
+        EmptyObject eo = _emptyObjectRoot;
+        while (eo != null) {
+            count++;
+            eo = eo.Next();
+        }
+        return count;
+    }
+
+    public static int GetFreeSpace() {
+        int freeSpace = 0;
+        EmptyObject eo = _emptyObjectRoot;
+        while (eo != null) {
+            freeSpace += ObjectSize(eo);
+            eo = eo.Next();
+        }
+        return freeSpace;
+    }
+
+    @SJC.Inline
+    public static void ReplaceWithEmptyObject(Object o) {
+        if (o == null) {
+            return;
+        }
+
+        int startOfObject = o.AddressBottom();
+        int endOfObject = o.AddressTop();
+
+        RemoveFromNextChain(o);
+        int eOStart = (int) BitHelper.AlignUp(startOfObject, 4);
+        int emptyObjEnd = (int) BitHelper.AlignDown(endOfObject, 4);
+        int eoSS = emptyObjEnd - eOStart - EmptyObject.RelocEntriesSize();
+
+        EmptyObject eo = (EmptyObject) WriteObject(eOStart, eoSS, EmptyObject.RelocEntries(), EmptyObject.Type(), true);
+        InsertIntoEmptyObjectChain(eo);
+    }
+
+    public static int NextChainSize(Object o) {
+        int size = 0;
+        while (o != null) {
+            size++;
+            o = o._r_next;
+        }
+        return size;
+    }
+
+    @SJC.Inline
+    public static EmptyObject FillRegionWithEmptyObject(long start, long end) {
+        // Align the object to 4 bytes so the *way* faster memset version can be used
+        int emptyObjStart = (int) BitHelper.AlignUp(start, 4);
+        int emptyObjEnd = (int) BitHelper.AlignDown(end, 4);
+        int emptyObjScalarSize = emptyObjEnd - emptyObjStart - EmptyObject.RelocEntriesSize();
+        EmptyObject eo = (EmptyObject) WriteObject(
+                emptyObjStart,
+                emptyObjScalarSize,
+                EmptyObject.RelocEntries(),
+                EmptyObject.Type(),
+                true);
+        return eo;
+    }
+
     public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
         int alignScalarSize = BitHelper.Align(scalarSize, 4);
         int newObjectTotalSize = alignScalarSize + relocEntries * MAGIC.ptrSize;
@@ -149,7 +213,7 @@ public class MemoryManager {
             long end = base + length;
 
             if (base < BOOT_IMAGE.memoryStart + BOOT_IMAGE.memorySize) {
-                base = BOOT_IMAGE.memoryStart + BOOT_IMAGE.memorySize + 1;
+                base = BitHelper.AlignUp(BOOT_IMAGE.memoryStart + BOOT_IMAGE.memorySize + 1, 4);
             }
 
             if (!isFree
@@ -158,18 +222,7 @@ public class MemoryManager {
                 continue;
             }
 
-            // Align the object to 4 bytes so the *way* faster memset version can be used
-            // otherwise wait 3s every boot
-            int emptyObjStart = (int) BitHelper.AlignUp(base, 4);
-            int emptyObjEnd = (int) BitHelper.AlignDown(end, 4);
-            int emptyObjScalarSize = emptyObjEnd - emptyObjStart - EmptyObject.RelocEntriesSize();
-
-            EmptyObject eo = (EmptyObject) WriteObject(
-                    emptyObjStart,
-                    emptyObjScalarSize,
-                    EmptyObject.RelocEntries(),
-                    EmptyObject.Type(),
-                    true);
+            EmptyObject eo = FillRegionWithEmptyObject(base, end);
             InsertIntoEmptyObjectChain(eo);
         } while (contIndex != 0);
     }
@@ -219,37 +272,54 @@ public class MemoryManager {
         MAGIC.assign(insertAfter._r_next, o);
     }
 
+    @SJC.Inline
+    private static void RemoveFromNextChain(Object removeThis) {
+        Object t = GetStaticAllocRoot();
+        while (t._r_next != removeThis) {
+            t = t._r_next;
+        }
+        MAGIC.assign(t._r_next, removeThis._r_next);
+    }
+
     /*
      * Adds an empty object to the chain of empty objects.
      * The chain is sorted by the address of the empty objects.
      */
     @SJC.Inline
     private static void InsertIntoEmptyObjectChain(EmptyObject emptyObj) {
+        if (emptyObj == null) {
+            return;
+        }
+
         if (_emptyObjectRoot == null) {
             _emptyObjectRoot = emptyObj;
         } else {
             int emptyObjAddr = MAGIC.cast2Ref(emptyObj);
             EmptyObject t = _emptyObjectRoot;
-            while (t.NextEmptyObject != null) {
-                if (MAGIC.cast2Ref(t.NextEmptyObject) > emptyObjAddr) {
+            while (t.Next() != null) {
+                EmptyObject next = t.Next();
+                if (next == null) {
                     break;
                 }
-                t = t.NextEmptyObject;
+                if (MAGIC.cast2Ref(next) > emptyObjAddr) {
+                    break;
+                }
+                t = next;
             }
-            t.NextEmptyObject = emptyObj;
-            emptyObj.PrevEmptyObject = t;
+            emptyObj.SetNext(t);
         }
     }
 
     @SJC.Inline
     private static void RemoveFromEmptyObjectChain(EmptyObject emptyObj) {
-        if (emptyObj.PrevEmptyObject != null) {
-            emptyObj.PrevEmptyObject.NextEmptyObject = emptyObj.NextEmptyObject;
+        if (_emptyObjectRoot == emptyObj) {
+            _emptyObjectRoot = emptyObj.Next();
         } else {
-            _emptyObjectRoot = emptyObj.NextEmptyObject;
-        }
-        if (emptyObj.NextEmptyObject != null) {
-            emptyObj.NextEmptyObject.PrevEmptyObject = emptyObj.PrevEmptyObject;
+            EmptyObject t = _emptyObjectRoot;
+            while (t.Next() != emptyObj) {
+                t = t.Next();
+            }
+            t.SetNext(emptyObj.Next());
         }
     }
 
@@ -261,7 +331,7 @@ public class MemoryManager {
                     || ObjectSize(emptyObj) == objectSize) {
                 return emptyObj;
             }
-            emptyObj = emptyObj.NextEmptyObject;
+            emptyObj = emptyObj.Next();
         }
         return null;
     }

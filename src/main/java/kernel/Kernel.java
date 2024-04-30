@@ -17,6 +17,7 @@ import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
+import kernel.memory.GarbageCollector;
 import kernel.memory.MemoryManager;
 import kernel.tasks.Breaker;
 import kernel.trace.Bluescreen;
@@ -68,9 +69,14 @@ public class Kernel {
         int averageOver = 200;
         int avg = 0;
         int avgIndex = 0;
+        int i = 0;
         while (true) {
             while (KeyboardController.HasNewEvent()) {
                 KeyboardController.ReadEvent();
+            }
+
+            for (int j = 0; j < 2000; j++) {
+                byte[] v = new byte[10];
             }
 
             int startTick = Timer.Ticks();
@@ -86,10 +92,24 @@ public class Kernel {
                 avg /= averageOver;
                 avgIndex = 0;
                 int msAvg = Timer.TickDifferenceMs(avg);
-                Logger.Trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
+                // Logger.Trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
                 avg = 0;
             }
             Timer.Sleep(1000 / 60);
+
+            if (i++ % 200 == 0) {
+                Logger.Info("MEM", Integer.toString(MemoryManager.GetEmptyObjectCount()));
+                Logger.Info("MEM", Integer.toString(MemoryManager.GetFreeSpace()));
+                Logger.Info("MEM", Integer.toString(MemoryManager.NextChainSize(MemoryManager.GetStaticAllocRoot())));
+
+                GarbageCollector.Run();
+
+                Logger.Info("MEM", Integer.toString(MemoryManager.NextChainSize(MemoryManager.GetStaticAllocRoot())));
+                Logger.Info("MEM", Integer.toString(MemoryManager.GetFreeSpace()));
+                Logger.Info("MEM", Integer.toString(MemoryManager.GetEmptyObjectCount()));
+
+                Logger.Info("MEM", "-------------------------");
+            }
         }
     }
 

@@ -4,26 +4,15 @@ import kernel.Kernel;
 import rte.SClassDesc;
 
 public class EmptyObject extends Object {
-    /*
-     * Points to the next empty object in the list or null if this is the last
-     * empty object.
-     */
-    public EmptyObject NextEmptyObject;
-
-    /*
-     * Points to the previous empty object in the list or null if this is the
-     * first empty object.
-     */
-    public EmptyObject PrevEmptyObject;
 
     @SJC.Inline
-    public int AddressTop() {
-        return MAGIC.cast2Ref(this) + _r_scalarSize;
+    public EmptyObject Next() {
+        return (EmptyObject) _r_next;
     }
 
     @SJC.Inline
-    public int AddressBottom() {
-        return MAGIC.cast2Ref(this) - RelocEntriesSize();
+    public void SetNext(EmptyObject next) {
+        MAGIC.assign(_r_next, (Object) next);
     }
 
     @SJC.Inline
@@ -42,11 +31,6 @@ public class EmptyObject extends Object {
     }
 
     @SJC.Inline
-    public static int RelocEntriesSize() {
-        return MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize;
-    }
-
-    @SJC.Inline
     public static SClassDesc Type() {
         return (SClassDesc) MAGIC.clssDesc("EmptyObject");
     }
@@ -62,5 +46,10 @@ public class EmptyObject extends Object {
     @SJC.Inline
     public int UnreservedScalarSize() {
         return _r_scalarSize - MAGIC.getInstScalarSize("EmptyObject");
+    }
+
+    @SJC.Inline
+    public static int RelocEntriesSize() {
+        return MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize;
     }
 }
