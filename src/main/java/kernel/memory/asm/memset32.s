@@ -9,6 +9,7 @@ var_offset_val   EQU 8
 
 
 memset32:
+    push    esi
     push    edi             ; Save edi (addr) onto the stack
     cld                     ; Clear the direction flag (forward string operation)
     
@@ -19,3 +20,4 @@ memset32:
     rep stosd               ; rep stosd (Store dword string)
 
     pop     edi             ; Restore original edi value
+    pop    esi
