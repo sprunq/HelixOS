@@ -1,12 +1,16 @@
 package kernel.memory;
 
+import kernel.MemoryLayout;
 import kernel.trace.logging.Logger;
+import rte.DynamicRuntime;
+import rte.SClassDesc;
 
 public class GarbageCollector {
     public static void Run() {
         Logger.Info("GC", "Running garbage collector");
         ResetMark();
         MarkFromStaticRoots();
+        MarkFromStack();
         Sweep();
     }
 
@@ -15,6 +19,20 @@ public class GarbageCollector {
         while (o != null) {
             o.IsUsed = false;
             o = o._r_next;
+        }
+    }
+
+    private static void MarkFromStack() {
+        int varAtTopOfStack = 0;
+        int topOfStackAddr = MAGIC.addr(varAtTopOfStack);
+        int currentSlot = MemoryLayout.PROGRAM_STACK_COMPILER_TOP;
+        while (currentSlot > topOfStackAddr) {
+            int c = MAGIC.rMem32(currentSlot);
+            Object o = MAGIC.cast2Obj(c);
+            if (DynamicRuntime.isInstance(o, (SClassDesc) MAGIC.clssDesc("Object"), false)) {
+                MarkRecursive(o);
+            }
+            currentSlot -= MAGIC.ptrSize;
         }
     }
 
@@ -27,7 +45,6 @@ public class GarbageCollector {
         }
     }
 
-    @SJC.PrintCode
     private static void MarkRecursive(Object o) {
         if (o == null || o.IsUsed == true) {
             return;
@@ -51,7 +68,8 @@ public class GarbageCollector {
             nextObject = o._r_next;
             if (o.IsUsed == false) {
                 // Repalce with many small objects now and merge later
-                MemoryManager.ReplaceWithEmptyObject(o);
+                EmptyObject eo = MemoryManager.ReplaceWithEmptyObject(o);
+                MemoryManager.InsertIntoEmptyObjectChain(eo);
             }
             o = nextObject;
         }

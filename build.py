@@ -39,6 +39,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
                             "-u", "rte",                    # rte symbol generator
                             "-g",                           # generate all unit-descriptors 
                             "-G",                           # generate all mthd-code-bodies
+                            "-n"
                             ],
                        capture_output=True,
                        text=True) 
@@ -57,6 +58,9 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         "-boot", "a", 
         "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy", 
         "-rtc", "base=localtime",
+        #"-accel tcg,one-insn-per-tb=on",
+        #"-singlestep",
+        # "-s", "-S"
         # "-full-screen",
         ])
 

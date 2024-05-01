@@ -33,7 +33,7 @@ public class Kernel {
     public static void main() {
         MemoryManager.Initialize();
         MAGIC.doStaticInit();
-        Logger.Initialize(Logger.TRACE, 100, true);
+        Logger.Initialize(Logger.TRACE, 100, false);
         SymbolResolution.Initialize();
         PIT.Initialize();
         IDT.Initialize();
@@ -75,10 +75,6 @@ public class Kernel {
                 KeyboardController.ReadEvent();
             }
 
-            for (int j = 0; j < 2000; j++) {
-                byte[] v = new byte[10];
-            }
-
             int startTick = Timer.Ticks();
 
             windowManager.DrawWindows();
@@ -98,15 +94,20 @@ public class Kernel {
             Timer.Sleep(1000 / 60);
 
             if (i++ % 200 == 0) {
-                Logger.Info("MEM", Integer.toString(MemoryManager.GetEmptyObjectCount()));
-                Logger.Info("MEM", Integer.toString(MemoryManager.GetFreeSpace()));
-                Logger.Info("MEM", Integer.toString(MemoryManager.NextChainSize(MemoryManager.GetStaticAllocRoot())));
+
+                Logger.Info("MEM", "Free Space: ".append(Integer.toString(MemoryManager.GetFreeSpace())));
+                Logger.Info("MEM", "Object Count: "
+                        .append(Integer.toString(MemoryManager.GetObjectCount())));
+                Logger.Info("MEM",
+                        "Empty Object Count: ".append(Integer.toString(MemoryManager.GetEmptyObjectCount())));
 
                 GarbageCollector.Run();
 
-                Logger.Info("MEM", Integer.toString(MemoryManager.NextChainSize(MemoryManager.GetStaticAllocRoot())));
-                Logger.Info("MEM", Integer.toString(MemoryManager.GetFreeSpace()));
-                Logger.Info("MEM", Integer.toString(MemoryManager.GetEmptyObjectCount()));
+                Logger.Info("MEM", "Free Space: ".append(Integer.toString(MemoryManager.GetFreeSpace())));
+                Logger.Info("MEM", "Object Count: "
+                        .append(Integer.toString(MemoryManager.GetObjectCount())));
+                Logger.Info("MEM",
+                        "Empty Object Count: ".append(Integer.toString(MemoryManager.GetEmptyObjectCount())));
 
                 Logger.Info("MEM", "-------------------------");
             }
@@ -176,5 +177,9 @@ public class Kernel {
         Bluescreen.Show("PANIC", msg, ebp, eip);
         while (true) {
         }
+    }
+
+    public static void panic(int i) {
+        panic(Integer.toString(i));
     }
 }
