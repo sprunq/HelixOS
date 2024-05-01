@@ -24,7 +24,7 @@ public class DynamicRuntime {
     }
 
     public static Object newInstance(int scalarSize, int relocEntries, SClassDesc type) {
-        return MemoryManager.allocObject(scalarSize, relocEntries, type);
+        return MemoryManager.AllocateObject(scalarSize, relocEntries, type);
     }
 
     /*
@@ -39,7 +39,7 @@ public class DynamicRuntime {
         else
             scS += length * entrySize; // Array mit skalaren Elementen
 
-        SArray obj = (SArray) MemoryManager.allocObject(scS, rlE, (SClassDesc) MAGIC.clssDesc("SArray"));
+        SArray obj = (SArray) MemoryManager.AllocateObject(scS, rlE, (SClassDesc) MAGIC.clssDesc("SArray"));
         MAGIC.assign(obj.length, length);
         MAGIC.assign(obj._r_dim, arrDim);
         MAGIC.assign(obj._r_stdType, stdType);

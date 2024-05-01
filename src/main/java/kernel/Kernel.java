@@ -38,6 +38,8 @@ public class Kernel {
         PIT.Initialize();
         IDT.Initialize();
         IDT.Enable();
+        GarbageCollector.Initialize();
+        MemoryManager.DisableGarbageCollection();
 
         KeyboardController.Initialize(QWERTZ.Instance);
         KeyboardController.AddListener(new Breaker());
@@ -75,6 +77,23 @@ public class Kernel {
                 KeyboardController.ReadEvent();
             }
 
+            int eos = MemoryManager.GetEmptyObjectCount();
+            GarbageCollector.Run();
+            int eosAfter = MemoryManager.GetEmptyObjectCount();
+            Logger.Trace("GC", "Empty Objects: ".append(eos).append(" -> ").append(eosAfter));
+
+            Logger.Info("MEM", Integer.toString(MemoryManager.GetUsedSpace()));
+
+            if (i > 20) {
+                Object eo = MemoryManager.GetEmptyObjectRoot();
+                while (eo != null) {
+                    Logger.Trace("MEM", "Empty Object: ".append(Integer.toString(eo.AddressBottom())).append(" -> ")
+                            .append(Integer.toString(eo.AddressTop())));
+                    eo = eo._r_next;
+                }
+
+                return;
+            }
             for (int j = 0; j < 20; j++) {
                 A a = new A();
             }
@@ -92,29 +111,11 @@ public class Kernel {
                 avg /= averageOver;
                 avgIndex = 0;
                 int msAvg = Timer.TickDifferenceMs(avg);
-                // Logger.Trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
+                Logger.Trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
                 avg = 0;
             }
             Timer.Sleep(1000 / 60);
-
-            if (i++ % 1 == 0) {
-
-                Logger.Info("MEM", "Free Space: ".append(Integer.toString(MemoryManager.GetFreeSpace())));
-                Logger.Info("MEM", "Object Count: "
-                        .append(Integer.toString(MemoryManager.GetObjectCount())));
-                Logger.Info("MEM",
-                        "Empty Object Count: ".append(Integer.toString(MemoryManager.GetEmptyObjectCount())));
-
-                GarbageCollector.Run();
-
-                Logger.Info("MEM", "Free Space: ".append(Integer.toString(MemoryManager.GetFreeSpace())));
-                Logger.Info("MEM", "Object Count: "
-                        .append(Integer.toString(MemoryManager.GetObjectCount())));
-                Logger.Info("MEM",
-                        "Empty Object Count: ".append(Integer.toString(MemoryManager.GetEmptyObjectCount())));
-
-                Logger.Info("MEM", "-------------------------");
-            }
+            i++;
         }
     }
 
