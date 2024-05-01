@@ -168,7 +168,7 @@ public class MemoryManager {
     }
 
     public static Object allocObject(int scalarSize, int relocEntries, SClassDesc type) {
-        int alignScalarSize = BitHelper.Align(scalarSize, 4);
+        int alignScalarSize = BitHelper.AlignUp(scalarSize, 4);
         int newObjectTotalSize = alignScalarSize + relocEntries * MAGIC.ptrSize;
 
         EmptyObject emptyObj = FindEmptyObjectFitting(newObjectTotalSize);
@@ -240,8 +240,8 @@ public class MemoryManager {
         // Each reloc entry is a pointer
         int relocsSize = relocEntries * MAGIC.ptrSize;
 
-        int startOfObject = ptrNextFree;
-        int lengthOfObject = relocsSize + scalarSize;
+        int startOfObject = BitHelper.AlignUp(ptrNextFree, 4);
+        int lengthOfObject = BitHelper.AlignUp(relocsSize + scalarSize, 4);
         int endOfObject = startOfObject + lengthOfObject;
 
         // Check if the object fits into the memory. If not, panic
@@ -249,8 +249,8 @@ public class MemoryManager {
             Kernel.panic("Out of memory");
         }
 
-        if (clearMemory) {
-            Memory.Memset(startOfObject, lengthOfObject, (byte) 0);
+        if (clearMemory == true) {
+            Memory.Memset32(startOfObject, lengthOfObject / 4, 0);
         }
 
         // cast2Obj expects the pointer to the first scalar field.
@@ -271,7 +271,6 @@ public class MemoryManager {
         MAGIC.assign(insertAfter._r_next, o);
     }
 
-    @SJC.Inline
     private static void RemoveFromNextChain(Object removeThis) {
         Object t = GetStaticAllocRoot();
         while (t._r_next != removeThis) {
@@ -284,7 +283,6 @@ public class MemoryManager {
      * Adds an empty object to the chain of empty objects.
      * The chain is sorted by the address of the empty objects.
      */
-    @SJC.PrintCode
     public static void InsertIntoEmptyObjectChain(EmptyObject emptyObj) {
         if (emptyObj == null) {
             return;
@@ -293,7 +291,7 @@ public class MemoryManager {
         if (_emptyObjectRoot == null) {
             _emptyObjectRoot = emptyObj;
         } else {
-            int doesNotWorkIfThisIsHere = 0;
+            // int doesNotWorkIfThisIsHere = 0;
             Object eo = _emptyObjectRoot;
             while (eo._r_next != null) {
                 eo = eo._r_next;

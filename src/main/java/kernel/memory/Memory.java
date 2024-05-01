@@ -20,7 +20,7 @@ public class Memory {
      * Cannot be inlined since it has fixed offsets to function argument pointers.
      */
     @SJC.NoInline
-    public static void Memset32(int start, int len, int value) {
+    public static void Memset32(int start, int numberOf32BitBlocks, int value) {
         MAGIC.inlineBlock("memset32");
     }
 

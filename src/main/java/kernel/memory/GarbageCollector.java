@@ -67,7 +67,7 @@ public class GarbageCollector {
         while (o != null) {
             nextObject = o._r_next;
             if (o.IsUsed == false) {
-                // Repalce with many small objects now and merge later
+                int a;
                 EmptyObject eo = MemoryManager.ReplaceWithEmptyObject(o);
                 MemoryManager.InsertIntoEmptyObjectChain(eo);
             }
