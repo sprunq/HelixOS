@@ -1,5 +1,6 @@
 package kernel.memory;
 
+import kernel.Kernel;
 import kernel.MemoryLayout;
 import kernel.trace.logging.Logger;
 import rte.DynamicRuntime;
@@ -8,10 +9,15 @@ import rte.SClassDesc;
 public class GarbageCollector {
     public static void Run() {
         Logger.Info("GC", "Running garbage collector");
+        Logger.LogSerial("Resetting mark\n");
         ResetMark();
+        Logger.LogSerial("Marking from static roots\n");
         MarkFromStaticRoots();
+        Logger.LogSerial("Marking from stack\n");
         MarkFromStack();
+        Logger.LogSerial("Sweeping\n");
         Sweep();
+        MemoryManager.InvalidateLastAlloc();
     }
 
     private static void ResetMark() {
@@ -22,18 +28,29 @@ public class GarbageCollector {
         }
     }
 
+    @SJC.PrintCode
     private static void MarkFromStack() {
         int varAtTopOfStack = 0;
         int scanUntil = MAGIC.addr(varAtTopOfStack);
-        int currentSlot = MemoryLayout.PROGRAM_STACK_COMPILER_TOP;
-        while (currentSlot > scanUntil) {
-            int c = MAGIC.rMem32(currentSlot);
-            Object o = MAGIC.cast2Obj(c);
-            if (DynamicRuntime.isInstance(o, (SClassDesc) MAGIC.clssDesc("Object"), false)) {
+        for (int i = MemoryLayout.PROGRAM_STACK_COMPILER_TOP; i > scanUntil; i -= MAGIC.ptrSize) {
+            int mem = MAGIC.rMem32(i);
+            if (PointsToHeap(mem)) {
+                Object o = MAGIC.cast2Obj(mem);
                 MarkRecursive(o);
             }
-            currentSlot -= MAGIC.ptrSize;
         }
+    }
+
+    // brute force ftw
+    private static boolean PointsToHeap(int addr) {
+        Object o = MemoryManager.GetStaticAllocRoot();
+        while (o != null) {
+            if (MAGIC.cast2Ref(o) == addr) {
+                return true;
+            }
+            o = o._r_next;
+        }
+        return false;
     }
 
     private static void MarkFromStaticRoots() {
@@ -50,6 +67,10 @@ public class GarbageCollector {
             return;
         }
 
+        if (!(o instanceof Object)) {
+            return;
+        }
+
         o.IsUsed = true;
 
         // Skip _r_type and _r_next
@@ -62,16 +83,22 @@ public class GarbageCollector {
     }
 
     private static void Sweep() {
-        Object o = MemoryManager.GetStaticAllocRoot();
+        Object toRemove = MemoryManager.GetStaticAllocRoot();
         Object nextObject = null;
-        while (o != null) {
-            nextObject = o._r_next;
-            if (o.IsUsed == false) {
-                int a;
-                EmptyObject eo = MemoryManager.ReplaceWithEmptyObject(o);
-                MemoryManager.InsertIntoEmptyObjectChain(eo);
+        while (toRemove != null) {
+            nextObject = toRemove._r_next;
+
+            if (toRemove.IsUsed == false) {
+                if (toRemove._r_type != null && toRemove._r_type.name != null) {
+                    Logger.LogSerial("Sweeping ");
+                    Logger.LogSerial(toRemove._r_type.name);
+                    Logger.LogSerial("\n");
+                }
+                MemoryManager.RemoveFromNextChain(toRemove);
+                EmptyObject replacedWithEO = MemoryManager.ReplaceWithEmptyObject(toRemove);
+                MemoryManager.InsertIntoEmptyObjectChain(replacedWithEO);
             }
-            o = nextObject;
+            toRemove = nextObject;
         }
     }
 }

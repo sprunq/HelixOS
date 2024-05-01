@@ -7,6 +7,9 @@ public class EmptyObject extends Object {
 
     @SJC.Inline
     public EmptyObject Next() {
+        if (_r_next == null) {
+            return null;
+        }
         return (EmptyObject) _r_next;
     }
 

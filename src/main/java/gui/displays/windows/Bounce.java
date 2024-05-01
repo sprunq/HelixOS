@@ -2,6 +2,7 @@ package gui.displays.windows;
 
 import kernel.Kernel;
 import kernel.display.ADisplay;
+import kernel.trace.logging.Logger;
 
 /*
  * A ball in a window that bounces around the edges of the window.
@@ -15,6 +16,10 @@ public class Bounce extends AWindow {
     public Bounce(int x, int y, int z, int width, int height, String title) {
         super(x, y, z, width, height, title);
         this.ball = new Square(width / 2, height / 2, ballRadius, 0x8A66B4);
+
+        if (ball._r_type == null || ball._r_type.name == null) {
+            Logger.Error("Bounce", "ball._r_type is null");
+        }
     }
 
     @Override

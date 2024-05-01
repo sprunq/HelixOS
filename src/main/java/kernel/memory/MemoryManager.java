@@ -108,10 +108,10 @@ public class MemoryManager {
 
     public static int GetEmptyObjectCount() {
         int count = 0;
-        EmptyObject eo = _emptyObjectRoot;
+        Object eo = _emptyObjectRoot;
         while (eo != null) {
             count++;
-            eo = eo.Next();
+            eo = eo._r_next;
         }
         return count;
     }
@@ -128,10 +128,10 @@ public class MemoryManager {
 
     public static int GetFreeSpace() {
         int freeSpace = 0;
-        EmptyObject eo = _emptyObjectRoot;
+        Object eo = _emptyObjectRoot;
         while (eo != null) {
             freeSpace += ObjectSize(eo);
-            eo = eo.Next();
+            eo = eo._r_next;
         }
         return freeSpace;
     }
@@ -144,7 +144,6 @@ public class MemoryManager {
         int startOfObject = o.AddressBottom();
         int endOfObject = o.AddressTop();
 
-        RemoveFromNextChain(o);
         int eOStart = (int) BitHelper.AlignUp(startOfObject, 4);
         int emptyObjEnd = (int) BitHelper.AlignDown(endOfObject, 4);
         int eoSS = emptyObjEnd - eOStart - EmptyObject.RelocEntriesSize();
@@ -271,7 +270,7 @@ public class MemoryManager {
         MAGIC.assign(insertAfter._r_next, o);
     }
 
-    private static void RemoveFromNextChain(Object removeThis) {
+    public static void RemoveFromNextChain(Object removeThis) {
         Object t = GetStaticAllocRoot();
         while (t._r_next != removeThis) {
             t = t._r_next;
@@ -291,7 +290,6 @@ public class MemoryManager {
         if (_emptyObjectRoot == null) {
             _emptyObjectRoot = emptyObj;
         } else {
-            // int doesNotWorkIfThisIsHere = 0;
             Object eo = _emptyObjectRoot;
             while (eo._r_next != null) {
                 eo = eo._r_next;

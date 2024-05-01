@@ -33,7 +33,7 @@ public class Kernel {
     public static void main() {
         MemoryManager.Initialize();
         MAGIC.doStaticInit();
-        Logger.Initialize(Logger.TRACE, 100, false);
+        Logger.Initialize(Logger.TRACE, 100, true);
         SymbolResolution.Initialize();
         PIT.Initialize();
         IDT.Initialize();
@@ -75,6 +75,10 @@ public class Kernel {
                 KeyboardController.ReadEvent();
             }
 
+            for (int j = 0; j < 20; j++) {
+                A a = new A();
+            }
+
             int startTick = Timer.Ticks();
 
             windowManager.DrawWindows();
@@ -93,7 +97,7 @@ public class Kernel {
             }
             Timer.Sleep(1000 / 60);
 
-            if (i++ % 200 == 0) {
+            if (i++ % 1 == 0) {
 
                 Logger.Info("MEM", "Free Space: ".append(Integer.toString(MemoryManager.GetFreeSpace())));
                 Logger.Info("MEM", "Object Count: "
