@@ -58,7 +58,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
         "-boot", "a", 
         "-drive", "file=BOOT_FLP.IMG,format=raw,if=floppy", 
         "-rtc", "base=localtime",
-        #"-accel tcg,one-insn-per-tb=on",
+        "-accel", "tcg,one-insn-per-tb=on",
         #"-singlestep",
         # "-s", "-S"
         # "-full-screen",

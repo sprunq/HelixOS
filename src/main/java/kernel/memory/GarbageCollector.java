@@ -24,9 +24,9 @@ public class GarbageCollector {
 
     private static void MarkFromStack() {
         int varAtTopOfStack = 0;
-        int topOfStackAddr = MAGIC.addr(varAtTopOfStack);
+        int scanUntil = MAGIC.addr(varAtTopOfStack);
         int currentSlot = MemoryLayout.PROGRAM_STACK_COMPILER_TOP;
-        while (currentSlot > topOfStackAddr) {
+        while (currentSlot > scanUntil) {
             int c = MAGIC.rMem32(currentSlot);
             Object o = MAGIC.cast2Obj(c);
             if (DynamicRuntime.isInstance(o, (SClassDesc) MAGIC.clssDesc("Object"), false)) {
