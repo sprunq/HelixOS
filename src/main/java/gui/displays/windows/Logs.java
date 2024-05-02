@@ -7,7 +7,7 @@ import kernel.display.ADisplay;
 import kernel.trace.logging.LogEntry;
 import kernel.trace.logging.Logger;
 
-public class LogTextField extends AWindow {
+public class Logs extends AWindow {
     private final int COL_FATAL;
     private final int COL_ERROR;
     private final int COL_WARNING;
@@ -16,7 +16,7 @@ public class LogTextField extends AWindow {
     private int lastLogTick = -1;
     private TextField _textField;
 
-    public LogTextField(
+    public Logs(
             String title,
             int x,
             int y,

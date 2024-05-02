@@ -7,7 +7,7 @@ import kernel.display.ADisplay;
 import kernel.memory.MemoryManager;
 import util.StrBuilder;
 
-public class SystemInfoWindow extends AWindow {
+public class SystemInfo extends AWindow {
     private TextField _textField;
     private boolean _needsRedraw;
     private String _text;
@@ -15,7 +15,7 @@ public class SystemInfoWindow extends AWindow {
     private int _drawCounter = 0;
     private StrBuilder _sb;
 
-    public SystemInfoWindow(
+    public SystemInfo(
             String title,
             int x,
             int y,
@@ -43,11 +43,12 @@ public class SystemInfoWindow extends AWindow {
                 font);
         _needsRedraw = true;
         _sb = new StrBuilder(500);
+        _text = UpdateText();
     }
 
     public void DrawContent(ADisplay display) {
-        _textField.ClearText();
         _text = UpdateText();
+        _textField.ClearText();
         _textField.Write(_text);
         _textField.Draw(display);
     }

@@ -8,12 +8,12 @@ import kernel.bios.call.MemMapEntry;
 import kernel.display.ADisplay;
 import util.StrBuilder;
 
-public class MemMapTextField extends AWindow {
+public class MemMapView extends AWindow {
     private TextField _textField;
     private boolean _needsRedraw;
     private String _memmapText;
 
-    public MemMapTextField(
+    public MemMapView(
             String title,
             int x,
             int y,

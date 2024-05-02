@@ -6,8 +6,8 @@ import gui.WindowManager;
 import gui.displays.Homebar;
 import gui.displays.Splashscreen;
 import gui.displays.windows.Bounce;
-import gui.displays.windows.LogTextField;
-import gui.displays.windows.SystemInfoWindow;
+import gui.displays.windows.Logs;
+import gui.displays.windows.SystemInfo;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
@@ -96,7 +96,7 @@ public class Kernel {
 
         int heightMinusHomebar = Display.Height() - homebar.Height - 1;
 
-        LogTextField logTextField = new LogTextField(
+        Logs logTextField = new Logs(
                 "Log Entries",
                 0,
                 0,
@@ -108,7 +108,7 @@ public class Kernel {
                 2,
                 Font7x8.Instance);
 
-        SystemInfoWindow memMapTextField = new SystemInfoWindow(
+        SystemInfo memMapTextField = new SystemInfo(
                 "System Info",
                 logTextField.X + logTextField.Width,
                 0,
