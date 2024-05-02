@@ -216,8 +216,8 @@ public class MemoryManager {
         if (ShouldCollectGarbage()) {
             TriggerGarbageCollection();
         }
-
-        int newObjectTotalSize = scalarSize + relocEntries * MAGIC.ptrSize;
+        int paddedScalarSize = scalarSize + Padding(scalarSize, 4);
+        int newObjectTotalSize = paddedScalarSize + relocEntries * MAGIC.ptrSize;
         newObjectTotalSize += Padding(newObjectTotalSize, 4);
 
         EmptyObject emptyObj = FindEmptyObjectFitting(newObjectTotalSize);
@@ -247,7 +247,7 @@ public class MemoryManager {
         }
         newObject = WriteObject(newObjectBottom,
                 Padding(newObjectBottom, 4),
-                scalarSize,
+                paddedScalarSize,
                 relocEntries,
                 type,
                 true);
