@@ -80,16 +80,10 @@ public class GarbageCollector {
         // TODO: Push all registers to stack
         int varAtTopOfStack = 0;
         int scanUntil = MAGIC.addr(varAtTopOfStack);
-        Logger.LogSerial("StackScan\n");
-        for (int i = MemoryLayout.PROGRAM_STACK_COMPILER_TOP; i >= scanUntil; i -= MAGIC.ptrSize) {
+        for (int i = MemoryLayout.PROGRAM_STACK_COMPILER_TOP; i > scanUntil; i -= MAGIC.ptrSize) {
             int mem = MAGIC.rMem32(i);
-            Logger.LogSerial(Integer.toString(mem));
-            Logger.LogSerial("\n");
             if (PointsToHeap(mem)) {
                 Object o = MAGIC.cast2Obj(mem);
-                Logger.LogSerial("Marking: ");
-                Logger.LogSerial(o._r_type.name);
-                Logger.LogSerial("\n");
                 MarkRecursive(o);
             }
         }

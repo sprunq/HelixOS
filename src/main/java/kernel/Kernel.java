@@ -4,7 +4,6 @@ import arch.x86;
 import formats.fonts.Font7x8;
 import gui.WindowManager;
 import gui.displays.Homebar;
-import gui.displays.Splashscreen;
 import gui.displays.windows.Bounce;
 import gui.displays.windows.Logs;
 import gui.displays.windows.SystemInfo;
@@ -42,9 +41,8 @@ public class Kernel {
         IDT.Initialize();
         IDT.Enable();
         GarbageCollector.Initialize();
-        Schedeuler.Initialize();
-
         MemoryManager.DisableGarbageCollection(); // Done manually for now
+        Schedeuler.Initialize();
 
         KeyboardController.Initialize(QWERTZ.Instance);
         KeyboardController.AddListener(new Breaker());
@@ -65,11 +63,6 @@ public class Kernel {
 
         Display = new VESAGraphics(mode);
         Display.Activate();
-
-        windowManager = new WindowManager(Display);
-        BuildSplashScreen(windowManager);
-        windowManager.StaticDisplayFor(3000);
-
         windowManager = new WindowManager(Display);
         BuildGuiEnvironment(windowManager);
 
@@ -77,16 +70,6 @@ public class Kernel {
         Schedeuler.AddTask(windowManager);
 
         Schedeuler.Run();
-    }
-
-    private static void BuildSplashScreen(WindowManager winManSplashScreen) {
-        Splashscreen splash = new Splashscreen(
-                0,
-                0,
-                0,
-                Kernel.Display.Width(),
-                Kernel.Display.Height());
-        winManSplashScreen.AddWindow(splash);
     }
 
     private static void BuildGuiEnvironment(WindowManager windowManager) {

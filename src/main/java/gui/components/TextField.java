@@ -127,6 +127,7 @@ public class TextField extends ADisplayElement {
     }
 
     @Override
+    @SJC.PrintCode
     public void Draw(ADisplay display) {
         Kernel.Display.Rectangle(X, Y, Width, Height, _bg);
 
@@ -134,16 +135,19 @@ public class TextField extends ADisplayElement {
         int yFactor = _font.Height() + SpacingH;
         int xOffset = X + SpacingBorder;
         int yOffset = Y + SpacingBorder;
+
         for (int i = 0; i < LineCount; i++) {
             for (int j = 0; j < LineLength; j++) {
                 int character = _characters[i][j];
                 int characterColor = _characterColors[i][j];
+
                 // Skip rendering if the character is not visible
                 if (characterColor == _bg || Key.Ascii(character) == 0) {
                     continue;
                 }
                 int x = xOffset + j * xFactor;
                 int y = yOffset + i * yFactor;
+
                 _font.RenderToDisplay(display, x, y, character, characterColor);
             }
         }

@@ -39,7 +39,7 @@ def build(sjc_jar_path_arg : str, cleanup : bool, autoclose : bool):
                             "-u", "rte",                    # rte symbol generator
                             "-g",                           # generate all unit-descriptors 
                             "-G",                           # generate all mthd-code-bodies
-                            "-n"
+                            "-n",
                             ],
                        capture_output=True,
                        text=True) 

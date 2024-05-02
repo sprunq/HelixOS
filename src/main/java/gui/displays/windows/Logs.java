@@ -95,7 +95,6 @@ public class Logs extends AWindow {
             }
         }
         _textField.Draw(display);
-
         lastLogTick = Logger.LogTicks();
     }
 

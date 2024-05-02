@@ -12,12 +12,7 @@ public class Interrupts {
 
     @SJC.Interrupt
     public static void DivByZeroHandler() {
-        int ebp = 0;
-        MAGIC.inline(0x89, 0x6D);
-        MAGIC.inlineOffset(1, ebp);
-        Bluescreen.Show("PANIC", "Interrupt divByZeroHandler", ebp, x86.eipForInterrupt(ebp, 0));
-        while (true) {
-        }
+        x86.breakpoint();
     }
 
     @SJC.Interrupt

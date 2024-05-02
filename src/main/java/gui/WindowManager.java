@@ -7,7 +7,7 @@ import util.vector.VecWindow;
 
 public class WindowManager extends Task {
     private VecWindow _windows;
-    private ADisplay _display;
+    public ADisplay _display;
 
     public WindowManager(ADisplay display) {
         _windows = new VecWindow();
@@ -20,12 +20,23 @@ public class WindowManager extends Task {
     }
 
     public void DrawWindows() {
+
+        if (_display == null) {
+            return;
+        }
+
         for (int i = 0; i < _windows.size(); i++) {
             ADisplayElement window = _windows.get(i);
+
+            if (window == null) {
+                continue;
+            }
+
             if (window.NeedsRedraw()) {
                 window.Draw(_display);
             }
         }
+
         _display.Swap();
     }
 

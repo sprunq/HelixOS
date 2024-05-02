@@ -11,7 +11,7 @@ public class SystemInfo extends AWindow {
     private TextField _textField;
     private boolean _needsRedraw;
     private String _text;
-    private int _drawEveryNth = 10;
+    private int _drawEveryNth = 11;
     private int _drawCounter = 0;
     private StrBuilder _sb;
 
