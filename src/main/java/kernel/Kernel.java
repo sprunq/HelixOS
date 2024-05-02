@@ -7,20 +7,20 @@ import gui.displays.Homebar;
 import gui.displays.Splashscreen;
 import gui.displays.windows.Bounce;
 import gui.displays.windows.LogTextField;
-import gui.displays.windows.MemMapTextField;
 import gui.displays.windows.SystemInfoWindow;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
 import kernel.display.ADisplay;
 import kernel.hardware.PIT;
-import kernel.hardware.Timer;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
 import kernel.interrupt.IDT;
 import kernel.memory.GarbageCollector;
 import kernel.memory.MemoryManager;
+import kernel.schedeule.Schedeuler;
 import kernel.tasks.Breaker;
+import kernel.tasks.KeyDistributor;
 import kernel.trace.Bluescreen;
 import kernel.trace.SymbolResolution;
 import kernel.trace.logging.Logger;
@@ -42,6 +42,9 @@ public class Kernel {
         IDT.Initialize();
         IDT.Enable();
         GarbageCollector.Initialize();
+        Schedeuler.Initialize();
+
+        MemoryManager.DisableGarbageCollection(); // Done manually for now
 
         KeyboardController.Initialize(QWERTZ.Instance);
         KeyboardController.AddListener(new Breaker());
@@ -70,28 +73,10 @@ public class Kernel {
         windowManager = new WindowManager(Display);
         BuildGuiEnvironment(windowManager);
 
-        MemoryManager.DisableGarbageCollection();
+        Schedeuler.AddTask(new KeyDistributor());
+        Schedeuler.AddTask(windowManager);
 
-        while (true) {
-            while (KeyboardController.HasNewEvent()) {
-                KeyboardController.ReadEvent();
-            }
-
-            for (int j = 0; j < 200; j++) {
-                A a = new A();
-
-                int b = a.a;
-
-            }
-
-            // Logger.Trace("MAIN", Integer.toString(MemoryManager.GetUsedSpace()));
-
-            windowManager.DrawWindows();
-            Display.Swap();
-
-            Timer.Sleep(1000 / 60);
-            GarbageCollector.Run();
-        }
+        Schedeuler.Run();
     }
 
     private static void BuildSplashScreen(WindowManager winManSplashScreen) {

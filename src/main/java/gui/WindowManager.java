@@ -2,9 +2,10 @@ package gui;
 
 import kernel.display.ADisplay;
 import kernel.hardware.Timer;
+import kernel.schedeule.Task;
 import util.vector.VecWindow;
 
-public class WindowManager {
+public class WindowManager extends Task {
     private VecWindow _windows;
     private ADisplay _display;
 
@@ -25,6 +26,7 @@ public class WindowManager {
                 window.Draw(_display);
             }
         }
+        _display.Swap();
     }
 
     public void StaticDisplayFor(int ms) {
@@ -35,5 +37,22 @@ public class WindowManager {
         _display.Swap();
         Timer.Sleep(ms);
         _display.ClearScreen();
+    }
+
+    @Override
+    public void Run() {
+        DrawWindows();
+        _lastExecTick = Timer.Ticks();
+    }
+
+    private int _lastExecTick = 0;
+
+    @Override
+    public boolean WantsActive() {
+        int currentTick = Timer.Ticks();
+        if (Timer.TickDifferenceMs(_lastExecTick, currentTick) > 1000 / 60) {
+            return true;
+        }
+        return false;
     }
 }
