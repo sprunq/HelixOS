@@ -60,4 +60,8 @@ public class Object {
         return MAGIC.cast2Ref(this) - _r_relocEntries * MAGIC.ptrSize;
     }
 
+    @SJC.Inline
+    public boolean ContainsAddress(int addr) {
+        return addr >= AddressBottom() && addr < AddressTop();
+    }
 }

@@ -8,6 +8,7 @@ import gui.displays.Splashscreen;
 import gui.displays.windows.Bounce;
 import gui.displays.windows.LogTextField;
 import gui.displays.windows.MemMapTextField;
+import gui.displays.windows.SystemInfoWindow;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
@@ -30,6 +31,8 @@ public class Kernel {
 
     public static ADisplay Display;
 
+    private static WindowManager windowManager;
+
     public static void main() {
         MemoryManager.Initialize();
         MAGIC.doStaticInit();
@@ -39,7 +42,6 @@ public class Kernel {
         IDT.Initialize();
         IDT.Enable();
         GarbageCollector.Initialize();
-        MemoryManager.DisableGarbageCollection();
 
         KeyboardController.Initialize(QWERTZ.Instance);
         KeyboardController.AddListener(new Breaker());
@@ -61,61 +63,34 @@ public class Kernel {
         Display = new VESAGraphics(mode);
         Display.Activate();
 
-        WindowManager winManSplashScreen = new WindowManager(Display);
-        BuildSplashScreen(winManSplashScreen);
-        winManSplashScreen.StaticDisplayFor(000);
+        windowManager = new WindowManager(Display);
+        BuildSplashScreen(windowManager);
+        windowManager.StaticDisplayFor(3000);
 
-        WindowManager windowManager = new WindowManager(Display);
+        windowManager = new WindowManager(Display);
         BuildGuiEnvironment(windowManager);
 
-        int averageOver = 200;
-        int avg = 0;
-        int avgIndex = 0;
-        int i = 0;
+        MemoryManager.DisableGarbageCollection();
+
         while (true) {
             while (KeyboardController.HasNewEvent()) {
                 KeyboardController.ReadEvent();
             }
 
-            int eos = MemoryManager.GetEmptyObjectCount();
-            GarbageCollector.Run();
-            int eosAfter = MemoryManager.GetEmptyObjectCount();
-            Logger.Trace("GC", "Empty Objects: ".append(eos).append(" -> ").append(eosAfter));
-
-            Logger.Info("MEM", Integer.toString(MemoryManager.GetUsedSpace()));
-
-            if (i > 20) {
-                Object eo = MemoryManager.GetEmptyObjectRoot();
-                while (eo != null) {
-                    Logger.Trace("MEM", "Empty Object: ".append(Integer.toString(eo.AddressBottom())).append(" -> ")
-                            .append(Integer.toString(eo.AddressTop())));
-                    eo = eo._r_next;
-                }
-
-                return;
-            }
-            for (int j = 0; j < 20; j++) {
+            for (int j = 0; j < 200; j++) {
                 A a = new A();
+
+                int b = a.a;
+
             }
 
-            int startTick = Timer.Ticks();
+            // Logger.Trace("MAIN", Integer.toString(MemoryManager.GetUsedSpace()));
 
             windowManager.DrawWindows();
             Display.Swap();
 
-            int endTick = Timer.Ticks();
-            int diff = endTick - startTick;
-            avg += diff;
-            avgIndex++;
-            if (avgIndex >= averageOver) {
-                avg /= averageOver;
-                avgIndex = 0;
-                int msAvg = Timer.TickDifferenceMs(avg);
-                Logger.Trace("PERF", "Average draw time: ".append(msAvg).append("ms"));
-                avg = 0;
-            }
             Timer.Sleep(1000 / 60);
-            i++;
+            GarbageCollector.Run();
         }
     }
 
@@ -148,8 +123,8 @@ public class Kernel {
                 2,
                 Font7x8.Instance);
 
-        MemMapTextField memMapTextField = new MemMapTextField(
-                "System Memory Map",
+        SystemInfoWindow memMapTextField = new SystemInfoWindow(
+                "System Info",
                 logTextField.X + logTextField.Width,
                 0,
                 5,

@@ -1,8 +1,8 @@
 package kernel.memory;
 
 import kernel.Kernel;
-import kernel.MemoryLayout;
 import kernel.bios.call.MemMap;
+import kernel.trace.logging.Logger;
 import rte.SClassDesc;
 import util.BitHelper;
 
@@ -29,16 +29,18 @@ public class MemoryManager {
      */
     private static int _lastAllocationAddress = -1;
 
-    private static int _gc_allocated_threshold;
-    private static int _gc_allocated_since_last_gc;
+    private static int _gc_threshold;
+    private static int _gc_allocations;
+    private static float _gc_growthFactor;
+    private static float _gc_resizeThreshold;
+    private static float _gc_marked;
     private static boolean _gc_enabled;
     private static boolean _gc_running;
 
     public static void Initialize() {
         _gc_enabled = false;
         _gc_running = false;
-        _gc_allocated_threshold = 20000;
-        _gc_allocated_since_last_gc = 0;
+
         InitEmptyObjects();
         if (_emptyObjectRoot == null) {
             Kernel.panic("No viable memory regions found");
@@ -49,14 +51,29 @@ public class MemoryManager {
                 MAGIC.getInstRelocEntries("DynamicAllocRoot"),
                 (SClassDesc) MAGIC.clssDesc("DynamicAllocRoot"));
 
-        _gc_enabled = true;
+        _gc_marked = 0;
+        _gc_allocations = 0;
+        _gc_threshold = 16 * 1024;
+        _gc_growthFactor = (float) 2.0;
+        _gc_resizeThreshold = (float) 0.9;
     }
 
     public static boolean ShouldCollectGarbage() {
         if (_gc_enabled == false) {
             return false;
         }
-        return _gc_allocated_since_last_gc > _gc_allocated_threshold;
+        return _gc_allocations > _gc_threshold;
+    }
+
+    public static void IncreaseGarbageCollectionThreshold() {
+        float threshold = (float) _gc_threshold;
+        float marked = (float) _gc_marked;
+        if ((marked / threshold) < _gc_resizeThreshold) {
+            return;
+        }
+
+        _gc_threshold = (int) (threshold * _gc_growthFactor + 1);
+        Logger.Info("MEM", "Set GC Threshold to ".append(_gc_threshold));
     }
 
     public static void EnableGarbageCollection() {
@@ -71,8 +88,10 @@ public class MemoryManager {
         if (_gc_enabled == true && !_gc_running && GarbageCollector.IsInitialized()) {
             _gc_running = true;
             GarbageCollector.Run();
+            _gc_marked = GarbageCollector.InfoLastRunMarked;
+            IncreaseGarbageCollectionThreshold();
             _gc_running = false;
-            _gc_allocated_since_last_gc = 0;
+            _gc_allocations = 0;
         }
     }
 
@@ -153,8 +172,18 @@ public class MemoryManager {
         int size = 0;
         Object o = GetStaticAllocRoot();
         while (o != null) {
-            size++;
             o = o._r_next;
+            size++;
+        }
+        return size;
+    }
+
+    public static int GetDynamicObjectCount() {
+        int size = 0;
+        Object o = GetDynamicAllocRoot();
+        while (o != null) {
+            o = o._r_next;
+            size++;
         }
         return size;
     }
@@ -224,7 +253,7 @@ public class MemoryManager {
                 true);
         InsertIntoNextChain(LastAlloc(), newObject);
         SetLastAlloc(newObject);
-        _gc_allocated_since_last_gc += newObjectTotalSize;
+        _gc_allocations += newObjectTotalSize;
         return newObject;
     }
 
@@ -244,8 +273,10 @@ public class MemoryManager {
         int emptyObjStart = (int) start;
         int emptyObjEnd = (int) end;
         int emptyObjScalarSize = emptyObjEnd - emptyObjStart - EmptyObject.RelocEntriesSize();
+        int padding = Padding(emptyObjStart, 4); // should be 0 since object is aligned
         EmptyObject eo = (EmptyObject) WriteObject(
-                emptyObjStart, Padding(emptyObjStart, 4),
+                emptyObjStart,
+                padding,
                 emptyObjScalarSize,
                 EmptyObject.RelocEntries(),
                 EmptyObject.Type(),
@@ -329,28 +360,71 @@ public class MemoryManager {
      * Adds an empty object to the chain of empty objects.
      * The chain is sorted by the address of the empty objects.
      */
-    public static void InsertIntoEmptyObjectChain(EmptyObject emptyObj) {
-        if (emptyObj == null) {
+    public static void InsertIntoEmptyObjectChain(EmptyObject toInsert) {
+        if (toInsert == null) {
             return;
         }
 
         if (_emptyObjectRoot == null) {
-            _emptyObjectRoot = emptyObj;
+            _emptyObjectRoot = toInsert;
         } else {
+            int toInsertAddr = MAGIC.cast2Ref(toInsert);
             Object eo = _emptyObjectRoot;
-            while (MAGIC.cast2Ref(emptyObj) < MAGIC.cast2Ref(eo._r_next)) {
-                if (eo._r_next == null) {
+            Object prev = null;
+            while (eo != null) {
+                if (MAGIC.cast2Ref(eo) > toInsertAddr) {
                     break;
                 }
+
+                prev = eo;
                 eo = eo._r_next;
             }
-            MAGIC.assign(emptyObj._r_next, eo._r_next);
-            MAGIC.assign(eo._r_next, (Object) emptyObj);
+            if (prev == null) {
+                MAGIC.assign(toInsert._r_next, eo);
+                _emptyObjectRoot = toInsert;
+                return;
+            }
+
+            MAGIC.assign(toInsert._r_next, eo);
+            MAGIC.assign(prev._r_next, (Object) toInsert);
         }
     }
 
+    public static int CompactEmptyObjects() {
+        int compactedObjects = 0;
+        Object eo = _emptyObjectRoot;
+        while (eo != null) {
+            int prevTop = eo.AddressTop();
+            Object next = eo._r_next;
+            while (next != null) {
+                int distance = next.AddressBottom() - prevTop;
+                if (distance > 4) {
+                    break;
+                }
+                prevTop = next.AddressTop();
+                next = next._r_next;
+                compactedObjects++;
+            }
+
+            if (next != null) {
+                int expandBy = prevTop - eo.AddressTop();
+                if (expandBy > 4) {
+                    MAGIC.assign(eo._r_next, next);
+                    if (eo instanceof EmptyObject) {
+                        ((EmptyObject) eo).ExpandBy(expandBy);
+                    } else {
+                        Kernel.panic(eo._r_type.name);
+                    }
+                }
+            }
+
+            eo = eo._r_next;
+        }
+        return compactedObjects;
+    }
+
     @SJC.Inline
-    private static void RemoveFromEmptyObjectChain(EmptyObject emptyObj) {
+    public static void RemoveFromEmptyObjectChain(EmptyObject emptyObj) {
         if (_emptyObjectRoot == emptyObj) {
             _emptyObjectRoot = emptyObj.Next();
         } else {

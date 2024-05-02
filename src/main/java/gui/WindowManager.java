@@ -1,6 +1,5 @@
 package gui;
 
-import kernel.Kernel;
 import kernel.display.ADisplay;
 import kernel.hardware.Timer;
 import util.vector.VecWindow;

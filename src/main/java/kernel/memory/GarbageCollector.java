@@ -1,21 +1,23 @@
 package kernel.memory;
 
-import kernel.Kernel;
 import kernel.MemoryLayout;
 import kernel.trace.logging.Logger;
 import util.StrBuilder;
 
 public class GarbageCollector {
 
-    private static StrBuilder _sb;
-
     private static boolean _isInitialized = false;
+
+    private static int _gcCylce = 0;
+
+    public static int InfoLastRunMarked = 0;
+    public static int InfoLastRunBytesCollected = 0;
+    public static int InfoLastRunCompacted = 0;
 
     public static void Initialize() {
         if (_isInitialized) {
             return;
         }
-        _sb = new StrBuilder(40);
         _isInitialized = true;
         Logger.Info("GC", "Initialized");
     }
@@ -25,70 +27,69 @@ public class GarbageCollector {
     }
 
     public static void Run() {
-        Logger.Info("GC", "Running");
-        ResetMark();
+        int objects = ResetMark();
         MarkFromStaticRoots();
         MarkFromStack();
-        int collectedObjects = Sweep();
-        int mergedObjects = MergeEmptyObjects();
+        InfoLastRunBytesCollected = Sweep();
         MemoryManager.InvalidateLastAlloc();
+        InfoLastRunCompacted = CompactIfNeeded();
+        InfoLastRunMarked = objects - InfoLastRunBytesCollected;
 
-        _sb.ClearKeepCapacity();
-        _sb.Append("Collected: ")
-                .Append(collectedObjects)
-                .Append(" Merged: ")
-                .Append(mergedObjects);
-        Logger.Info("GC", _sb.toString());
-    }
-
-    private static int MergeEmptyObjects() {
-        int mergedObjects = 0;
-        EmptyObject emptyObject = MemoryManager.GetEmptyObjectRoot();
-        while (emptyObject != null) {
-            int lastEoEnd = emptyObject.AddressTop();
-            EmptyObject next = emptyObject.Next();
-            // Walk along the empty objects.
-            // Find empty objects that are adjacent to each other.
-            // Merge them into one empty object.
-            boolean c = true;
-            while (next != null && c) {
-                int nextEoStart = next.AddressBottom();
-                int distance = nextEoStart - lastEoEnd;
-                if (distance < 4) {
-                    lastEoEnd = next.AddressTop();
-                    mergedObjects++;
-                } else {
-                    c = false;
-                }
-                next = next.Next();
+        boolean log = false;
+        if (log) {
+            StrBuilder sb = new StrBuilder(30);
+            sb.Append("Freed: ").Append(InfoLastRunBytesCollected).Append(" bytes");
+            if (ShouldCompact()) {
+                sb.Append(", ").Append("Compacted EOs: ").Append(InfoLastRunCompacted);
             }
-
-            int expandBy = emptyObject.AddressTop() - lastEoEnd;
-            if (expandBy > 0) {
-                emptyObject.ExpandBy(expandBy);
-                MAGIC.assign(emptyObject._r_next, (Object) next);
-            }
-            emptyObject = emptyObject.Next();
+            Logger.Info("GC", sb.toString());
         }
-        return mergedObjects;
+
+        _gcCylce++;
+
     }
 
-    private static void ResetMark() {
+    private static int CompactIfNeeded() {
+        if (ShouldCompact()) {
+            return MemoryManager.CompactEmptyObjects();
+        }
+        return 0;
+    }
+
+    private static boolean ShouldCompact() {
+        return _gcCylce % 7 == 0;
+    }
+
+    private static int ResetMark() {
+        int objects = 0;
         Object o = MemoryManager.GetStaticAllocRoot();
         while (o != null) {
             o.IsUsed = false;
             o = o._r_next;
+            objects++;
         }
+        return objects;
     }
 
-    @SJC.PrintCode
+    /*
+     * Mark all objects that are reachable from the stack.
+     * This causes some issues atm so its basically ignored by only calling the gc
+     * in situations where the stack is not used.
+     */
     private static void MarkFromStack() {
+        // TODO: Push all registers to stack
         int varAtTopOfStack = 0;
         int scanUntil = MAGIC.addr(varAtTopOfStack);
-        for (int i = MemoryLayout.PROGRAM_STACK_COMPILER_TOP; i > scanUntil; i -= MAGIC.ptrSize) {
+        Logger.LogSerial("StackScan\n");
+        for (int i = MemoryLayout.PROGRAM_STACK_COMPILER_TOP; i >= scanUntil; i -= MAGIC.ptrSize) {
             int mem = MAGIC.rMem32(i);
+            Logger.LogSerial(Integer.toString(mem));
+            Logger.LogSerial("\n");
             if (PointsToHeap(mem)) {
                 Object o = MAGIC.cast2Obj(mem);
+                Logger.LogSerial("Marking: ");
+                Logger.LogSerial(o._r_type.name);
+                Logger.LogSerial("\n");
                 MarkRecursive(o);
             }
         }
@@ -136,20 +137,20 @@ public class GarbageCollector {
     }
 
     private static int Sweep() {
-        int sweepedObjects = 0;
+        int sweepedBytes = 0;
         Object toRemove = MemoryManager.GetStaticAllocRoot();
         Object nextObject = null;
         while (toRemove != null) {
             nextObject = toRemove._r_next;
 
             if (toRemove.IsUsed == false) {
+                sweepedBytes += MemoryManager.ObjectSize(toRemove);
                 MemoryManager.RemoveFromNextChain(toRemove);
                 EmptyObject replacedWithEO = MemoryManager.ReplaceWithEmptyObject(toRemove);
                 MemoryManager.InsertIntoEmptyObjectChain(replacedWithEO);
-                sweepedObjects++;
             }
             toRemove = nextObject;
         }
-        return sweepedObjects;
+        return sweepedBytes;
     }
 }
