@@ -11,7 +11,7 @@ public class BounceTask extends Task {
     private int _lastTick = 0;
 
     public BounceTask(BounceWindow window) {
-        super("BounceTask");
+        super("_win_bounce_task");
         this.window = window;
     }
 

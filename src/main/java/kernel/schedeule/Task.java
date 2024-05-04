@@ -11,8 +11,14 @@ public abstract class Task {
         Name = name;
         _active = false;
         _running = false;
+    }
 
+    public void Register() {
         Schedeuler.AddTask(this);
+    }
+
+    public void RemoveFromExec() {
+        Schedeuler.RemoveTask(this);
     }
 
     public abstract boolean WantsActive();

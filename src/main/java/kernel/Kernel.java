@@ -5,6 +5,8 @@ import formats.fonts.Font7x8;
 import formats.fonts.Font9x16;
 import gui.WindowManager;
 import gui.displays.Homebar;
+import gui.displays.Splashscreen;
+import gui.displays.windows.BounceTask;
 import gui.displays.windows.BounceWindow;
 import gui.displays.windows.Editor;
 import gui.displays.windows.Logs;
@@ -36,7 +38,7 @@ public class Kernel {
         MemoryManager.Initialize();
         Logger.LogSerial("Initialized Memory Manager\n");
 
-        Logger.Initialize(Logger.TRACE, 100, false);
+        Logger.Initialize(Logger.TRACE, 100, true);
         Logger.Info("BOOT", "Initialized Logger");
 
         SymbolResolution.Initialize();
@@ -87,7 +89,14 @@ public class Kernel {
         Display.Activate();
         Logger.Info("BOOT", "Initialized Display");
 
+        WindowManager splash = new WindowManager(Display);
+        splash.AddWindow(new Splashscreen(0, 0, 3, Display.Width(), Display.Height()));
+        splash.StaticDisplayFor(3000);
+
+        Display.ClearScreen();
+
         WindowManager windowManager = new WindowManager(Display);
+        windowManager.Register();
         Logger.Info("BOOT", "Initialized WindowManager");
 
         BuildGuiEnvironment(windowManager);
@@ -140,11 +149,11 @@ public class Kernel {
                 Font7x8.Instance);
 
         BounceWindow bounce = new BounceWindow(
-                logTextField.X + logTextField.Width,
-                heightMinusHomebar / 2,
-                6,
-                Display.Width() - logTextField.Width,
-                heightMinusHomebar / 2,
+                0,
+                0,
+                9,
+                300,
+                300,
                 "Bouncy");
 
         windowManager.AddWindow(homebar);
@@ -152,7 +161,7 @@ public class Kernel {
         windowManager.AddWindow(logTextField);
         windowManager.AddWindow(sysinfo);
 
-        // new BounceTask(bounce);
+        // new BounceTask(bounce).Register();
         // windowManager.AddWindow(bounce);
     }
 

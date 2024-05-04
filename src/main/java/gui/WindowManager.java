@@ -20,7 +20,7 @@ public class WindowManager extends Task {
     static public int InfoAvgRenderTimeMs = 0;
 
     public WindowManager(GraphicsContext ctx) {
-        super("_task_win_WindowManager");
+        super("_win_window_manager");
         _windows = new VecWidget();
         this._ctx = ctx;
     }

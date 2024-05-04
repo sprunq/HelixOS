@@ -26,6 +26,8 @@ public class TextField extends Widget {
     protected boolean _enableCursor;
     protected AFont _font;
 
+    protected boolean _needsRedraw;
+
     public TextField(
             int x,
             int y,
@@ -54,11 +56,13 @@ public class TextField extends Widget {
         _characters = new byte[LineCount][LineLength];
         _characterColors = new int[LineCount][LineLength];
         _enableCursor = enableCursor;
+        _needsRedraw = true;
     }
 
     public void SetCursor(int x, int y) {
         this._cursorX = x;
         this._cursorY = y;
+        _needsRedraw = true;
     }
 
     public int GetCursorX() {
@@ -84,6 +88,7 @@ public class TextField extends Widget {
         _characters[_cursorY][_cursorX] = c;
         _characterColors[_cursorY][_cursorX] = _fg;
         _cursorX++;
+        _needsRedraw = true;
     }
 
     public void NewLine() {
@@ -93,6 +98,7 @@ public class TextField extends Widget {
             Scroll();
             _cursorY--;
         }
+        _needsRedraw = true;
     }
 
     public void Backspace() {
@@ -110,6 +116,7 @@ public class TextField extends Widget {
                 _characters[_cursorY][_cursorX] = (byte) 0;
             }
         }
+        _needsRedraw = true;
     }
 
     public void Write(String s) {
@@ -121,6 +128,7 @@ public class TextField extends Widget {
                 Write(c);
             }
         }
+        _needsRedraw = true;
     }
 
     public String toString() {
@@ -145,6 +153,7 @@ public class TextField extends Widget {
             _characters[LineCount - 1][j] = (byte) ' ';
             _characterColors[LineCount - 1][j] = _bg;
         }
+        _needsRedraw = true;
     }
 
     public void ClearText() {
@@ -154,12 +163,14 @@ public class TextField extends Widget {
             }
         }
         SetCursor(0, 0);
+        _needsRedraw = true;
     }
 
     public void ClearLine(int line) {
         for (int j = 0; j < LineLength; j++) {
             _characters[line][j] = (byte) 0;
         }
+        _needsRedraw = true;
     }
 
     public void DrawCursor() {
@@ -176,7 +187,7 @@ public class TextField extends Widget {
 
     @Override
     public boolean NeedsRedraw() {
-        return true;
+        return _needsRedraw;
     }
 
     @Override
@@ -206,5 +217,6 @@ public class TextField extends Widget {
         if (_enableCursor) {
             DrawCursor();
         }
+        _needsRedraw = false;
     }
 }

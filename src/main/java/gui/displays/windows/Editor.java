@@ -47,7 +47,7 @@ public class Editor extends Window {
 
     @Override
     public boolean NeedsRedraw() {
-        return true;
+        return _textField.NeedsRedraw();
     }
 
     @Override
