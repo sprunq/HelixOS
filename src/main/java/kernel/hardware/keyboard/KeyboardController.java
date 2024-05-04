@@ -4,7 +4,6 @@ import kernel.hardware.keyboard.layout.ALayout;
 import kernel.trace.logging.Logger;
 import util.BitHelper;
 import util.queue.QueueByte;
-import util.vector.VecKeyboardEventListener;
 
 public class KeyboardController {
     private static final int PORT_KEYCODE = 0x60;
@@ -25,25 +24,14 @@ public class KeyboardController {
     private static boolean _altPressed;
     private static boolean _capsLocked;
 
-    /*
-     * Listeners can register to receive keyboard events.
-     * They are called in order of priority.
-     * A listener can consume an event, preventing other listeners from receiving
-     * it.
-     */
-    private static VecKeyboardEventListener _listeners;
-
-    public static void Initialize(ALayout keyBoardLayout) {
+    public static void Initialize() {
         _inputBuffer = new QueueByte(256);
-        _layout = keyBoardLayout;
-        _listeners = new VecKeyboardEventListener();
+        _layout = null;
         Logger.Info("KeyC", "Initialized");
     }
 
-    public static void AddListener(IKeyboardEventListener listener) {
-        Logger.Info("KeyC", "Adding Listener");
-        _listeners.Add(listener);
-        _listeners.SortByPriority();
+    public static void SetLayout(ALayout layout) {
+        _layout = layout;
     }
 
     @SJC.Inline
@@ -60,9 +48,9 @@ public class KeyboardController {
         _inputBuffer.Put(code);
     }
 
-    public static void ReadEvent() {
-        if (!_inputBuffer.ContainsNewElements())
-            return;
+    public static boolean ReadEvent(KeyEvent readInto) {
+        if (!_inputBuffer.ContainsNewElements() || _layout == null)
+            return false;
 
         int keyCode = ReadKeyCode();
         boolean isBreak = IsBreakCode(keyCode);
@@ -71,34 +59,10 @@ public class KeyboardController {
         }
 
         int logicalKey = _layout.LogicalKey(keyCode, IsUpper(), _altPressed);
-
-        if (!isBreak) {
-            Logger.Trace("KeyC", "Pressed ".append(Key.Name(logicalKey)));
-        } else {
-            Logger.Trace("KeyC", "Release ".append(Key.Name(logicalKey)));
-        }
-
         UpdateKeyboardState(logicalKey, isBreak);
-        SendKeyEvent(logicalKey, isBreak);
-    }
-
-    private static void SendKeyEvent(int logicalKey, boolean isBreak) {
-        for (int i = 0; i < _listeners.Size(); i++) {
-            IKeyboardEventListener listener = _listeners.Get(i);
-            if (listener == null) {
-                break;
-            }
-            boolean consumed = false;
-            if (isBreak) {
-                consumed = listener.OnKeyReleased((char) logicalKey);
-            } else {
-                consumed = listener.OnKeyPressed((char) logicalKey);
-            }
-            if (consumed) {
-                Logger.Trace("KeyC", "Event consumed by ".append(Integer.toString(i, 10)));
-                break;
-            }
-        }
+        readInto.Key = (char) logicalKey;
+        readInto.IsDown = !isBreak;
+        return true;
     }
 
     private static void UpdateKeyboardState(int logicalKey, boolean isBreak) {

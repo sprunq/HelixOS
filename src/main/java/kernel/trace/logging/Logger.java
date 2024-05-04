@@ -26,7 +26,6 @@ public class Logger {
         initialized = true;
         minimumLogLevel = logLevel;
         _logTime = logTime;
-        Logger.Info("Logger", "Initialized");
     }
 
     @SJC.Inline

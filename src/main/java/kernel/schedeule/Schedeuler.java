@@ -2,6 +2,7 @@ package kernel.schedeule;
 
 import kernel.Kernel;
 import kernel.memory.MemoryManager;
+import kernel.trace.logging.Logger;
 
 public class Schedeuler {
     public static final int MAX_TASKS = 20;
@@ -21,7 +22,11 @@ public class Schedeuler {
     }
 
     public static void Run() {
+        Logger.Info("SCHED", "Starting Schedeuler");
+
         MemoryManager.EnableGarbageCollection();
+        Logger.Info("SCHED", "Enabled Garbage Collection");
+
         while (true) {
             for (int i = 0; i < _taskCount; i++) {
                 if (_tasks[i].WantsActive()) {

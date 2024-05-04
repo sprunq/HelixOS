@@ -13,11 +13,6 @@ public class PIT {
     private static final double INTERNAL_CLOCK_SPEED = 1193131.666;
     private static double _rateHz = 18.2;
 
-    public static void Initialize() {
-        SetRate(1000);
-        Logger.Info("PIT", "Initialized");
-    }
-
     /**
      * Sets the rate of the PIT timer.
      * Not really accurate. Either set to 100 or 1000 Hz.

@@ -2,13 +2,14 @@ package gui;
 
 import kernel.display.GraphicsContext;
 import kernel.hardware.Timer;
-import kernel.hardware.keyboard.IKeyboardEventListener;
 import kernel.hardware.keyboard.Key;
+import kernel.hardware.keyboard.KeyEvent;
+import kernel.hardware.keyboard.KeyboardController;
 import kernel.schedeule.Task;
 import kernel.trace.logging.Logger;
 import util.vector.VecWidget;
 
-public class WindowManager extends Task implements IKeyboardEventListener {
+public class WindowManager extends Task {
     private GraphicsContext _ctx;
     private VecWidget _windows;
     private Widget _selectedWindow;
@@ -22,6 +23,11 @@ public class WindowManager extends Task implements IKeyboardEventListener {
     public void AddWindow(Widget window) {
         _windows.add(window);
         _windows.SortByZ();
+
+        if (_selectedWindow == null && window.IsSelectable()) {
+            _selectedWindow = window;
+            _selectedWindow.SetSelected(true);
+        }
     }
 
     public void NextSlection() {
@@ -71,25 +77,44 @@ public class WindowManager extends Task implements IKeyboardEventListener {
 
     @Override
     public void Run() {
+        DistributeKeyEvents();
         DrawWindows();
-        _lastExecTick = Timer.Ticks();
     }
-
-    private int _lastExecTick = 0;
 
     @Override
     public boolean WantsActive() {
-        int currentTick = Timer.Ticks();
-        if (Timer.TickDifferenceMs(_lastExecTick, currentTick) > 1000 / 60) {
-            return true;
+        return true;
+    }
+
+    private void DistributeKeyEvents() {
+        if (_selectedWindow == null) {
+            return;
         }
-        return false;
+
+        while (KeyboardController.HasNewEvent()) {
+            if (KeyboardController.ReadEvent(_keyEvent)) {
+                Logger.Trace("WIN", "Handling ".append(_keyEvent.Debug()));
+                if (_keyEvent.IsDown) {
+                    if (ConsumedInternalOnKeyPressed(_keyEvent.Key)) {
+                        continue;
+                    }
+
+                    _selectedWindow.OnKeyPressed(_keyEvent.Key);
+                } else {
+                    if (ConsumedInternalOnKeyReleased(_keyEvent.Key)) {
+                        continue;
+                    }
+
+                    _selectedWindow.OnKeyReleased(_keyEvent.Key);
+                }
+            }
+        }
     }
 
     private boolean _ctrlDown = false;
+    private KeyEvent _keyEvent = new KeyEvent();
 
-    @Override
-    public boolean OnKeyPressed(char keyCode) {
+    private boolean ConsumedInternalOnKeyPressed(char keyCode) {
         switch ((int) keyCode) {
             case Key.LCTRL:
                 _ctrlDown = true;
@@ -104,8 +129,7 @@ public class WindowManager extends Task implements IKeyboardEventListener {
         }
     }
 
-    @Override
-    public boolean OnKeyReleased(char keyCode) {
+    private boolean ConsumedInternalOnKeyReleased(char keyCode) {
         switch ((int) keyCode) {
             case Key.LCTRL:
                 _ctrlDown = false;
@@ -115,8 +139,4 @@ public class WindowManager extends Task implements IKeyboardEventListener {
         }
     }
 
-    @Override
-    public int Priority() {
-        return 999;
-    }
 }

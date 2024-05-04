@@ -2,7 +2,6 @@ package util.vector;
 
 import gui.Widget;
 import kernel.Kernel;
-import kernel.trace.logging.Logger;
 
 public class VecWidget {
     private static final int DEFAULT_CAPACITY = 10;

@@ -39,4 +39,11 @@ public abstract class Widget {
     public boolean IsSelectable() {
         return false;
     }
+
+    public void OnKeyPressed(char keyCode) {
+
+    }
+
+    public void OnKeyReleased(char keyCode) {
+    }
 }

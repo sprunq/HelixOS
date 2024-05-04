@@ -18,7 +18,6 @@ import kernel.interrupt.IDT;
 import kernel.memory.GarbageCollector;
 import kernel.memory.MemoryManager;
 import kernel.schedeule.Schedeuler;
-import kernel.tasks.KeyDistributor;
 import kernel.trace.Bluescreen;
 import kernel.trace.SymbolResolution;
 import kernel.trace.logging.Logger;
@@ -29,21 +28,44 @@ public class Kernel {
 
     public static GraphicsContext Display;
 
-    private static WindowManager windowManager;
-
     public static void main() {
-        MemoryManager.Initialize();
-        MAGIC.doStaticInit();
-        Logger.Initialize(Logger.TRACE, 100, true);
-        SymbolResolution.Initialize();
-        PIT.Initialize();
-        IDT.Initialize();
-        IDT.Enable();
-        GarbageCollector.Initialize();
-        MemoryManager.DisableGarbageCollection(); // Done manually for now
-        Schedeuler.Initialize();
+        Logger.LogSerial("Initializing Kernel..\n");
 
-        KeyboardController.Initialize(QWERTZ.Instance);
+        MemoryManager.Initialize();
+        Logger.LogSerial("Initialized Memory Manager\n");
+
+        Logger.Initialize(Logger.TRACE, 100, true);
+        Logger.Info("BOOT", "Initialized Logger");
+
+        SymbolResolution.Initialize();
+        Logger.Info("BOOT", "Initialized Symbol Resolution");
+
+        IDT.Initialize();
+        Logger.Info("BOOT", "Initialized Interrupt Descriptor Table");
+
+        MAGIC.doStaticInit();
+        Logger.Info("BOOT", "Initialized Static Initializers");
+
+        GarbageCollector.Initialize();
+        Logger.Info("BOOT", "Initialized Garbage Collector");
+
+        MemoryManager.DisableGarbageCollection();
+        Logger.Info("BOOT", "Disabled Garbage Collection");
+
+        Schedeuler.Initialize();
+        Logger.Info("BOOT", "Initialized Scheduler");
+
+        PIT.SetRate(1000);
+        Logger.Info("BOOT", "Set PIT Rate to 1000Hz");
+
+        KeyboardController.Initialize();
+        Logger.Info("BOOT", "Initialized Keyboard Controller");
+
+        KeyboardController.SetLayout(new QWERTZ());
+        Logger.Info("BOOT", "Set Keyboard Layout to QWERTZ");
+
+        IDT.Enable();
+        Logger.Info("BOOT", "Enabled Interrupts");
 
         VecVesaMode modes = VesaQuery.AvailableModes();
         VESAMode mode;
@@ -61,14 +83,15 @@ public class Kernel {
 
         Display = new VESAGraphics(mode);
         Display.Activate();
-        windowManager = new WindowManager(Display);
+        Logger.Info("BOOT", "Initialized Display");
+
+        WindowManager windowManager = new WindowManager(Display);
+        Logger.Info("BOOT", "Initialized WindowManager");
+
         BuildGuiEnvironment(windowManager);
+        Logger.Info("BOOT", "Built GUI Environment");
 
-        KeyboardController.AddListener(windowManager);
-
-        Schedeuler.AddTask(new KeyDistributor());
         Schedeuler.AddTask(windowManager);
-
         Schedeuler.Run();
     }
 
