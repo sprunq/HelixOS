@@ -10,7 +10,7 @@ import gui.displays.windows.SystemInfo;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import kernel.hardware.PIT;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
@@ -18,7 +18,6 @@ import kernel.interrupt.IDT;
 import kernel.memory.GarbageCollector;
 import kernel.memory.MemoryManager;
 import kernel.schedeule.Schedeuler;
-import kernel.tasks.Breaker;
 import kernel.tasks.KeyDistributor;
 import kernel.trace.Bluescreen;
 import kernel.trace.SymbolResolution;
@@ -28,7 +27,7 @@ import util.vector.VecVesaMode;
 public class Kernel {
     public static final int RESOLUTION = 0;
 
-    public static ADisplay Display;
+    public static GraphicsContext Display;
 
     private static WindowManager windowManager;
 
@@ -45,7 +44,6 @@ public class Kernel {
         Schedeuler.Initialize();
 
         KeyboardController.Initialize(QWERTZ.Instance);
-        KeyboardController.AddListener(new Breaker());
 
         VecVesaMode modes = VesaQuery.AvailableModes();
         VESAMode mode;
@@ -66,6 +64,8 @@ public class Kernel {
         windowManager = new WindowManager(Display);
         BuildGuiEnvironment(windowManager);
 
+        KeyboardController.AddListener(windowManager);
+
         Schedeuler.AddTask(new KeyDistributor());
         Schedeuler.AddTask(windowManager);
 
@@ -83,7 +83,7 @@ public class Kernel {
                 "Log Entries",
                 0,
                 0,
-                6,
+                3,
                 (int) (Display.Width() * 0.7),
                 heightMinusHomebar,
                 8,

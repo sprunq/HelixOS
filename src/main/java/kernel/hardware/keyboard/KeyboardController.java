@@ -41,7 +41,7 @@ public class KeyboardController {
     }
 
     public static void AddListener(IKeyboardEventListener listener) {
-        Logger.Info("KeyC", "Adding Listener ".append(listener.Name()));
+        Logger.Info("KeyC", "Adding Listener");
         _listeners.Add(listener);
         _listeners.SortByPriority();
     }

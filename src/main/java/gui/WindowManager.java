@@ -1,43 +1,62 @@
 package gui;
 
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import kernel.hardware.Timer;
+import kernel.hardware.keyboard.IKeyboardEventListener;
+import kernel.hardware.keyboard.Key;
 import kernel.schedeule.Task;
-import util.vector.VecWindow;
+import kernel.trace.logging.Logger;
+import util.vector.VecWidget;
 
-public class WindowManager extends Task {
-    private VecWindow _windows;
-    public ADisplay _display;
+public class WindowManager extends Task implements IKeyboardEventListener {
+    private GraphicsContext _ctx;
+    private VecWidget _windows;
+    private Widget _selectedWindow;
 
-    public WindowManager(ADisplay display) {
-        _windows = new VecWindow();
-        this._display = display;
+    public WindowManager(GraphicsContext ctx) {
+        super("_task_win_WindowManager");
+        _windows = new VecWidget();
+        this._ctx = ctx;
     }
 
-    public void AddWindow(ADisplayElement window) {
+    public void AddWindow(Widget window) {
         _windows.add(window);
         _windows.SortByZ();
     }
 
-    public void DrawWindows() {
+    public void NextSlection() {
+        if (_selectedWindow == null) {
+            _selectedWindow = _windows.MaxSelectable();
+        } else {
+            _selectedWindow.SetSelected(false);
+            _selectedWindow = _windows.NextSelectable(_selectedWindow);
+        }
+        if (_selectedWindow == null) {
+            Logger.Info("WIN", "No selectable widget found");
+            return;
+        }
+        _selectedWindow.SetSelected(true);
+        Logger.Info("WIN", "Selected Widget ".append(_selectedWindow.Name));
+    }
 
-        if (_display == null) {
+    public void DrawWindows() {
+        if (_ctx == null) {
             return;
         }
 
         for (int i = 0; i < _windows.size(); i++) {
-            ADisplayElement window = _windows.get(i);
+            Widget window = _windows.get(i);
 
             if (window == null) {
                 continue;
             }
 
             if (window.NeedsRedraw()) {
-                window.Draw(_display);
+                window.Draw(_ctx);
             }
         }
 
-        _display.Swap();
+        _ctx.Swap();
     }
 
     public void StaticDisplayFor(int ms) {
@@ -45,9 +64,9 @@ public class WindowManager extends Task {
             return;
         }
         DrawWindows();
-        _display.Swap();
+        _ctx.Swap();
         Timer.Sleep(ms);
-        _display.ClearScreen();
+        _ctx.ClearScreen();
     }
 
     @Override
@@ -65,5 +84,39 @@ public class WindowManager extends Task {
             return true;
         }
         return false;
+    }
+
+    private boolean _ctrlDown = false;
+
+    @Override
+    public boolean OnKeyPressed(char keyCode) {
+        switch ((int) keyCode) {
+            case Key.LCTRL:
+                _ctrlDown = true;
+                return true;
+            case Key.TAB:
+                if (_ctrlDown) {
+                    NextSlection();
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public boolean OnKeyReleased(char keyCode) {
+        switch ((int) keyCode) {
+            case Key.LCTRL:
+                _ctrlDown = false;
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    @Override
+    public int Priority() {
+        return 999;
     }
 }

@@ -1,7 +1,7 @@
 package kernel.schedeule;
 
 import kernel.Kernel;
-import kernel.memory.GarbageCollector;
+import kernel.memory.MemoryManager;
 
 public class Schedeuler {
     public static final int MAX_TASKS = 20;
@@ -21,7 +21,7 @@ public class Schedeuler {
     }
 
     public static void Run() {
-        int cycle = 0;
+        MemoryManager.EnableGarbageCollection();
         while (true) {
             for (int i = 0; i < _taskCount; i++) {
                 if (_tasks[i].WantsActive()) {
@@ -29,10 +29,18 @@ public class Schedeuler {
                 }
             }
 
-            if (cycle % 10 == 0) {
-                GarbageCollector.Run();
+            if (MemoryManager.ShouldCollectGarbage()) {
+                MemoryManager.TriggerGarbageCollection();
             }
-            cycle++;
         }
+    }
+
+    public static int GetTaskId(String name) {
+        for (int i = 0; i < _taskCount; i++) {
+            if (_tasks[i].Name == name) {
+                return _tasks[i].Id;
+            }
+        }
+        return -1;
     }
 }

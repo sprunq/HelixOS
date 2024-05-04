@@ -1,12 +1,13 @@
 package gui.components;
 
 import formats.fonts.AFont;
-import gui.ADisplayElement;
+import gui.Widget;
 import kernel.Kernel;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import kernel.hardware.keyboard.Key;
+import util.StrBuilder;
 
-public class TextField extends ADisplayElement {
+public class TextField extends Widget {
     public int SpacingBorder;
     public int SpacingW;
     public int SpacingH;
@@ -36,7 +37,7 @@ public class TextField extends ADisplayElement {
             int fg,
             int bg,
             AFont font) {
-        super(x, y, z, width, height);
+        super("component_textfield", x, y, z, width, height);
 
         _cursorX = 0;
         _cursorY = 0;
@@ -93,6 +94,17 @@ public class TextField extends ADisplayElement {
         }
     }
 
+    public String toString() {
+        StrBuilder sb = new StrBuilder();
+        for (int i = 0; i < LineCount; i++) {
+            for (int j = 0; j < LineLength; j++) {
+                sb.Append((char) _characters[i][j]);
+            }
+            sb.Append('\n');
+        }
+        return sb.toString();
+    }
+
     public void Scroll() {
         for (int i = 0; i < LineCount - 1; i++) {
             for (int j = 0; j < LineLength; j++) {
@@ -128,7 +140,7 @@ public class TextField extends ADisplayElement {
 
     @Override
     @SJC.PrintCode
-    public void Draw(ADisplay display) {
+    public void Draw(GraphicsContext display) {
         Kernel.Display.Rectangle(X, Y, Width, Height, _bg);
 
         int xFactor = _font.Width() + SpacingW;

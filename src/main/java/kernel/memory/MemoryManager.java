@@ -2,7 +2,6 @@ package kernel.memory;
 
 import kernel.Kernel;
 import kernel.bios.call.MemMap;
-import kernel.trace.logging.Logger;
 import rte.SClassDesc;
 import util.BitHelper;
 
@@ -29,17 +28,13 @@ public class MemoryManager {
      */
     private static int _lastAllocationAddress = -1;
 
-    private static int _gc_threshold;
-    private static int _gc_allocations;
-    private static float _gc_growthFactor;
-    private static float _gc_resizeThreshold;
-    private static float _gc_marked;
-    private static boolean _gc_enabled;
-    private static boolean _gc_running;
+    private static int _gc_allocationSizeSinceLastGC;
+    private static boolean _gcEnabled;
+    private static boolean _gcRunning;
 
     public static void Initialize() {
-        _gc_enabled = false;
-        _gc_running = false;
+        _gcEnabled = false;
+        _gcRunning = false;
 
         InitEmptyObjects();
         if (_emptyObjectRoot == null) {
@@ -51,47 +46,30 @@ public class MemoryManager {
                 MAGIC.getInstRelocEntries("DynamicAllocRoot"),
                 (SClassDesc) MAGIC.clssDesc("DynamicAllocRoot"));
 
-        _gc_marked = 0;
-        _gc_allocations = 0;
-        _gc_threshold = 16 * 1024;
-        _gc_growthFactor = (float) 2.0;
-        _gc_resizeThreshold = (float) 0.9;
+        _gc_allocationSizeSinceLastGC = 0;
     }
 
     public static boolean ShouldCollectGarbage() {
-        if (_gc_enabled == false) {
+        if (_gcEnabled == false) {
             return false;
         }
-        return _gc_allocations > _gc_threshold;
-    }
-
-    public static void IncreaseGarbageCollectionThreshold() {
-        float threshold = (float) _gc_threshold;
-        float marked = (float) _gc_marked;
-        if ((marked / threshold) < _gc_resizeThreshold) {
-            return;
-        }
-
-        _gc_threshold = (int) (threshold * _gc_growthFactor + 1);
-        Logger.Info("MEM", "Set GC Threshold to ".append(_gc_threshold));
+        return _gc_allocationSizeSinceLastGC > 2 * 1024;
     }
 
     public static void EnableGarbageCollection() {
-        _gc_enabled = true;
+        _gcEnabled = true;
     }
 
     public static void DisableGarbageCollection() {
-        _gc_enabled = false;
+        _gcEnabled = false;
     }
 
     public static void TriggerGarbageCollection() {
-        if (_gc_enabled == true && !_gc_running && GarbageCollector.IsInitialized()) {
-            _gc_running = true;
+        if (_gcEnabled == true && !_gcRunning && GarbageCollector.IsInitialized()) {
+            _gcRunning = true;
             GarbageCollector.Run();
-            _gc_marked = GarbageCollector.InfoLastRunMarked;
-            IncreaseGarbageCollectionThreshold();
-            _gc_running = false;
-            _gc_allocations = 0;
+            _gcRunning = false;
+            _gc_allocationSizeSinceLastGC = 0;
         }
     }
 
@@ -213,20 +191,13 @@ public class MemoryManager {
     }
 
     public static Object AllocateObject(int scalarSize, int relocEntries, SClassDesc type) {
-        if (ShouldCollectGarbage()) {
-            TriggerGarbageCollection();
-        }
         int paddedScalarSize = scalarSize + Padding(scalarSize, 4);
         int newObjectTotalSize = paddedScalarSize + relocEntries * MAGIC.ptrSize;
         newObjectTotalSize += Padding(newObjectTotalSize, 4);
 
         EmptyObject emptyObj = FindEmptyObjectFitting(newObjectTotalSize);
         if (emptyObj == null) {
-            TriggerGarbageCollection();
-            emptyObj = FindEmptyObjectFitting(newObjectTotalSize);
-            if (emptyObj == null) {
-                Kernel.panic("Out of memory");
-            }
+            Kernel.panic("Out of memory");
         }
 
         int newObjectBottom = 0;
@@ -253,7 +224,7 @@ public class MemoryManager {
                 true);
         InsertIntoNextChain(LastAlloc(), newObject);
         SetLastAlloc(newObject);
-        _gc_allocations += newObjectTotalSize;
+        _gc_allocationSizeSinceLastGC += newObjectTotalSize;
         return newObject;
     }
 
@@ -269,7 +240,6 @@ public class MemoryManager {
     }
 
     public static EmptyObject FillRegionWithEmptyObject(long start, long end) {
-        // Align the object to 4 bytes so the *way* faster memset version can be used
         int emptyObjStart = (int) start;
         int emptyObjEnd = (int) end;
         int emptyObjScalarSize = emptyObjEnd - emptyObjStart - EmptyObject.RelocEntriesSize();
@@ -325,6 +295,14 @@ public class MemoryManager {
 
         int startOfObject = ptrNextFree;
         int lengthOfObject = relocsSize + scalarSize + padding;
+
+        if (lengthOfObject % 4 != 0) {
+            Kernel.panic("Object size not aligned");
+        }
+
+        if (startOfObject % 4 != 0) {
+            Kernel.panic("Object start not aligned");
+        }
 
         if (clearMemory == true) {
             Memory.Memset32(startOfObject, lengthOfObject / 4, 0);
@@ -402,7 +380,10 @@ public class MemoryManager {
                     break;
                 }
                 prevTop = next.AddressTop();
+                EmptyObject nextEO = (EmptyObject) next;
                 next = next._r_next;
+                Memory.Memset32(nextEO.AddressBottom(), 12 / 4, 0);
+
                 compactedObjects++;
             }
 
@@ -411,6 +392,7 @@ public class MemoryManager {
                 if (expandBy > 4) {
                     MAGIC.assign(eo._r_next, next);
                     if (eo instanceof EmptyObject) {
+                        // Memory.Memset32(eo.AddressTop(), expandBy / 4, 0);
                         ((EmptyObject) eo).ExpandBy(expandBy);
                     } else {
                         Kernel.panic(eo._r_type.name);

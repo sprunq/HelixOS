@@ -14,7 +14,7 @@ public class PIT {
     private static double _rateHz = 18.2;
 
     public static void Initialize() {
-        SetRate(250);
+        SetRate(1000);
         Logger.Info("PIT", "Initialized");
     }
 

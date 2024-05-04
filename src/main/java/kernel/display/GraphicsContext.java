@@ -1,6 +1,6 @@
 package kernel.display;
 
-public abstract class ADisplay {
+public abstract class GraphicsContext {
 
     public abstract void Activate();
 

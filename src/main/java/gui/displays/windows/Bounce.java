@@ -1,13 +1,14 @@
 package gui.displays.windows;
 
+import gui.Window;
 import kernel.Kernel;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import kernel.trace.logging.Logger;
 
 /*
  * A ball in a window that bounces around the edges of the window.
  */
-public class Bounce extends AWindow {
+public class Bounce extends Window {
     private Square ball;
     private int ballRadius = 20;
     private int ballSpeedX = 3;
@@ -23,10 +24,10 @@ public class Bounce extends AWindow {
     }
 
     @Override
-    public void DrawContent(ADisplay context) {
+    public void DrawContent(GraphicsContext ctx) {
         Tick();
-        context.Rectangle(ContentX, ContentY, ContentWidth, ContentHeight, 0);
-        context.Rectangle(
+        ctx.Rectangle(ContentX, ContentY, ContentWidth, ContentHeight, 0);
+        ctx.Rectangle(
                 ContentX + ball.X,
                 ContentY + ball.Y,
                 ball.Size,

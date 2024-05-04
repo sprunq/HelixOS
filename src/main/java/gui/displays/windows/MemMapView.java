@@ -1,14 +1,15 @@
 package gui.displays.windows;
 
 import formats.fonts.AFont;
+import gui.Window;
 import gui.components.TextField;
 import kernel.Kernel;
 import kernel.bios.call.MemMap;
 import kernel.bios.call.MemMapEntry;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import util.StrBuilder;
 
-public class MemMapView extends AWindow {
+public class MemMapView extends Window {
     private TextField _textField;
     private boolean _needsRedraw;
     private String _memmapText;
@@ -43,10 +44,10 @@ public class MemMapView extends AWindow {
         _needsRedraw = true;
     }
 
-    public void DrawContent(ADisplay display) {
+    public void DrawContent(GraphicsContext ctx) {
         _textField.ClearText();
         _textField.Write(_memmapText);
-        _textField.Draw(display);
+        _textField.Draw(ctx);
         _needsRedraw = false;
     }
 

@@ -1,8 +1,8 @@
 package kernel.memory;
 
 import kernel.MemoryLayout;
+import kernel.hardware.Timer;
 import kernel.trace.logging.Logger;
-import util.StrBuilder;
 
 public class GarbageCollector {
 
@@ -10,9 +10,10 @@ public class GarbageCollector {
 
     private static int _gcCylce = 0;
 
-    public static int InfoLastRunMarked = 0;
-    public static int InfoLastRunBytesCollected = 0;
-    public static int InfoLastRunCompacted = 0;
+    public static int InfoLastRunCollectedBytes = 0;
+    public static int InfoLastRunCollectedObjects = 0;
+    public static int InfoLastRunCompactedEmptyObjects = 0;
+    public static int InfoLastRunTimeMs = 0;
 
     public static void Initialize() {
         if (_isInitialized) {
@@ -27,26 +28,19 @@ public class GarbageCollector {
     }
 
     public static void Run() {
+        int startT = Timer.Ticks();
+
         int objects = ResetMark();
         MarkFromStaticRoots();
-        MarkFromStack();
-        InfoLastRunBytesCollected = Sweep();
+        // MarkFromStack();
+        InfoLastRunCollectedBytes = Sweep();
         MemoryManager.InvalidateLastAlloc();
-        InfoLastRunCompacted = CompactIfNeeded();
-        InfoLastRunMarked = objects - InfoLastRunBytesCollected;
+        InfoLastRunCompactedEmptyObjects = CompactIfNeeded();
+        InfoLastRunCollectedObjects = objects - MemoryManager.GetObjectCount();
 
-        boolean log = false;
-        if (log) {
-            StrBuilder sb = new StrBuilder(30);
-            sb.Append("Freed: ").Append(InfoLastRunBytesCollected).Append(" bytes");
-            if (ShouldCompact()) {
-                sb.Append(", ").Append("Compacted EOs: ").Append(InfoLastRunCompacted);
-            }
-            Logger.Info("GC", sb.toString());
-        }
-
+        int endT = Timer.Ticks();
+        InfoLastRunTimeMs = Timer.TicksToMs(endT - startT);
         _gcCylce++;
-
     }
 
     private static int CompactIfNeeded() {
@@ -57,7 +51,7 @@ public class GarbageCollector {
     }
 
     private static boolean ShouldCompact() {
-        return _gcCylce % 7 == 0;
+        return _gcCylce % 1 == 0;
     }
 
     private static int ResetMark() {
@@ -76,6 +70,7 @@ public class GarbageCollector {
      * This causes some issues atm so its basically ignored by only calling the gc
      * in situations where the stack is not used.
      */
+    @SuppressWarnings("unused")
     private static void MarkFromStack() {
         // TODO: Push all registers to stack
         int varAtTopOfStack = 0;

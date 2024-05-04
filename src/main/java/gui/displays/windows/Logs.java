@@ -1,13 +1,14 @@
 package gui.displays.windows;
 
 import formats.fonts.AFont;
+import gui.Window;
 import gui.components.TextField;
 import kernel.Kernel;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import kernel.trace.logging.LogEntry;
 import kernel.trace.logging.Logger;
 
-public class Logs extends AWindow {
+public class Logs extends Window {
     private final int COL_FATAL;
     private final int COL_ERROR;
     private final int COL_WARNING;
@@ -51,7 +52,7 @@ public class Logs extends AWindow {
                 font);
     }
 
-    public void DrawContent(ADisplay display) {
+    public void DrawContent(GraphicsContext ctx) {
         _textField.ClearText();
         int amountToDisplay = _textField.LineCount - 1;
         for (int i = amountToDisplay; i >= 0; i--) {
@@ -94,7 +95,7 @@ public class Logs extends AWindow {
                 }
             }
         }
-        _textField.Draw(display);
+        _textField.Draw(ctx);
         lastLogTick = Logger.LogTicks();
     }
 

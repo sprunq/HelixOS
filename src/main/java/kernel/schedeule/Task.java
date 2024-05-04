@@ -1,8 +1,17 @@
 package kernel.schedeule;
 
 public abstract class Task {
+    public final int Id;
+    public final String Name;
     protected boolean _active;
     protected boolean _running;
+
+    public Task(String name) {
+        Id = NextId();
+        Name = name;
+        _active = false;
+        _running = false;
+    }
 
     public abstract boolean WantsActive();
 
@@ -14,4 +23,9 @@ public abstract class Task {
 
     public abstract void Run();
 
+    private static int _idC = 0;
+
+    protected static int NextId() {
+        return _idC++;
+    }
 }

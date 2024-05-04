@@ -5,7 +5,5 @@ public interface IKeyboardEventListener {
 
     boolean OnKeyReleased(char keyCode);
 
-    String Name();
-
     int Priority();
 }

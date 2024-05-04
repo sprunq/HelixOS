@@ -4,6 +4,9 @@ import kernel.hardware.keyboard.KeyboardController;
 import kernel.schedeule.Task;
 
 public class KeyDistributor extends Task {
+    public KeyDistributor() {
+        super("_task_kernel_KeyDistributor");
+    }
 
     @Override
     public void Run() {

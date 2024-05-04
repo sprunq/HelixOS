@@ -2,11 +2,11 @@ package kernel.display.vesa;
 
 import kernel.Kernel;
 import kernel.bios.call.DisplayModes;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import kernel.memory.Memory;
 import kernel.trace.logging.Logger;
 
-public class VESAGraphics extends ADisplay {
+public class VESAGraphics extends GraphicsContext {
     public VESAMode curMode;
     private byte[] buffer;
     private boolean needsRedraw;

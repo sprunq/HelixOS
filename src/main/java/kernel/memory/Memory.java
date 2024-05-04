@@ -1,5 +1,7 @@
 package kernel.memory;
 
+import util.StrBuilder;
+
 public class Memory {
     public static void Memset(int start, int len, byte value) {
         int end = start + len;
@@ -50,5 +52,27 @@ public class Memory {
     @SJC.NoInline
     private static void Memcopy32(int from, int to, int cnt) {
         MAGIC.inlineBlock("memcopy32");
+    }
+
+    public static String FormatBytes(int bytes) {
+        StrBuilder sb = new StrBuilder();
+        if (bytes < 1024) {
+            sb.Append(bytes).Append(" B");
+        } else if (bytes < 1024 * 1024) {
+            sb.Append(bytes / 1024).Append(" KB");
+        } else if (bytes < 1024 * 1024 * 1024) {
+            sb.Append(bytes / 1024 / 1024).Append(" MB");
+        } else if (bytes < 1024 * 1024 * 1024 * 1024) {
+            sb.Append(bytes / 1024 / 1024 / 1024).Append(" GB");
+        } else {
+            sb.Append(bytes / 1024 / 1024 / 1024 / 1024).Append(" TB");
+        }
+        return sb.toString();
+    }
+
+    public static String FormatBytesToKb(int bytes) {
+        StrBuilder sb = new StrBuilder();
+        sb.Append(bytes / 1024).Append(" KB");
+        return sb.toString();
     }
 }

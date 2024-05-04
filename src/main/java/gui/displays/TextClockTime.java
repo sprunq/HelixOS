@@ -1,19 +1,19 @@
 package gui.displays;
 
 import formats.fonts.Font8x8;
-import gui.ADisplayElement;
+import gui.Widget;
 import gui.components.TextField;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import kernel.hardware.RTC;
 import util.StrBuilder;
 
-public class TextClockTime extends ADisplayElement {
+public class TextClockTime extends Widget {
     private final int _bg;
     private final int _fg;
     private TextField _time;
 
     public TextClockTime(int x, int y, int z, int width, int height, int fg, int bg) {
-        super(x, y, z, width, height);
+        super("textclocktime", x, y, z, width, height);
         _bg = bg;
         _fg = fg;
 
@@ -32,7 +32,7 @@ public class TextClockTime extends ADisplayElement {
     }
 
     @Override
-    public void Draw(ADisplay display) {
+    public void Draw(GraphicsContext display) {
         display.Rectangle(X, Y, Width, Height, _bg);
         UpdateText();
         _time.Draw(display);

@@ -1,13 +1,12 @@
-package gui.displays.windows;
+package gui;
 
 import formats.fonts.AFont;
 import formats.fonts.Font9x16;
-import gui.ADisplayElement;
 import gui.components.TextField;
 import kernel.Kernel;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 
-public abstract class AWindow extends ADisplayElement {
+public abstract class Window extends Widget {
     public final int FrameSize;
     public final int TitleBarSize;
     public int ContentX;
@@ -18,15 +17,17 @@ public abstract class AWindow extends ADisplayElement {
 
     public final int COL_BORDER;
     public final int COL_TITLEBAR;
+    public final int COL_TITLEBAR_SELECTED;
     public final int COL_TITLE;
 
-    public AWindow(int x, int y, int z, int width, int height, String title) {
-        super(x, y, z, width, height);
+    public Window(int x, int y, int z, int width, int height, String title) {
+        super(title, x, y, z, width, height);
 
         COL_BORDER = Kernel.Display.Rgb(180, 180, 180);
         COL_TITLEBAR = Kernel.Display.Rgb(80, 80, 80);
+        COL_TITLEBAR_SELECTED = Kernel.Display.Rgb(170, 190, 250);
         COL_TITLE = Kernel.Display.Rgb(255, 255, 255);
-        FrameSize = 2;
+        FrameSize = 4;
         TitleBarSize = 20;
 
         ContentX = X + FrameSize;
@@ -51,20 +52,29 @@ public abstract class AWindow extends ADisplayElement {
     }
 
     @Override
-    public void Draw(ADisplay display) {
-        DrawFrame(display);
-        DrawTitleBar(display);
-        DrawContent(display);
+    public void Draw(GraphicsContext ctx) {
+        DrawFrame(ctx);
+        DrawTitleBar(ctx);
+        DrawContent(ctx);
     }
 
-    public abstract void DrawContent(ADisplay display);
+    public abstract void DrawContent(GraphicsContext ctx);
 
-    public void DrawFrame(ADisplay display) {
-        display.Rectangle(X, Y, Width, Height, COL_BORDER);
+    public void DrawFrame(GraphicsContext display) {
+        if (IsSelected) {
+            display.Rectangle(X, Y, Width, Height, COL_TITLEBAR_SELECTED);
+        } else {
+            display.Rectangle(X, Y, Width, Height, COL_BORDER);
+        }
     }
 
-    public void DrawTitleBar(ADisplay display) {
+    public void DrawTitleBar(GraphicsContext display) {
         display.Rectangle(X, Y, Width, TitleBarSize, COL_TITLEBAR);
         Title.Draw(display);
+    }
+
+    @Override
+    public boolean IsSelectable() {
+        return true;
     }
 }
