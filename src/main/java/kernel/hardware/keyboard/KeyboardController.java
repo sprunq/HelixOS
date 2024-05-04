@@ -58,14 +58,14 @@ public class KeyboardController {
             keyCode = UnsetBreakCode(keyCode);
         }
 
-        int logicalKey = _layout.LogicalKey(keyCode, IsUpper(), _altPressed);
+        char logicalKey = _layout.LogicalKey(keyCode, IsUpper(), _altPressed);
         UpdateKeyboardState(logicalKey, isBreak);
         readInto.Key = (char) logicalKey;
         readInto.IsDown = !isBreak;
         return true;
     }
 
-    private static void UpdateKeyboardState(int logicalKey, boolean isBreak) {
+    private static void UpdateKeyboardState(char logicalKey, boolean isBreak) {
         switch (logicalKey) {
             case Key.LSHIFT:
             case Key.RSHIFT:

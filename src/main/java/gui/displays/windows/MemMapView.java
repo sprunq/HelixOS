@@ -39,6 +39,7 @@ public class MemMapView extends Window {
                 lineSpacing,
                 fg,
                 bg,
+                false,
                 font);
         _memmapText = BuildMemMapStr();
         _needsRedraw = true;

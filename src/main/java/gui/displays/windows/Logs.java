@@ -49,6 +49,7 @@ public class Logs extends Window {
                 lineSpacing,
                 fg,
                 bg,
+                false,
                 font);
     }
 
@@ -85,9 +86,11 @@ public class Logs extends Window {
                             break;
                     }
                     _textField.SetBrushColor(color);
-                    _textField.Write("<");
-                    _textField.Write(time);
-                    _textField.Write("> ");
+                    if (time.length() != 0) {
+                        _textField.Write("<");
+                        _textField.Write(time);
+                        _textField.Write("> ");
+                    }
                     _textField.Write(cat);
                     _textField.Write(": ");
                     _textField.Write(msg);

@@ -23,6 +23,7 @@ public class TextField extends Widget {
     protected byte[][] _characters;
     protected int[][] _characterColors;
 
+    protected boolean _enableCursor;
     protected AFont _font;
 
     public TextField(
@@ -36,6 +37,7 @@ public class TextField extends Widget {
             int lineSpacing,
             int fg,
             int bg,
+            boolean enableCursor,
             AFont font) {
         super("component_textfield", x, y, z, width, height);
 
@@ -51,11 +53,20 @@ public class TextField extends Widget {
         LineCount = (Height - borderSpacing * 2) / (font.Height() + SpacingH);
         _characters = new byte[LineCount][LineLength];
         _characterColors = new int[LineCount][LineLength];
+        _enableCursor = enableCursor;
     }
 
     public void SetCursor(int x, int y) {
         this._cursorX = x;
         this._cursorY = y;
+    }
+
+    public int GetCursorX() {
+        return _cursorX;
+    }
+
+    public int GetCursorY() {
+        return _cursorY;
     }
 
     public void SetBrushColor(int color) {
@@ -69,6 +80,7 @@ public class TextField extends Widget {
         if (_cursorY >= LineCount) {
             NewLine();
         }
+
         _characters[_cursorY][_cursorX] = c;
         _characterColors[_cursorY][_cursorX] = _fg;
         _cursorX++;
@@ -80,6 +92,23 @@ public class TextField extends Widget {
         if (_cursorY >= LineCount) {
             Scroll();
             _cursorY--;
+        }
+    }
+
+    public void Backspace() {
+        if (_cursorX > 0) {
+            _cursorX--;
+            _characters[_cursorY][_cursorX] = (byte) 0;
+        } else {
+            if (_cursorY > 0) {
+                _cursorY--;
+                int lastCharInLine = 0;
+                while (lastCharInLine < LineLength && _characters[_cursorY][lastCharInLine] != 0) {
+                    lastCharInLine++;
+                }
+                _cursorX = Math.Clamp(lastCharInLine, 0, LineLength - 1);
+                _characters[_cursorY][_cursorX] = (byte) 0;
+            }
         }
     }
 
@@ -121,7 +150,7 @@ public class TextField extends Widget {
     public void ClearText() {
         for (int i = 0; i < LineCount; i++) {
             for (int j = 0; j < LineLength; j++) {
-                _characters[i][j] = (byte) 0;
+                _characters[i][j] = (byte) '\0';
             }
         }
         SetCursor(0, 0);
@@ -133,13 +162,24 @@ public class TextField extends Widget {
         }
     }
 
+    public void DrawCursor() {
+        int xFactor = _font.Width() + SpacingW;
+        int yFactor = _font.Height() + SpacingH;
+        int xOffset = X + SpacingBorder;
+        int yOffset = Y + SpacingBorder;
+
+        int x = xOffset + _cursorX * xFactor;
+        int y = yOffset + _cursorY * yFactor;
+
+        Kernel.Display.Rectangle(x, y, 2, _font.Height(), _fg);
+    }
+
     @Override
     public boolean NeedsRedraw() {
         return true;
     }
 
     @Override
-    @SJC.PrintCode
     public void Draw(GraphicsContext display) {
         Kernel.Display.Rectangle(X, Y, Width, Height, _bg);
 
@@ -150,7 +190,7 @@ public class TextField extends Widget {
 
         for (int i = 0; i < LineCount; i++) {
             for (int j = 0; j < LineLength; j++) {
-                int character = _characters[i][j];
+                char character = (char) _characters[i][j];
                 int characterColor = _characterColors[i][j];
 
                 // Skip rendering if the character is not visible
@@ -162,6 +202,9 @@ public class TextField extends Widget {
 
                 _font.RenderToDisplay(display, x, y, character, characterColor);
             }
+        }
+        if (_enableCursor) {
+            DrawCursor();
         }
     }
 }

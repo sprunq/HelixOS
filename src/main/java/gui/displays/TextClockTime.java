@@ -28,6 +28,7 @@ public class TextClockTime extends Widget {
                 0,
                 _fg,
                 _bg,
+                false,
                 Font8x8.Instance);
     }
 

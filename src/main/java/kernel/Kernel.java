@@ -2,9 +2,11 @@ package kernel;
 
 import arch.x86;
 import formats.fonts.Font7x8;
+import formats.fonts.Font9x16;
 import gui.WindowManager;
 import gui.displays.Homebar;
-import gui.displays.windows.Bounce;
+import gui.displays.windows.BounceWindow;
+import gui.displays.windows.Editor;
 import gui.displays.windows.Logs;
 import gui.displays.windows.SystemInfo;
 import kernel.display.vesa.VESAGraphics;
@@ -24,7 +26,7 @@ import kernel.trace.logging.Logger;
 import util.vector.VecVesaMode;
 
 public class Kernel {
-    public static final int RESOLUTION = 0;
+    public static final int RESOLUTION = 1;
 
     public static GraphicsContext Display;
 
@@ -34,7 +36,7 @@ public class Kernel {
         MemoryManager.Initialize();
         Logger.LogSerial("Initialized Memory Manager\n");
 
-        Logger.Initialize(Logger.TRACE, 100, true);
+        Logger.Initialize(Logger.TRACE, 100, false);
         Logger.Info("BOOT", "Initialized Logger");
 
         SymbolResolution.Initialize();
@@ -91,7 +93,6 @@ public class Kernel {
         BuildGuiEnvironment(windowManager);
         Logger.Info("BOOT", "Built GUI Environment");
 
-        Schedeuler.AddTask(windowManager);
         Schedeuler.Run();
     }
 
@@ -102,31 +103,43 @@ public class Kernel {
 
         int heightMinusHomebar = Display.Height() - homebar.Height - 1;
 
-        Logs logTextField = new Logs(
-                "Log Entries",
+        Editor editor = new Editor(
+                "Editor",
                 0,
                 0,
-                3,
-                (int) (Display.Width() * 0.7),
+                2,
+                (int) (Display.Width() * 0.6),
                 heightMinusHomebar,
                 8,
                 0,
                 2,
-                Font7x8.Instance);
+                Font9x16.Instance);
 
-        SystemInfo memMapTextField = new SystemInfo(
+        SystemInfo sysinfo = new SystemInfo(
                 "System Info",
-                logTextField.X + logTextField.Width,
+                editor.X + editor.Width,
                 0,
                 5,
-                Display.Width() - logTextField.Width,
-                heightMinusHomebar / 2,
+                Display.Width() - editor.Width,
+                200,
                 8,
                 0,
                 2,
                 Font7x8.Instance);
 
-        Bounce bounce = new Bounce(
+        Logs logTextField = new Logs(
+                "Log Entries",
+                editor.X + editor.Width,
+                editor.Y + sysinfo.Height,
+                3,
+                Display.Width() - editor.Width,
+                heightMinusHomebar - sysinfo.Height,
+                8,
+                0,
+                2,
+                Font7x8.Instance);
+
+        BounceWindow bounce = new BounceWindow(
                 logTextField.X + logTextField.Width,
                 heightMinusHomebar / 2,
                 6,
@@ -135,9 +148,12 @@ public class Kernel {
                 "Bouncy");
 
         windowManager.AddWindow(homebar);
+        windowManager.AddWindow(editor);
         windowManager.AddWindow(logTextField);
-        windowManager.AddWindow(memMapTextField);
-        windowManager.AddWindow(bounce);
+        windowManager.AddWindow(sysinfo);
+
+        // new BounceTask(bounce);
+        // windowManager.AddWindow(bounce);
     }
 
     public static void panic(String msg) {

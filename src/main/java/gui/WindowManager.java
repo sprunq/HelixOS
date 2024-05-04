@@ -13,6 +13,11 @@ public class WindowManager extends Task {
     private GraphicsContext _ctx;
     private VecWidget _windows;
     private Widget _selectedWindow;
+    private int _drawTicksAvgN = 50;
+    private int _drawTicksAvgCycle = 0;
+    private int _drawTicksAvgSum = 0;
+
+    static public int InfoAvgRenderTimeMs = 0;
 
     public WindowManager(GraphicsContext ctx) {
         super("_task_win_WindowManager");
@@ -78,7 +83,18 @@ public class WindowManager extends Task {
     @Override
     public void Run() {
         DistributeKeyEvents();
+        int start = Timer.Ticks();
         DrawWindows();
+        int end = Timer.Ticks();
+        int renderTime = Timer.TicksToMs(end - start);
+        _drawTicksAvgSum += renderTime;
+
+        if (_drawTicksAvgCycle >= _drawTicksAvgN) {
+            InfoAvgRenderTimeMs = _drawTicksAvgSum / _drawTicksAvgN;
+            _drawTicksAvgSum = 0;
+            _drawTicksAvgCycle = 0;
+        }
+        _drawTicksAvgCycle++;
     }
 
     @Override
@@ -115,22 +131,23 @@ public class WindowManager extends Task {
     private KeyEvent _keyEvent = new KeyEvent();
 
     private boolean ConsumedInternalOnKeyPressed(char keyCode) {
-        switch ((int) keyCode) {
+        switch (keyCode) {
             case Key.LCTRL:
                 _ctrlDown = true;
                 return true;
             case Key.TAB:
                 if (_ctrlDown) {
                     NextSlection();
+                    return true;
                 }
-                return true;
+                return false;
             default:
                 return false;
         }
     }
 
     private boolean ConsumedInternalOnKeyReleased(char keyCode) {
-        switch ((int) keyCode) {
+        switch (keyCode) {
             case Key.LCTRL:
                 _ctrlDown = false;
                 return true;

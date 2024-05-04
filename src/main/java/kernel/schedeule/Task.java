@@ -11,6 +11,8 @@ public abstract class Task {
         Name = name;
         _active = false;
         _running = false;
+
+        Schedeuler.AddTask(this);
     }
 
     public abstract boolean WantsActive();

@@ -47,6 +47,7 @@ public abstract class Window extends Widget {
                 0,
                 COL_TITLE,
                 COL_TITLEBAR,
+                false,
                 font);
         Title.Write(title);
     }

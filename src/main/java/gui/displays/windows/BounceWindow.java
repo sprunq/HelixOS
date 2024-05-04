@@ -3,29 +3,25 @@ package gui.displays.windows;
 import gui.Window;
 import kernel.Kernel;
 import kernel.display.GraphicsContext;
-import kernel.trace.logging.Logger;
 
 /*
  * A ball in a window that bounces around the edges of the window.
  */
-public class Bounce extends Window {
+public class BounceWindow extends Window {
     private Square ball;
     private int ballRadius = 20;
     private int ballSpeedX = 3;
     private int ballSpeedY = 2;
+    private boolean ballNeedsRedraw;
 
-    public Bounce(int x, int y, int z, int width, int height, String title) {
+    public BounceWindow(int x, int y, int z, int width, int height, String title) {
         super(x, y, z, width, height, title);
         this.ball = new Square(width / 2, height / 2, ballRadius, 0x8A66B4);
-
-        if (ball._r_type == null || ball._r_type.name == null) {
-            Logger.Error("Bounce", "ball._r_type is null");
-        }
+        ballNeedsRedraw = true;
     }
 
     @Override
     public void DrawContent(GraphicsContext ctx) {
-        Tick();
         ctx.Rectangle(ContentX, ContentY, ContentWidth, ContentHeight, 0);
         ctx.Rectangle(
                 ContentX + ball.X,
@@ -33,14 +29,15 @@ public class Bounce extends Window {
                 ball.Size,
                 ball.Size,
                 ball.Color);
+        ballNeedsRedraw = false;
     }
 
     @Override
     public boolean NeedsRedraw() {
-        return true;
+        return ballNeedsRedraw;
     }
 
-    public void Tick() {
+    public void UpdateBallPosition() {
         ball.X += ballSpeedX;
         ball.Y += ballSpeedY;
 
@@ -53,6 +50,7 @@ public class Bounce extends Window {
             ballSpeedY = -ballSpeedY;
             NextColor();
         }
+        ballNeedsRedraw = true;
     }
 
     private void NextColor() {

@@ -21,7 +21,7 @@ public class KeyEvent implements IDebug {
     public String Debug() {
         return new StrBuilder()
                 .Append("KeyEvent {")
-                .Append("Key: ").Append(Key)
+                .Append("Key: ").Append(kernel.hardware.keyboard.Key.Name(Key))
                 .Append(", IsDown: ").Append(IsDown)
                 .Append("}")
                 .toString();

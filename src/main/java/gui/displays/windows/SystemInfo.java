@@ -2,6 +2,7 @@ package gui.displays.windows;
 
 import formats.fonts.AFont;
 import gui.Window;
+import gui.WindowManager;
 import gui.components.TextField;
 import kernel.Kernel;
 import kernel.display.GraphicsContext;
@@ -43,6 +44,7 @@ public class SystemInfo extends Window {
                 lineSpacing,
                 fg,
                 bg,
+                false,
                 font);
         _needsRedraw = true;
         _sb = new StrBuilder(500);
@@ -63,6 +65,12 @@ public class SystemInfo extends Window {
         int emptyObjectCount = MemoryManager.GetEmptyObjectCount();
 
         _sb.ClearKeepCapacity();
+
+        _sb.AppendLine("Window Manger:")
+                .Append("  ").Append("Average Draw Time ").Append(WindowManager.InfoAvgRenderTimeMs).Append(" ms")
+                .AppendLine();
+
+        _sb.AppendLine();
         _sb.AppendLine("Memory:")
                 .Append("  ").Append("Consumed: ").Append(Memory.FormatBytesToKb(consumedMemory)).AppendLine()
                 .Append("  ").Append("Free: ").Append(Memory.FormatBytesToKb(freeMemory)).AppendLine()

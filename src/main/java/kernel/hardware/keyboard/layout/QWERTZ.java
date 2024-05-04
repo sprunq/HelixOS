@@ -6,7 +6,7 @@ public class QWERTZ extends ALayout {
     public static final QWERTZ Instance = new QWERTZ();
 
     @Override
-    public int LogicalKey(int physicalKey, boolean shift, boolean alt) {
+    public char LogicalKey(int physicalKey, boolean shift, boolean alt) {
         // @formatter:off
         switch (physicalKey) {
             //   CODE                  SHIFT ALT   LOWER            UPPER                   ALT
@@ -120,7 +120,7 @@ public class QWERTZ extends ALayout {
     }
 
     @SJC.Inline
-    private static int Key(boolean shift, boolean alt, int keyLower, int keyUpper, int keyAlt) {
+    private static char Key(boolean shift, boolean alt, char keyLower, char keyUpper, char keyAlt) {
         if (alt) {
             return keyAlt;
         }
@@ -131,7 +131,7 @@ public class QWERTZ extends ALayout {
     }
 
     @SJC.Inline
-    private static int Key(boolean shift, boolean alt, int keyLower, int keyUpper) {
+    private static char Key(boolean shift, boolean alt, char keyLower, char keyUpper) {
         if (shift) {
             return keyUpper;
         }
@@ -139,7 +139,7 @@ public class QWERTZ extends ALayout {
     }
 
     @SJC.Inline
-    private static int Key(boolean shift, boolean alt, int key) {
+    private static char Key(boolean shift, boolean alt, char key) {
         return key;
     }
 }
