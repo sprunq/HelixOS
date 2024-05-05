@@ -11,7 +11,6 @@ import util.StrBuilder;
 
 public class MemMapView extends Window {
     private TextField _textField;
-    private boolean _needsRedraw;
     private String _memmapText;
 
     public MemMapView(
@@ -78,10 +77,5 @@ public class MemMapView extends Window {
             i++;
         }
         return sb.toString();
-    }
-
-    @Override
-    public boolean NeedsRedraw() {
-        return _needsRedraw;
     }
 }

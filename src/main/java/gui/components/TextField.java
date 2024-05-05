@@ -13,6 +13,7 @@ public class TextField extends Widget {
     public int SpacingH;
     public int LineLength;
     public int LineCount;
+    public AFont Font;
 
     protected int _cursorX;
     protected int _cursorY;
@@ -24,9 +25,6 @@ public class TextField extends Widget {
     protected int[][] _characterColors;
 
     protected boolean _enableCursor;
-    protected AFont _font;
-
-    protected boolean _needsRedraw;
 
     public TextField(
             int x,
@@ -47,7 +45,7 @@ public class TextField extends Widget {
         _cursorY = 0;
         _fg = fg;
         _bg = bg;
-        _font = font;
+        Font = font;
         SpacingBorder = borderSpacing;
         SpacingW = charSpacing + font.SpacingW();
         SpacingH = lineSpacing + font.SpacingH();
@@ -56,13 +54,12 @@ public class TextField extends Widget {
         _characters = new byte[LineCount][LineLength];
         _characterColors = new int[LineCount][LineLength];
         _enableCursor = enableCursor;
-        _needsRedraw = true;
     }
 
     public void SetCursor(int x, int y) {
         this._cursorX = x;
         this._cursorY = y;
-        _needsRedraw = true;
+        SetDirty();
     }
 
     public int GetCursorX() {
@@ -88,7 +85,7 @@ public class TextField extends Widget {
         _characters[_cursorY][_cursorX] = c;
         _characterColors[_cursorY][_cursorX] = _fg;
         _cursorX++;
-        _needsRedraw = true;
+        SetDirty();
     }
 
     public void NewLine() {
@@ -98,7 +95,7 @@ public class TextField extends Widget {
             Scroll();
             _cursorY--;
         }
-        _needsRedraw = true;
+        SetDirty();
     }
 
     public void Backspace() {
@@ -116,7 +113,7 @@ public class TextField extends Widget {
                 _characters[_cursorY][_cursorX] = (byte) 0;
             }
         }
-        _needsRedraw = true;
+        SetDirty();
     }
 
     public void Write(String s) {
@@ -128,7 +125,7 @@ public class TextField extends Widget {
                 Write(c);
             }
         }
-        _needsRedraw = true;
+        SetDirty();
     }
 
     public String toString() {
@@ -153,7 +150,7 @@ public class TextField extends Widget {
             _characters[LineCount - 1][j] = (byte) ' ';
             _characterColors[LineCount - 1][j] = _bg;
         }
-        _needsRedraw = true;
+        SetDirty();
     }
 
     public void ClearText() {
@@ -163,39 +160,34 @@ public class TextField extends Widget {
             }
         }
         SetCursor(0, 0);
-        _needsRedraw = true;
+        SetDirty();
     }
 
     public void ClearLine(int line) {
         for (int j = 0; j < LineLength; j++) {
             _characters[line][j] = (byte) 0;
         }
-        _needsRedraw = true;
+        SetDirty();
     }
 
     public void DrawCursor() {
-        int xFactor = _font.Width() + SpacingW;
-        int yFactor = _font.Height() + SpacingH;
+        int xFactor = Font.Width() + SpacingW;
+        int yFactor = Font.Height() + SpacingH;
         int xOffset = X + SpacingBorder;
         int yOffset = Y + SpacingBorder;
 
         int x = xOffset + _cursorX * xFactor;
         int y = yOffset + _cursorY * yFactor;
 
-        Kernel.Display.Rectangle(x, y, 2, _font.Height(), _fg);
-    }
-
-    @Override
-    public boolean NeedsRedraw() {
-        return _needsRedraw;
+        Kernel.Display.Rectangle(x, y, 2, Font.Height(), _fg);
     }
 
     @Override
     public void Draw(GraphicsContext display) {
         Kernel.Display.Rectangle(X, Y, Width, Height, _bg);
 
-        int xFactor = _font.Width() + SpacingW;
-        int yFactor = _font.Height() + SpacingH;
+        int xFactor = Font.Width() + SpacingW;
+        int yFactor = Font.Height() + SpacingH;
         int xOffset = X + SpacingBorder;
         int yOffset = Y + SpacingBorder;
 
@@ -211,7 +203,7 @@ public class TextField extends Widget {
                 int x = xOffset + j * xFactor;
                 int y = yOffset + i * yFactor;
 
-                _font.RenderToDisplay(display, x, y, character, characterColor);
+                Font.RenderToDisplay(display, x, y, character, characterColor);
             }
         }
         if (_enableCursor) {

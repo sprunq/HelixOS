@@ -47,7 +47,7 @@ public class Editor extends Window {
 
     @Override
     public boolean NeedsRedraw() {
-        return _textField.NeedsRedraw();
+        return _textField.NeedsRedraw() || super.NeedsRedraw();
     }
 
     @Override
@@ -82,6 +82,24 @@ public class Editor extends Window {
     @Override
     public void OnKeyReleased(char key) {
         _textField.OnKeyReleased(key);
+    }
+
+    @Override
+    public void LeftClickAt(int x, int y) {
+        _textField.SetCursor(ScreenXToCursorX(x), ScreenYToCursorY(y));
+    }
+
+    private int ScreenXToCursorX(int x) {
+        int ll = _textField.LineLength;
+        int lperCell = _textField.Font.Width() + _textField.SpacingW;
+        int cell = (x - _textField.X) / lperCell;
+        return Math.Clamp(cell, 0, ll - 1);
+    }
+
+    private int ScreenYToCursorY(int y) {
+        int lperCell = _textField.Font.Height() + _textField.SpacingH;
+        int cell = (y - _textField.Y) / lperCell;
+        return Math.Clamp(cell, 0, _textField.LineCount - 1);
     }
 
     private void MoveCursorUp() {

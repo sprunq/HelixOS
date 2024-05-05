@@ -74,6 +74,10 @@ public abstract class Window extends Widget {
         Title.Draw(display);
     }
 
+    public boolean ContainsTitlebar(int x, int y) {
+        return x >= X && x <= X + Width && y >= Y && y <= Y + TitleBarSize;
+    }
+
     @Override
     public boolean IsSelectable() {
         return true;

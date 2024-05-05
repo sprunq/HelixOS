@@ -56,43 +56,55 @@ public class MouseController {
             byte mouse_in = MAGIC.rIOs8(PORT_DATA);
             if (BitHelper.GetFlag(status, BIT_FROM_MOUSE)) {
                 switch (cycle) {
-                case 0:
-                    packetMetaData = mouse_in;
-                    if (!BitHelper.GetFlag(packetMetaData, BIT_ALWAYS_ONE)
-                            || BitHelper.GetFlag(packetMetaData, BIT_Y_OVERFLOW)
-                            || BitHelper.GetFlag(packetMetaData, BIT_X_OVERFLOW)) {
-                        // bad packet
-                        Logger.Warning("Mouse", "Bad packet received");
-                        return;
-                    }
-                    if (BitHelper.GetFlag(packetMetaData, BIT_LEFT_BTN)) buttonState |= MouseEvent.LEFT_BUTTON;
-                    if (BitHelper.GetFlag(packetMetaData, BIT_RIGHT_BTN)) buttonState |= MouseEvent.RIGHT_BUTTON;
-                    if (BitHelper.GetFlag(packetMetaData, BIT_MIDDLE_BTN)) buttonState |= MouseEvent.MIDDLE_BUTTON;
-                    cycle++;
-                    break;
-                case 1:
-                    packetXMovement = Integer.ubyte(mouse_in);
-                    if (BitHelper.GetFlag(packetMetaData, BIT_X_SIGN)) packetXMovement |= 0xFFFFFF00;
-                    cycle++;
-                    break;
-                case 2:
-                    packetYMovement = Integer.ubyte(mouse_in);
-                    if (BitHelper.GetFlag(packetMetaData, BIT_Y_SIGN)) packetYMovement |= 0xFFFFFF00;
+                    case 0:
+                        packetMetaData = mouse_in;
+                        if (!BitHelper.GetFlag(packetMetaData, BIT_ALWAYS_ONE)
+                                || BitHelper.GetFlag(packetMetaData, BIT_Y_OVERFLOW)
+                                || BitHelper.GetFlag(packetMetaData, BIT_X_OVERFLOW)) {
+                            // bad packet
+                            Logger.Warning("Mouse", "Bad packet received");
+                            return;
+                        }
+                        if (BitHelper.GetFlag(packetMetaData, BIT_LEFT_BTN)) {
+                            buttonState |= MouseEvent.LEFT_BUTTON;
+                        }
+                        if (BitHelper.GetFlag(packetMetaData, BIT_RIGHT_BTN)) {
+                            buttonState |= MouseEvent.RIGHT_BUTTON;
+                        }
+                        if (BitHelper.GetFlag(packetMetaData, BIT_MIDDLE_BTN)) {
+                            buttonState |= MouseEvent.MIDDLE_BUTTON;
+                        }
+                        cycle++;
+                        break;
+                    case 1:
+                        packetXMovement = Integer.ubyte(mouse_in);
+                        if (BitHelper.GetFlag(packetMetaData, BIT_X_SIGN)) {
+                            packetXMovement |= 0xFFFFFF00;
+                        }
+                        cycle++;
+                        break;
+                    case 2:
+                        packetYMovement = Integer.ubyte(mouse_in);
+                        if (BitHelper.GetFlag(packetMetaData, BIT_Y_SIGN)) {
+                            packetYMovement |= 0xFFFFFF00;
+                        }
 
-                    if (Math.Abs(packetXMovement) < 3) packetXMovement = 0;
-                    if (Math.Abs(packetYMovement) < 3) packetYMovement = 0;
+                        if (Math.Abs(packetXMovement) < 3)
+                            packetXMovement = 0;
+                        if (Math.Abs(packetYMovement) < 3)
+                            packetYMovement = 0;
 
-                    Event.X_Delta = packetXMovement;
-                    Event.Y_Delta = packetYMovement;
-                    Event.ButtonState = buttonState;
+                        Event.X_Delta = packetXMovement;
+                        Event.Y_Delta = packetYMovement;
+                        Event.ButtonState = buttonState;
 
-                    cycle = 0;
-                    buttonState = 0;
-                    packetMetaData = 0;
-                    packetYMovement = 0;
-                    packetXMovement = 0;
+                        cycle = 0;
+                        buttonState = 0;
+                        packetMetaData = 0;
+                        packetYMovement = 0;
+                        packetXMovement = 0;
 
-                    break;
+                        break;
                 }
             }
         }

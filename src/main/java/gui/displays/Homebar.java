@@ -50,7 +50,7 @@ public class Homebar extends Widget {
 
     @Override
     public boolean NeedsRedraw() {
-        return _time.NeedsRedraw() || _date.NeedsRedraw();
+        return _time.NeedsRedraw() || _date.NeedsRedraw() || super.NeedsRedraw();
     }
 
     private void SetLogoBackGround(Image logo) {

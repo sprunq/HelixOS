@@ -13,7 +13,6 @@ import util.StrBuilder;
 
 public class SystemInfo extends Window {
     private TextField _textField;
-    private boolean _needsRedraw;
     private String _text;
     private int _drawEveryNth = 1;
     private int _drawCounter = 0;
@@ -46,7 +45,6 @@ public class SystemInfo extends Window {
                 bg,
                 false,
                 font);
-        _needsRedraw = true;
         _sb = new StrBuilder(500);
         _text = UpdateText();
     }

@@ -66,6 +66,7 @@ public class TextClockDate extends Widget {
     public boolean NeedsRedraw() {
         return _lastDay != RTC.ReadDayOfMonth()
                 || _lastMonth != RTC.ReadMonthOfYear()
-                || _lastYear != RTC.ReadYearOfCentury();
+                || _lastYear != RTC.ReadYearOfCentury()
+                || super.NeedsRedraw();
     }
 }

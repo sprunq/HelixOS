@@ -104,7 +104,9 @@ public class Logs extends Window {
 
     @Override
     public boolean NeedsRedraw() {
-        int logTicks = Logger.LogTicks();
-        return logTicks != lastLogTick;
+        if (Logger.LogTicks() != lastLogTick) {
+            _needsRedraw = true;
+        }
+        return super.NeedsRedraw();
     }
 }

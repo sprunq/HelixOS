@@ -65,7 +65,8 @@ public class TextClockTime extends Widget {
     public boolean NeedsRedraw() {
         return _lastSecond != RTC.ReadSecond()
                 || _lastMinute != RTC.ReadMinute()
-                || _lastHour != RTC.ReadHour();
+                || _lastHour != RTC.ReadHour()
+                || super.NeedsRedraw();
     }
 
 }

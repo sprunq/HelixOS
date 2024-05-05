@@ -10,6 +10,8 @@ public abstract class GraphicsContext {
 
     public abstract int Rgb(int r, int g, int b);
 
+    public abstract int Argb(int a, int r, int g, int b);
+
     public abstract void Swap();
 
     public abstract void ClearScreen();
@@ -19,5 +21,7 @@ public abstract class GraphicsContext {
     public abstract void Rectangle(int x, int y, int width, int height, int color);
 
     public abstract void Bitmap(int x, int y, int[][] bitmap);
+
+    public abstract boolean Contains(int x, int y);
 
 }

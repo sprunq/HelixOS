@@ -8,7 +8,7 @@ import kernel.Kernel;
  * Format:
  * 4 bytes: width
  * 4 bytes: height
- * width * height * 3 bytes: pixel data (RGB)
+ * width * height * 4 bytes: pixel data (RGBA)
  */
 public abstract class BinImage extends Image {
     protected BinImage(byte[] data) {
@@ -52,7 +52,8 @@ public abstract class BinImage extends Image {
                 int r = Integer.ubyte(data[pos++]);
                 int g = Integer.ubyte(data[pos++]);
                 int b = Integer.ubyte(data[pos++]);
-                int col = Kernel.Display.Rgb(r, g, b);
+                int a = Integer.ubyte(data[pos++]);
+                int col = Kernel.Display.Argb(a, r, g, b);
                 pixel_data[j][i] = col;
             }
         }

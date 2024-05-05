@@ -34,7 +34,7 @@ public class BounceWindow extends Window {
 
     @Override
     public boolean NeedsRedraw() {
-        return ballNeedsRedraw;
+        return ballNeedsRedraw || super.NeedsRedraw();
     }
 
     public void UpdateBallPosition() {

@@ -1,5 +1,7 @@
 package gui;
 
+import formats.images.Image;
+import gui.images.CursorModern;
 import kernel.display.GraphicsContext;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.Key;
@@ -12,23 +14,26 @@ import util.vector.VecWidget;
 
 public class WindowManager extends Task {
     private GraphicsContext _ctx;
-    private VecWidget _windows;
+    private VecWidget _widgets;
     private Widget _selectedWindow;
     private int _drawTicksAvgN = 50;
     private int _drawTicksAvgCycle = 0;
     private int _drawTicksAvgSum = 0;
 
+    private Image _cursorImage;
+
     static public int InfoAvgRenderTimeMs = 0;
 
     public WindowManager(GraphicsContext ctx) {
         super("_win_window_manager");
-        _windows = new VecWidget();
+        _widgets = new VecWidget();
         this._ctx = ctx;
+        _cursorImage = CursorModern.Load();
     }
 
     public void AddWindow(Widget window) {
-        _windows.add(window);
-        _windows.SortByZ();
+        _widgets.add(window);
+        _widgets.SortByZ();
 
         if (_selectedWindow == null && window.IsSelectable()) {
             _selectedWindow = window;
@@ -38,10 +43,10 @@ public class WindowManager extends Task {
 
     public void NextSlection() {
         if (_selectedWindow == null) {
-            _selectedWindow = _windows.MaxSelectable();
+            _selectedWindow = _widgets.MaxSelectable();
         } else {
             _selectedWindow.SetSelected(false);
-            _selectedWindow = _windows.NextSelectable(_selectedWindow);
+            _selectedWindow = _widgets.NextSelectable(_selectedWindow);
         }
         if (_selectedWindow == null) {
             Logger.Info("WIN", "No selectable widget found");
@@ -56,8 +61,8 @@ public class WindowManager extends Task {
             return;
         }
 
-        for (int i = 0; i < _windows.size(); i++) {
-            Widget window = _windows.get(i);
+        for (int i = 0; i < _widgets.size(); i++) {
+            Widget window = _widgets.get(i);
 
             if (window == null) {
                 continue;
@@ -105,9 +110,12 @@ public class WindowManager extends Task {
             return;
         }
 
-        if (_lastMouseX >= 0 && _lastMouseX < _ctx.Width() - 5 && _lastMouseY >= 0 && _lastMouseY < _ctx.Height() - 5) {
-            _ctx.Rectangle(_lastMouseX, _lastMouseY, 5, 5, 0xFFFF);
-        }
+        if (!_ctx.Contains(_lastMouseX, _lastMouseY))
+            return;
+        if (!_ctx.Contains(_lastMouseX + _cursorImage.Width, _lastMouseY + _cursorImage.Height))
+            return;
+
+        _ctx.Bitmap(_lastMouseX, _lastMouseY, _cursorImage.PixelData);
     }
 
     @Override
@@ -141,9 +149,56 @@ public class WindowManager extends Task {
     }
 
     public void DistributeMouseEvents() {
-        // Logger.Trace("WIN", MouseController.Event.Debug());
+        SetDirtyAt(_lastMouseX, _lastMouseY);
+        SetDirtyAt(_lastMouseX + _cursorImage.Width, _drawTicksAvgCycle + _cursorImage.Height);
+
         _lastMouseX += MouseController.Event.X_Delta;
         _lastMouseY -= MouseController.Event.Y_Delta;
+
+        _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width() - 5);
+        _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height() - 5);
+
+        if (MouseController.Event.LeftButtonPressed()) {
+            Logger.Trace("WIN", "Mouse Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
+            // select window at xy
+            for (int i = 0; i < _widgets.size(); i++) {
+                Widget widget = _widgets.get(i);
+                if (widget == null) {
+                    continue;
+                }
+                if (widget.Contains(_lastMouseX, _lastMouseY)) {
+                    if (_selectedWindow == widget) {
+                        widget.LeftClickAt(_lastMouseX, _lastMouseY);
+                        return;
+                    }
+
+                    if (_selectedWindow != null) {
+                        _selectedWindow.SetSelected(false);
+                    }
+                    _selectedWindow = widget;
+                    _selectedWindow.SetSelected(true);
+                    Logger.Info("WIN", "Selected Widget ".append(_selectedWindow.Name));
+                    break;
+                }
+            }
+        } else if (MouseController.Event.RightButtonPressed()) {
+            Logger.Trace("WIN", "Mouse Right Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
+        } else if (MouseController.Event.MiddleButtonPressed()) {
+            Logger.Trace("WIN", "Mouse Middle Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
+        }
+    }
+
+    private void SetDirtyAt(int x, int y) {
+        for (int i = 0; i < _widgets.size(); i++) {
+            Widget window = _widgets.get(i);
+            if (window == null) {
+                continue;
+            }
+            if (window.Contains(x, y)) {
+                window.SetDirty();
+                break;
+            }
+        }
     }
 
     private boolean _ctrlDown = false;
@@ -153,27 +208,27 @@ public class WindowManager extends Task {
 
     private boolean ConsumedInternalOnKeyPressed(char keyCode) {
         switch (keyCode) {
-        case Key.LCTRL:
-            _ctrlDown = true;
-            return true;
-        case Key.TAB:
-            if (_ctrlDown) {
-                NextSlection();
+            case Key.LCTRL:
+                _ctrlDown = true;
                 return true;
-            }
-            return false;
-        default:
-            return false;
+            case Key.TAB:
+                if (_ctrlDown) {
+                    NextSlection();
+                    return true;
+                }
+                return false;
+            default:
+                return false;
         }
     }
 
     private boolean ConsumedInternalOnKeyReleased(char keyCode) {
         switch (keyCode) {
-        case Key.LCTRL:
-            _ctrlDown = false;
-            return true;
-        default:
-            return false;
+            case Key.LCTRL:
+                _ctrlDown = false;
+                return true;
+            default:
+                return false;
         }
     }
 
