@@ -8,6 +8,7 @@ import kernel.hardware.keyboard.Key;
 import kernel.hardware.keyboard.KeyEvent;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.mouse.MouseController;
+import kernel.hardware.mouse.MouseEvent;
 import kernel.schedeule.Task;
 import kernel.trace.logging.Logger;
 import util.vector.VecWidget;
@@ -148,17 +149,23 @@ public class WindowManager extends Task {
         }
     }
 
+    private MouseEvent _mouseEvent = new MouseEvent();
+
     public void DistributeMouseEvents() {
+        if (!MouseController.ReadEvent(_mouseEvent)) {
+            return;
+        }
+
         SetDirtyAt(_lastMouseX, _lastMouseY);
         SetDirtyAt(_lastMouseX + _cursorImage.Width, _drawTicksAvgCycle + _cursorImage.Height);
 
-        _lastMouseX += MouseController.Event.X_Delta;
-        _lastMouseY -= MouseController.Event.Y_Delta;
+        _lastMouseX += _mouseEvent.X_Delta;
+        _lastMouseY -= _mouseEvent.Y_Delta;
 
         _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width() - 5);
         _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height() - 5);
 
-        if (MouseController.Event.LeftButtonPressed()) {
+        if (_mouseEvent.LeftButtonPressed()) {
             Logger.Trace("WIN", "Mouse Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
             // select window at xy
             for (int i = 0; i < _widgets.size(); i++) {
@@ -181,9 +188,9 @@ public class WindowManager extends Task {
                     break;
                 }
             }
-        } else if (MouseController.Event.RightButtonPressed()) {
+        } else if (_mouseEvent.RightButtonPressed()) {
             Logger.Trace("WIN", "Mouse Right Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
-        } else if (MouseController.Event.MiddleButtonPressed()) {
+        } else if (_mouseEvent.MiddleButtonPressed()) {
             Logger.Trace("WIN", "Mouse Middle Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
         }
     }

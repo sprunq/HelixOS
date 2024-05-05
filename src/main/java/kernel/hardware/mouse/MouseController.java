@@ -5,7 +5,6 @@ import kernel.interrupt.PIC;
 import kernel.trace.logging.Logger;
 import rte.SClassDesc;
 import util.BitHelper;
-import util.queue.QueueByte;
 
 public class MouseController {
     public static final int IRQ_MOUSE = 12;
@@ -31,23 +30,21 @@ public class MouseController {
     // Commands
     private static final int CMD_WRITE = 0xD4;
 
-    private static QueueByte _inputBuffer;
-
     public static void Initialize() {
         Install();
-        SetSampleRate(60);
+        SetSampleRate(100);
+        SetResolution(4);
+        SetScaling(1);
+        _packet = new byte[3];
+        _workingPacket = new byte[3];
         int dscAddr = MAGIC.cast2Ref((SClassDesc) MAGIC.clssDesc("MouseController"));
         int handlerOffset = IDT.CodeOffset(dscAddr, MAGIC.mthdOff("MouseController", "MouseHandler"));
         IDT.RegisterIrqHandler(IRQ_MOUSE, handlerOffset);
     }
 
-    public static MouseEvent Event = new MouseEvent();
-
+    private static byte[] _workingPacket;
+    private static byte[] _packet;
     private static int cycle = 0;
-    private static int packetMetaData = 0;
-    private static int packetYMovement = 0;
-    private static int packetXMovement = 0;
-    private static int buttonState = 0;
 
     @SJC.Interrupt
     public static void MouseHandler() {
@@ -57,53 +54,19 @@ public class MouseController {
             if (BitHelper.GetFlag(status, BIT_FROM_MOUSE)) {
                 switch (cycle) {
                     case 0:
-                        packetMetaData = mouse_in;
-                        if (!BitHelper.GetFlag(packetMetaData, BIT_ALWAYS_ONE)
-                                || BitHelper.GetFlag(packetMetaData, BIT_Y_OVERFLOW)
-                                || BitHelper.GetFlag(packetMetaData, BIT_X_OVERFLOW)) {
-                            // bad packet
-                            Logger.Warning("Mouse", "Bad packet received");
-                            return;
-                        }
-                        if (BitHelper.GetFlag(packetMetaData, BIT_LEFT_BTN)) {
-                            buttonState |= MouseEvent.LEFT_BUTTON;
-                        }
-                        if (BitHelper.GetFlag(packetMetaData, BIT_RIGHT_BTN)) {
-                            buttonState |= MouseEvent.RIGHT_BUTTON;
-                        }
-                        if (BitHelper.GetFlag(packetMetaData, BIT_MIDDLE_BTN)) {
-                            buttonState |= MouseEvent.MIDDLE_BUTTON;
-                        }
+                        _workingPacket[0] = mouse_in;
                         cycle++;
                         break;
                     case 1:
-                        packetXMovement = Integer.ubyte(mouse_in);
-                        if (BitHelper.GetFlag(packetMetaData, BIT_X_SIGN)) {
-                            packetXMovement |= 0xFFFFFF00;
-                        }
+                        _workingPacket[1] = mouse_in;
                         cycle++;
                         break;
                     case 2:
-                        packetYMovement = Integer.ubyte(mouse_in);
-                        if (BitHelper.GetFlag(packetMetaData, BIT_Y_SIGN)) {
-                            packetYMovement |= 0xFFFFFF00;
-                        }
-
-                        if (Math.Abs(packetXMovement) < 3)
-                            packetXMovement = 0;
-                        if (Math.Abs(packetYMovement) < 3)
-                            packetYMovement = 0;
-
-                        Event.X_Delta = packetXMovement;
-                        Event.Y_Delta = packetYMovement;
-                        Event.ButtonState = buttonState;
-
+                        _workingPacket[2] = mouse_in;
+                        _packet[0] = _workingPacket[0];
+                        _packet[1] = _workingPacket[1];
+                        _packet[2] = _workingPacket[2];
                         cycle = 0;
-                        buttonState = 0;
-                        packetMetaData = 0;
-                        packetYMovement = 0;
-                        packetXMovement = 0;
-
                         break;
                 }
             }
@@ -111,9 +74,49 @@ public class MouseController {
         PIC.Acknowledge(IRQ_MOUSE);
     }
 
-    @SJC.Inline
-    public static boolean HasNewEvent() {
-        return _inputBuffer.ContainsNewElements();
+    public static boolean ReadEvent(MouseEvent readInto) {
+        if (_packet[0] == 0) {
+            return false;
+        }
+
+        byte packetMetaData = _packet[0];
+        byte packetXMovement = _packet[1];
+        byte packetYMovement = _packet[2];
+
+        _packet[0] = 0;
+        _packet[1] = 0;
+        _packet[2] = 0;
+
+        if (!BitHelper.GetFlag(packetMetaData, BIT_ALWAYS_ONE)
+                || BitHelper.GetFlag(packetMetaData, BIT_Y_OVERFLOW)
+                || BitHelper.GetFlag(packetMetaData, BIT_X_OVERFLOW)) {
+            Logger.Warning("Mouse", "Bad packet received");
+            return false;
+        }
+
+        int buttonState = 0;
+        if (BitHelper.GetFlag(packetMetaData, BIT_LEFT_BTN)) {
+            buttonState |= MouseEvent.LEFT_BUTTON;
+        }
+        if (BitHelper.GetFlag(packetMetaData, BIT_RIGHT_BTN)) {
+            buttonState |= MouseEvent.RIGHT_BUTTON;
+        }
+        if (BitHelper.GetFlag(packetMetaData, BIT_MIDDLE_BTN)) {
+            buttonState |= MouseEvent.MIDDLE_BUTTON;
+        }
+
+        if (BitHelper.GetFlag(packetMetaData, BIT_X_SIGN)) {
+            packetXMovement |= 0xFFFFFF00;
+        }
+
+        if (BitHelper.GetFlag(packetMetaData, BIT_Y_SIGN)) {
+            packetYMovement |= 0xFFFFFF00;
+        }
+
+        readInto.X_Delta = packetXMovement;
+        readInto.Y_Delta = packetYMovement;
+        readInto.ButtonState = buttonState;
+        return true;
     }
 
     public static void Install() {
@@ -170,6 +173,20 @@ public class MouseController {
         Write(0xF3);
         Read();
         Write(rate);
+        Read();
+    }
+
+    private static void SetResolution(int resolution) {
+        Write(0xE8);
+        Read();
+        Write(resolution);
+        Read();
+    }
+
+    private static void SetScaling(int scaling) {
+        Write(0xE6);
+        Read();
+        Write(scaling);
         Read();
     }
 }
