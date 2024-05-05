@@ -1,40 +1,43 @@
 package gui.displays.windows;
 
+import gui.Window;
 import kernel.Kernel;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 
 /*
  * A ball in a window that bounces around the edges of the window.
  */
-public class Bounce extends AWindow {
+public class BounceWindow extends Window {
     private Square ball;
     private int ballRadius = 20;
     private int ballSpeedX = 3;
     private int ballSpeedY = 2;
+    private boolean ballNeedsRedraw;
 
-    public Bounce(int x, int y, int z, int width, int height, String title) {
+    public BounceWindow(int x, int y, int z, int width, int height, String title) {
         super(x, y, z, width, height, title);
         this.ball = new Square(width / 2, height / 2, ballRadius, 0x8A66B4);
+        ballNeedsRedraw = true;
     }
 
     @Override
-    public void DrawContent(ADisplay context) {
-        Tick();
-        context.Rectangle(ContentX, ContentY, ContentWidth, ContentHeight, 0);
-        context.Rectangle(
+    public void DrawContent(GraphicsContext ctx) {
+        ctx.Rectangle(ContentX, ContentY, ContentWidth, ContentHeight, 0);
+        ctx.Rectangle(
                 ContentX + ball.X,
                 ContentY + ball.Y,
                 ball.Size,
                 ball.Size,
                 ball.Color);
+        ballNeedsRedraw = false;
     }
 
     @Override
     public boolean NeedsRedraw() {
-        return true;
+        return ballNeedsRedraw || super.NeedsRedraw();
     }
 
-    public void Tick() {
+    public void UpdateBallPosition() {
         ball.X += ballSpeedX;
         ball.Y += ballSpeedY;
 
@@ -47,6 +50,7 @@ public class Bounce extends AWindow {
             ballSpeedY = -ballSpeedY;
             NextColor();
         }
+        ballNeedsRedraw = true;
     }
 
     private void NextColor() {
@@ -58,19 +62,5 @@ public class Bounce extends AWindow {
                 (ball.X + blue) % 256,
                 (ball.Y + red) % 256,
                 (ball.X + ball.Y + green) % 256);
-    }
-
-    private class Square {
-        public int X;
-        public int Y;
-        public int Size;
-        public int Color;
-
-        public Square(int x, int y, int size, int color) {
-            this.X = x;
-            this.Y = y;
-            this.Size = size;
-            this.Color = color;
-        }
     }
 }

@@ -58,11 +58,8 @@ public class QOIDecoder {
         }
 
         int colorSpace = in.ReadColorSpace();
-        if (channels != 3) {
-            Kernel.panic("Invalid channel count, must be 3 - others not yet supported");
-        }
 
-        byte[] pixelDataRaw = read3(in, width, height);
+        byte[] pixelDataRaw = channels == 3 ? read3(in, width, height) : read4(in, width, height);
 
         for (int i = 0; i < 8; i++) {
             if (QOI_PADDING[i] != in.readSkipBuffer()) {
@@ -77,7 +74,13 @@ public class QOIDecoder {
                 int r = pixelDataRaw[(i * width + j) * channels] & 0xFF;
                 int g = pixelDataRaw[(i * width + j) * channels + 1] & 0xFF;
                 int b = pixelDataRaw[(i * width + j) * channels + 2] & 0xFF;
-                pixelData[j][i] = (r << 16) | (g << 8) | b | 0xFF000000;
+
+                if (channels == 4) {
+                    int a = pixelDataRaw[(i * width + j) * channels + 3] & 0xFF;
+                    pixelData[j][i] = (r << 16) | (g << 8) | b | (a << 24);
+                } else {
+                    pixelData[j][i] = (r << 16) | (g << 8) | b | 0xFF000000;
+                }
             }
         }
 
@@ -149,6 +152,98 @@ public class QOIDecoder {
             pixelData[pixelPos] = pixelR;
             pixelData[pixelPos + 1] = pixelG;
             pixelData[pixelPos + 2] = pixelB;
+        }
+
+        return pixelData;
+    }
+
+    static byte[] createHashTableRGBA() {
+        return new byte[HASH_TABLE_SIZE * 4];
+    }
+
+    static int getHashTableIndexRGBA(byte r, byte g, byte b, byte a) {
+        int hash = (r & 0xFF) * 3 + (g & 0xFF) * 5 + (b & 0xFF) * 7 + (a & 0xFF) * 11;
+        return (hash & 0x3F) << 2;
+    }
+
+    // Read into 4-channel RGBA buffer
+    private static byte[] read4(Input in, int width, int height) {
+        // Check for overflow on big images
+        int pixelDataLength = Math.MultiplyExact(Math.MultiplyExact(width, height), 4);
+
+        byte[] pixelData = new byte[pixelDataLength];
+
+        byte[] index = createHashTableRGBA();
+
+        byte pixelR = 0;
+        byte pixelG = 0;
+        byte pixelB = 0;
+        byte pixelA = (byte) 0xFF;
+
+        for (int pixelPos = 0; pixelPos < pixelDataLength; pixelPos += 4) {
+            int b1 = in.Read() & 0xFF;
+
+            if (b1 == QOI_OP_RGB) {
+                pixelR = in.Read();
+                pixelG = in.Read();
+                pixelB = in.Read();
+            } else if (b1 == QOI_OP_RGBA) {
+                pixelR = in.Read();
+                pixelG = in.Read();
+                pixelB = in.Read();
+                pixelA = in.Read();
+            } else {
+                switch (b1 & QOI_MASK_2) {
+                    case QOI_OP_INDEX:
+                        int indexPos = (b1 & ~QOI_MASK_2) << 2;
+
+                        pixelR = index[indexPos];
+                        pixelG = index[indexPos + 1];
+                        pixelB = index[indexPos + 2];
+                        pixelA = index[indexPos + 3];
+
+                        break;
+                    case QOI_OP_DIFF:
+                        pixelR += ((b1 >> 4) & 0x03) - 2;
+                        pixelG += ((b1 >> 2) & 0x03) - 2;
+                        pixelB += (b1 & 0x03) - 2;
+
+                        break;
+                    case QOI_OP_LUMA:
+                        // Safe widening conversion
+                        int b2 = in.Read();
+                        int vg = (b1 & 0x3F) - 32;
+                        pixelR += vg - 8 + ((b2 >> 4) & 0x0F);
+                        pixelG += vg;
+                        pixelB += vg - 8 + (b2 & 0x0F);
+
+                        break;
+                    case QOI_OP_RUN:
+                        int run = b1 & 0x3F;
+
+                        for (int i = 0; i < run; i++) {
+                            pixelData[pixelPos] = pixelR;
+                            pixelData[pixelPos + 1] = pixelG;
+                            pixelData[pixelPos + 2] = pixelB;
+                            pixelData[pixelPos + 3] = pixelA;
+
+                            pixelPos += 4;
+                        }
+
+                        break;
+                }
+            }
+
+            int indexPos = getHashTableIndexRGBA(pixelR, pixelG, pixelB, pixelA);
+            index[indexPos] = pixelR;
+            index[indexPos + 1] = pixelG;
+            index[indexPos + 2] = pixelB;
+            index[indexPos + 3] = pixelA;
+
+            pixelData[pixelPos] = pixelR;
+            pixelData[pixelPos + 1] = pixelG;
+            pixelData[pixelPos + 2] = pixelB;
+            pixelData[pixelPos + 3] = pixelA;
         }
 
         return pixelData;

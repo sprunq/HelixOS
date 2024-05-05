@@ -1,12 +1,12 @@
 package gui.displays;
 
 import formats.images.Image;
-import gui.ADisplayElement;
+import gui.Widget;
 import gui.images.Logo25;
 import kernel.Kernel;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 
-public class Homebar extends ADisplayElement {
+public class Homebar extends Widget {
     private final int COL_HOMEBAR;
     private static final int HOMEBAR_HEIGHT = 45;
     private Image _logo;
@@ -14,7 +14,7 @@ public class Homebar extends ADisplayElement {
     private TextClockDate _date;
 
     public Homebar(int displayWidth, int displayHeight) {
-        super(0, displayHeight - HOMEBAR_HEIGHT, 20, displayWidth, HOMEBAR_HEIGHT);
+        super("homebar", 0, displayHeight - HOMEBAR_HEIGHT, 20, displayWidth, HOMEBAR_HEIGHT);
         COL_HOMEBAR = Kernel.Display.Rgb(1, 12, 40);
         _logo = Logo25.Load();
         SetLogoBackGround(_logo);
@@ -41,7 +41,7 @@ public class Homebar extends ADisplayElement {
     }
 
     @Override
-    public void Draw(ADisplay display) {
+    public void Draw(GraphicsContext display) {
         display.Rectangle(X, Y, Width, Height, COL_HOMEBAR);
         display.Bitmap(X + 10, Y + 10, _logo.PixelData);
         _time.Draw(display);
@@ -50,7 +50,7 @@ public class Homebar extends ADisplayElement {
 
     @Override
     public boolean NeedsRedraw() {
-        return _time.NeedsRedraw() || _date.NeedsRedraw();
+        return _time.NeedsRedraw() || _date.NeedsRedraw() || super.NeedsRedraw();
     }
 
     private void SetLogoBackGround(Image logo) {

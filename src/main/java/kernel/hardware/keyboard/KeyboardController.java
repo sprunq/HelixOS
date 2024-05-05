@@ -1,12 +1,15 @@
 package kernel.hardware.keyboard;
 
 import kernel.hardware.keyboard.layout.ALayout;
+import kernel.interrupt.IDT;
+import kernel.interrupt.PIC;
 import kernel.trace.logging.Logger;
+import rte.SClassDesc;
 import util.BitHelper;
 import util.queue.QueueByte;
-import util.vector.VecKeyboardEventListener;
 
 public class KeyboardController {
+    public static final int IRQ_KEYBOARD = 1;
     private static final int PORT_KEYCODE = 0x60;
     private static final int KEYCODE_EXTEND1 = 0xE0;
     private static final int KEYCODE_EXTEND2 = 0xE1;
@@ -25,25 +28,23 @@ public class KeyboardController {
     private static boolean _altPressed;
     private static boolean _capsLocked;
 
-    /*
-     * Listeners can register to receive keyboard events.
-     * They are called in order of priority.
-     * A listener can consume an event, preventing other listeners from receiving
-     * it.
-     */
-    private static VecKeyboardEventListener _listeners;
-
-    public static void Initialize(ALayout keyBoardLayout) {
+    public static void Initialize() {
         _inputBuffer = new QueueByte(256);
-        _layout = keyBoardLayout;
-        _listeners = new VecKeyboardEventListener();
-        Logger.Info("KeyC", "Initialized");
+        _layout = null;
+
+        int dscAddr = MAGIC.cast2Ref((SClassDesc) MAGIC.clssDesc("KeyboardController"));
+        int handlerOffset = IDT.CodeOffset(dscAddr, MAGIC.mthdOff("KeyboardController", "KeyboardHandler"));
+        IDT.RegisterIrqHandler(IRQ_KEYBOARD, handlerOffset);
     }
 
-    public static void AddListener(IKeyboardEventListener listener) {
-        Logger.Info("KeyC", "Adding Listener ".append(listener.Name()));
-        _listeners.Add(listener);
-        _listeners.SortByPriority();
+    @SJC.Interrupt
+    public static void KeyboardHandler() {
+        KeyboardController.Handle();
+        PIC.Acknowledge(IRQ_KEYBOARD);
+    }
+
+    public static void SetLayout(ALayout layout) {
+        _layout = layout;
     }
 
     @SJC.Inline
@@ -60,9 +61,9 @@ public class KeyboardController {
         _inputBuffer.Put(code);
     }
 
-    public static void ReadEvent() {
-        if (!_inputBuffer.ContainsNewElements())
-            return;
+    public static boolean ReadEvent(KeyEvent readInto) {
+        if (!_inputBuffer.ContainsNewElements() || _layout == null)
+            return false;
 
         int keyCode = ReadKeyCode();
         boolean isBreak = IsBreakCode(keyCode);
@@ -70,38 +71,14 @@ public class KeyboardController {
             keyCode = UnsetBreakCode(keyCode);
         }
 
-        int logicalKey = _layout.LogicalKey(keyCode, IsUpper(), _altPressed);
-
-        if (!isBreak) {
-            Logger.Trace("KeyC", "Pressed ".append(Key.Name(logicalKey)));
-        } else {
-            Logger.Trace("KeyC", "Release ".append(Key.Name(logicalKey)));
-        }
-
+        char logicalKey = _layout.LogicalKey(keyCode, IsUpper(), _altPressed);
         UpdateKeyboardState(logicalKey, isBreak);
-        SendKeyEvent(logicalKey, isBreak);
+        readInto.Key = (char) logicalKey;
+        readInto.IsDown = !isBreak;
+        return true;
     }
 
-    private static void SendKeyEvent(int logicalKey, boolean isBreak) {
-        for (int i = 0; i < _listeners.Size(); i++) {
-            IKeyboardEventListener listener = _listeners.Get(i);
-            if (listener == null) {
-                break;
-            }
-            boolean consumed = false;
-            if (isBreak) {
-                consumed = listener.OnKeyReleased((char) logicalKey);
-            } else {
-                consumed = listener.OnKeyPressed((char) logicalKey);
-            }
-            if (consumed) {
-                Logger.Trace("KeyC", "Event consumed by ".append(Integer.toString(i, 10)));
-                break;
-            }
-        }
-    }
-
-    private static void UpdateKeyboardState(int logicalKey, boolean isBreak) {
+    private static void UpdateKeyboardState(char logicalKey, boolean isBreak) {
         switch (logicalKey) {
             case Key.LSHIFT:
             case Key.RSHIFT:

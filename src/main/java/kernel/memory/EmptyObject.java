@@ -4,26 +4,18 @@ import kernel.Kernel;
 import rte.SClassDesc;
 
 public class EmptyObject extends Object {
-    /*
-     * Points to the next empty object in the list or null if this is the last
-     * empty object.
-     */
-    public EmptyObject NextEmptyObject;
-
-    /*
-     * Points to the previous empty object in the list or null if this is the
-     * first empty object.
-     */
-    public EmptyObject PrevEmptyObject;
 
     @SJC.Inline
-    public int AddressTop() {
-        return MAGIC.cast2Ref(this) + _r_scalarSize;
+    public EmptyObject Next() {
+        if (_r_next == null) {
+            return null;
+        }
+        return (EmptyObject) _r_next;
     }
 
     @SJC.Inline
-    public int AddressBottom() {
-        return MAGIC.cast2Ref(this) - RelocEntriesSize();
+    public void SetNext(EmptyObject next) {
+        MAGIC.assign(_r_next, (Object) next);
     }
 
     @SJC.Inline
@@ -42,25 +34,33 @@ public class EmptyObject extends Object {
     }
 
     @SJC.Inline
-    public static int RelocEntriesSize() {
-        return MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize;
-    }
-
-    @SJC.Inline
     public static SClassDesc Type() {
         return (SClassDesc) MAGIC.clssDesc("EmptyObject");
     }
 
     @SJC.Inline
-    public void ShrinkBy(int newObjectTotalSize) {
-        MAGIC.assign(_r_scalarSize, _r_scalarSize - newObjectTotalSize);
+    public void ShrinkBy(int shrinkBy) {
+        MAGIC.assign(_r_scalarSize, _r_scalarSize - shrinkBy);
         if (_r_scalarSize < 4) {
             Kernel.panic("EmptyObject::ShrinkBy: _r_scalarSize < 4");
         }
     }
 
     @SJC.Inline
+    public void ExpandBy(int expandBy) {
+        if (expandBy < 0) {
+            Kernel.panic("EmptyObject::ExpandBy: expandBy < 0");
+        }
+        MAGIC.assign(_r_scalarSize, _r_scalarSize + expandBy);
+    }
+
+    @SJC.Inline
     public int UnreservedScalarSize() {
         return _r_scalarSize - MAGIC.getInstScalarSize("EmptyObject");
+    }
+
+    @SJC.Inline
+    public static int RelocEntriesSize() {
+        return MAGIC.getInstRelocEntries("EmptyObject") * MAGIC.ptrSize;
     }
 }

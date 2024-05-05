@@ -1,10 +1,12 @@
 package kernel.interrupt;
 
 import arch.x86;
+import kernel.Kernel;
 import kernel.MemoryLayout;
 import kernel.trace.logging.Logger;
 import rte.SClassDesc;
 import util.BitHelper;
+import util.StrBuilder;
 
 /**
  * The Interrupt Descriptor Table
@@ -18,40 +20,50 @@ public class IDT {
      */
     private static final int SEGMENT_CODE = 1;
     private static final int REQUESTED_PRIV_LEVEL_OS = 0;
+    private static boolean _initialized = false;
 
     public static void Initialize() {
         PIC.Initialize();
-        LoadTableProtectedMode();
 
-        SClassDesc cls = (SClassDesc) MAGIC.clssDesc("Interrupts");
-        int dscAddr = MAGIC.cast2Ref(cls);
-
-        WriteTableEntry(0, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "DivByZeroHandler")));
-        WriteTableEntry(1, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "DebugHandler")));
-        WriteTableEntry(2, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "NmiHandler")));
-        WriteTableEntry(3, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "BreakpointHandler")));
-        WriteTableEntry(4, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "OverflowHandler")));
-        WriteTableEntry(5, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "BoundRangeExceededHandler")));
-        WriteTableEntry(6, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "InvalidOpcodeHandler")));
-        WriteTableEntry(7, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ReservedHandler")));
-        WriteTableEntry(8, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "DoubleFaultHandler")));
+        int dscAddr = MAGIC.cast2Ref((SClassDesc) MAGIC.clssDesc("SystemInterrupts"));
+        WriteTableEntry(0, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "DivByZeroHandler")));
+        WriteTableEntry(1, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "DebugHandler")));
+        WriteTableEntry(2, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "NmiHandler")));
+        WriteTableEntry(3, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "BreakpointHandler")));
+        WriteTableEntry(4, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "OverflowHandler")));
+        WriteTableEntry(5, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "BoundRangeExceededHandler")));
+        WriteTableEntry(6, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "InvalidOpcodeHandler")));
+        WriteTableEntry(7, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "ReservedHandler")));
+        WriteTableEntry(8, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "DoubleFaultHandler")));
         for (int j = 9; j < 13; j++) {
-            WriteTableEntry(j, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ReservedHandler")));
+            WriteTableEntry(j, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "ReservedHandler")));
         }
-        WriteTableEntry(13, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "GeneralProtectionFaultHandler")));
-        WriteTableEntry(14, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "PageFaultHandler")));
+        WriteTableEntry(13, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "GeneralProtectionFaultHandler")));
+        WriteTableEntry(14, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "PageFaultHandler")));
         for (int j = 15; j < 32; j++) {
-            WriteTableEntry(j, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "ReservedHandler")));
+            WriteTableEntry(j, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "ReservedHandler")));
         }
-        WriteTableEntry(32, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "TimerHandler"))); // IRQ 0
-        WriteTableEntry(33, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "KeyboardHandler"))); // IRQ 1
-        for (int j = 34; j < 48; j++) {
-            WriteTableEntry(j, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "IgnoreHandler"))); // IRQ 2-15
+        for (int j = 32; j < MemoryLayout.IDT_ENTRIES; j++) {
+            WriteTableEntry(j, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "IgnoreHandler"))); // IRQ 0-255
         }
-        for (int j = 48; j < MemoryLayout.IDT_ENTRIES; j++) {
-            WriteTableEntry(j, CodeOffset(dscAddr, MAGIC.mthdOff("Interrupts", "IgnoreHandler"))); // IRQ 16-255
+
+        LoadTableProtectedMode();
+        _initialized = true;
+    }
+
+    public static void RegisterIrqHandler(int irq, int handlerAddr) {
+        if (!_initialized) {
+            Kernel.panic("IDT not initialized");
+            return;
         }
-        Logger.Info("IDT", "Initialized");
+        Logger.Info("IDT",
+                new StrBuilder(64)
+                        .Append("Registering IRQ handler for IRQ ")
+                        .Append(irq)
+                        .Append(" at 0x")
+                        .Append(handlerAddr, 16)
+                        .toString());
+        WriteTableEntry(irq + 32, handlerAddr);
     }
 
     @SJC.Inline
@@ -74,7 +86,7 @@ public class IDT {
         x86.ldit(0, 1023);
     }
 
-    private static int CodeOffset(int classDesc, int mthdOff) {
+    public static int CodeOffset(int classDesc, int mthdOff) {
         int code = MAGIC.rMem32(classDesc + mthdOff) + MAGIC.getCodeOff();
         return code;
     }

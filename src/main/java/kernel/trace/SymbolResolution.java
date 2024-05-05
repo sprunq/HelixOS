@@ -1,7 +1,6 @@
 package kernel.trace;
 
 import kernel.MemoryLayout;
-import kernel.trace.logging.Logger;
 import rte.SClassDesc;
 import rte.SMthdBlock;
 import rte.SPackage;
@@ -17,8 +16,6 @@ public class SymbolResolution {
         bootloaderMethod.namePar = "bootloader()";
         bootloaderMethod.owner = bootloaderClassDesc;
         bootloaderMethod.nextMthd = null;
-
-        Logger.Info("SymRes", "Initialized SymbolResolution");
     }
 
     public static SMthdBlock Resolve(int addr) {

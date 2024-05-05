@@ -1,13 +1,14 @@
 package gui.displays.windows;
 
 import formats.fonts.AFont;
+import gui.Window;
 import gui.components.TextField;
 import kernel.Kernel;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import kernel.trace.logging.LogEntry;
 import kernel.trace.logging.Logger;
 
-public class LogTextField extends AWindow {
+public class Logs extends Window {
     private final int COL_FATAL;
     private final int COL_ERROR;
     private final int COL_WARNING;
@@ -16,7 +17,7 @@ public class LogTextField extends AWindow {
     private int lastLogTick = -1;
     private TextField _textField;
 
-    public LogTextField(
+    public Logs(
             String title,
             int x,
             int y,
@@ -48,10 +49,11 @@ public class LogTextField extends AWindow {
                 lineSpacing,
                 fg,
                 bg,
+                false,
                 font);
     }
 
-    public void DrawContent(ADisplay display) {
+    public void DrawContent(GraphicsContext ctx) {
         _textField.ClearText();
         int amountToDisplay = _textField.LineCount - 1;
         for (int i = amountToDisplay; i >= 0; i--) {
@@ -84,9 +86,11 @@ public class LogTextField extends AWindow {
                             break;
                     }
                     _textField.SetBrushColor(color);
-                    _textField.Write("<");
-                    _textField.Write(time);
-                    _textField.Write("> ");
+                    if (time.length() != 0) {
+                        _textField.Write("<");
+                        _textField.Write(time);
+                        _textField.Write("> ");
+                    }
                     _textField.Write(cat);
                     _textField.Write(": ");
                     _textField.Write(msg);
@@ -94,14 +98,15 @@ public class LogTextField extends AWindow {
                 }
             }
         }
-        _textField.Draw(display);
-
+        _textField.Draw(ctx);
         lastLogTick = Logger.LogTicks();
     }
 
     @Override
     public boolean NeedsRedraw() {
-        int logTicks = Logger.LogTicks();
-        return logTicks != lastLogTick;
+        if (Logger.LogTicks() != lastLogTick) {
+            _needsRedraw = true;
+        }
+        return super.NeedsRedraw();
     }
 }

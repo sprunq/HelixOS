@@ -1,23 +1,16 @@
 package kernel.interrupt;
 
 import arch.x86;
-import kernel.hardware.Timer;
-import kernel.hardware.keyboard.KeyboardController;
 import kernel.trace.Bluescreen;
 
-public class Interrupts {
+public class SystemInterrupts {
     @SJC.Interrupt
     public static void IgnoreHandler() {
     }
 
     @SJC.Interrupt
     public static void DivByZeroHandler() {
-        int ebp = 0;
-        MAGIC.inline(0x89, 0x6D);
-        MAGIC.inlineOffset(1, ebp);
-        Bluescreen.Show("PANIC", "Interrupt divByZeroHandler", ebp, x86.eipForInterrupt(ebp, 0));
-        while (true) {
-        }
+        x86.breakpoint();
     }
 
     @SJC.Interrupt
@@ -132,17 +125,5 @@ public class Interrupts {
         Bluescreen.Show("PANIC", "Interrupt pageFaultHandler", ebp, x86.eipForInterrupt(ebp, 1));
         while (true) {
         }
-    }
-
-    @SJC.Interrupt
-    public static void TimerHandler() {
-        Timer.DoTick();
-        PIC.Acknowledge(0);
-    }
-
-    @SJC.Interrupt
-    public static void KeyboardHandler() {
-        KeyboardController.Handle();
-        PIC.Acknowledge(1);
     }
 }

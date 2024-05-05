@@ -1,7 +1,5 @@
 package kernel.interrupt;
 
-import kernel.trace.logging.Logger;
-
 /**
  * Programmable Interrupt Controller
  */
@@ -12,7 +10,6 @@ public class PIC {
     public static void Initialize() {
         ProgrammChip(MASTER, 0x20, 0x04); // init offset and slave config of master
         ProgrammChip(SLAVE, 0x28, 0x02); // init offset and slave config of slave
-        Logger.Info("PIC", "Initialized");
     }
 
     @SJC.Inline

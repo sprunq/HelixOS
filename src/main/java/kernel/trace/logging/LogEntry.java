@@ -29,6 +29,26 @@ public class LogEntry {
     }
 
     @SJC.Inline
+    public String PriorityString() {
+        switch (_priority) {
+            case Logger.NONE:
+                return "NONE";
+            case Logger.TRACE:
+                return "TRACE";
+            case Logger.INFO:
+                return "INFO";
+            case Logger.WARNING:
+                return "WARNING";
+            case Logger.ERROR:
+                return "ERROR";
+            case Logger.FATAL:
+                return "FATAL";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
+    @SJC.Inline
     public String TimeHMS() {
         return _timeHMS;
     }
@@ -52,4 +72,5 @@ public class LogEntry {
     public void SetTimeHMS(String time_HMS) {
         this._timeHMS = time_HMS;
     }
+
 }

@@ -26,7 +26,6 @@ public class Logger {
         initialized = true;
         minimumLogLevel = logLevel;
         _logTime = logTime;
-        Logger.Info("Logger", "Initialized");
     }
 
     @SJC.Inline
@@ -64,8 +63,36 @@ public class Logger {
         log.SetPriority(priority);
         if (_logTime)
             log.SetTimeHMS(GetTimeHMS());
+        LogSerial(log);
         logBuffer.Put(log);
         logTicks++;
+    }
+
+    public static void LogSerial(LogEntry entry) {
+        LogSerial(entry.TimeHMS());
+        LogSerial(" [");
+        LogSerial(entry.PriorityString());
+        LogSerial("] ");
+        LogSerial(entry.Category());
+        LogSerial(": ");
+        LogSerial(entry.Message());
+        LogSerial("\n");
+    }
+
+    public static void LogSerial(String str) {
+        if (str == null) {
+            LogSerial("null");
+            return;
+        }
+
+        if (str.length() == 0) {
+            return;
+        }
+
+        for (int i = 0; i < str.length(); i++) {
+            byte c = (byte) str.get(i);
+            MAGIC.wIOs8(0x3F8, c);
+        }
     }
 
     @SJC.Inline

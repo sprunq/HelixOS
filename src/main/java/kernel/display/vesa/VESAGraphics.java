@@ -2,11 +2,11 @@ package kernel.display.vesa;
 
 import kernel.Kernel;
 import kernel.bios.call.DisplayModes;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import kernel.memory.Memory;
 import kernel.trace.logging.Logger;
 
-public class VESAGraphics extends ADisplay {
+public class VESAGraphics extends GraphicsContext {
     public VESAMode curMode;
     private byte[] buffer;
     private boolean needsRedraw;
@@ -67,11 +67,24 @@ public class VESAGraphics extends ADisplay {
     }
 
     @Override
+    public int Argb(int a, int r, int g, int b) {
+        int red, green, blue, alpha;
+        switch (curMode.ColorDepth) {
+            case 32:
+                red = Math.Clamp(r, 0, 255);
+                green = Math.Clamp(g, 0, 255);
+                blue = Math.Clamp(b, 0, 255);
+                alpha = Math.Clamp(a, 0, 255);
+                return (blue << 0) | (green << 8) | (red << 16) | (alpha << 24);
+            default:
+                Kernel.panic("VESAGraphics.Argb: unsupported color depth");
+                return 0;
+        }
+    }
+
+    @Override
     public void Pixel(int x, int y, int col) {
-        if (x < 0
-                || y < 0
-                || x >= curMode.XRes
-                || y > curMode.YRes) {
+        if (x < 0 || y < 0 || x >= curMode.XRes || y > curMode.YRes) {
             Kernel.panic("VESAGraphics.setPixel: invalid parameters(".append(x).append(", ").append(y).append(")"));
             return;
         }
@@ -129,10 +142,7 @@ public class VESAGraphics extends ADisplay {
 
     @Override
     public void Bitmap(int x, int y, int[][] bitmap) {
-        if (curMode == null
-                || bitmap == null
-                || bitmap.length == 0
-                || bitmap[0].length == 0) {
+        if (curMode == null || bitmap == null || bitmap.length == 0 || bitmap[0].length == 0) {
             Kernel.panic("VESAGraphics.setBitmap: invalid parameters");
             return;
         }
@@ -143,6 +153,10 @@ public class VESAGraphics extends ADisplay {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 int col = bitmap[i][j];
+                int alpha = (col >> 24) & 0xFF;
+                if (alpha == 0) {
+                    continue;
+                }
                 Pixel(x + i, y + j, col);
             }
         }
@@ -211,6 +225,11 @@ public class VESAGraphics extends ADisplay {
             }
             addrR8 += curMode.XRes;
         }
+    }
+
+    @Override
+    public boolean Contains(int x, int y) {
+        return x >= 0 && y >= 0 && x < curMode.XRes && y < curMode.YRes;
     }
 
 }

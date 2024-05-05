@@ -28,12 +28,20 @@ public class Timer {
         }
     }
 
+    @SJC.Inline
     public static int TickDifferenceMs(int start, int end) {
         double rate = PIT.RateHz();
         return (int) ((end - start) / rate * 1000.0);
     }
 
+    @SJC.Inline
     public static int TickDifferenceMs(int ticks) {
         return TickDifferenceMs(0, ticks);
+    }
+
+    @SJC.Inline
+    public static int TicksToMs(int ticks) {
+        double rate = PIT.RateHz();
+        return (int) (ticks / rate * 1000.0);
     }
 }

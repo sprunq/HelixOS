@@ -1,13 +1,13 @@
 package gui.displays;
 
 import formats.images.Image;
-import gui.ADisplayElement;
+import gui.Widget;
 import gui.images.LogoText;
 import gui.images.Logo;
 import kernel.Kernel;
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 
-public class Splashscreen extends ADisplayElement {
+public class Splashscreen extends Widget {
     private Image _logo;
     private Image _logoText;
     private int _spaceBetween;
@@ -15,7 +15,7 @@ public class Splashscreen extends ADisplayElement {
     private int _backColor;
 
     public Splashscreen(int x, int y, int z, int width, int height) {
-        super(x, y, z, width, height);
+        super("splashscreen", x, y, z, width, height);
         _logo = Logo.Load();
         _logoText = LogoText.Load();
         _spaceBetween = 20;
@@ -24,7 +24,7 @@ public class Splashscreen extends ADisplayElement {
     }
 
     @Override
-    public void Draw(ADisplay display) {
+    public void Draw(GraphicsContext display) {
         Kernel.Display.Rectangle(0, 0, Kernel.Display.Width(), Kernel.Display.Height(), _backColor);
 
         int x = Kernel.Display.Width() / 2 - _logo.Width / 2;

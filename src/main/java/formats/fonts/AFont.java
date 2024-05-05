@@ -1,6 +1,6 @@
 package formats.fonts;
 
-import kernel.display.ADisplay;
+import kernel.display.GraphicsContext;
 import util.BitHelper;
 
 public abstract class AFont {
@@ -17,7 +17,7 @@ public abstract class AFont {
 
     public abstract boolean Vertical();
 
-    public void RenderToDisplay(ADisplay display, int x, int y, int ch, int color) {
+    public void RenderToDisplay(GraphicsContext display, int x, int y, int ch, int color) {
         int fontWidth = Width();
         int fontHeight = Height();
         boolean fontVertical = Vertical();
