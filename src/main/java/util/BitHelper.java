@@ -90,11 +90,9 @@ public class BitHelper {
 
     /**
      * A utility class which converts longs in binary form into their actual binary
-     * values.
-     * Was created because SJC does not support binary literals
-     * <i>but it turns out it's useless because function calls cannot be assigned to
-     * static fields</i>.
-     * 
+     * values. Was created because SJC does not support binary literals <i>but it
+     * turns out it's useless because function calls cannot be assigned to static
+     * fields</i>.
      * <p>
      * <br>
      * Example:

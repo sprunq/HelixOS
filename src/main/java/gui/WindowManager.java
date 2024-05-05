@@ -87,10 +87,11 @@ public class WindowManager extends Task {
         DistributeMouseEvents();
         int start = Timer.Ticks();
         DrawWindows();
-        DrawCursor();
         int end = Timer.Ticks();
         int renderTime = Timer.TicksToMs(end - start);
         _drawTicksAvgSum += renderTime;
+
+        DrawCursor();
 
         if (_drawTicksAvgCycle >= _drawTicksAvgN) {
             InfoAvgRenderTimeMs = _drawTicksAvgSum / _drawTicksAvgN;
@@ -106,7 +107,7 @@ public class WindowManager extends Task {
         }
 
         if (_lastMouseX >= 0 && _lastMouseX < _ctx.Width() && _lastMouseY >= 0 && _lastMouseY < _ctx.Height()) {
-            _ctx.Rectangle(_lastMouseX, _lastMouseY, 10, 10, 0xFF);
+            _ctx.Rectangle(_lastMouseX, _lastMouseY, 5, 5, 0xFFFF);
         }
     }
 
@@ -141,7 +142,7 @@ public class WindowManager extends Task {
     }
 
     public void DistributeMouseEvents() {
-        Logger.Trace("WIN", MouseController.Event.Debug());
+        // Logger.Trace("WIN", MouseController.Event.Debug());
         _lastMouseX += MouseController.Event.X_Delta;
         _lastMouseY -= MouseController.Event.Y_Delta;
     }
@@ -153,27 +154,27 @@ public class WindowManager extends Task {
 
     private boolean ConsumedInternalOnKeyPressed(char keyCode) {
         switch (keyCode) {
-            case Key.LCTRL:
-                _ctrlDown = true;
+        case Key.LCTRL:
+            _ctrlDown = true;
+            return true;
+        case Key.TAB:
+            if (_ctrlDown) {
+                NextSlection();
                 return true;
-            case Key.TAB:
-                if (_ctrlDown) {
-                    NextSlection();
-                    return true;
-                }
-                return false;
-            default:
-                return false;
+            }
+            return false;
+        default:
+            return false;
         }
     }
 
     private boolean ConsumedInternalOnKeyReleased(char keyCode) {
         switch (keyCode) {
-            case Key.LCTRL:
-                _ctrlDown = false;
-                return true;
-            default:
-                return false;
+        case Key.LCTRL:
+            _ctrlDown = false;
+            return true;
+        default:
+            return false;
         }
     }
 

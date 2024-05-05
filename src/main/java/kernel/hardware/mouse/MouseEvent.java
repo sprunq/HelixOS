@@ -26,10 +26,7 @@ public class MouseEvent implements IDebug {
 
     @Override
     public String Debug() {
-        return new StrBuilder(64).Append("MouseEvent{")
-                .Append("X_Delta=").Append(X_Delta)
-                .Append(", Y_Delta=").Append(Y_Delta)
-                .Append(", ButtonState=0b").Append(ButtonState, 2)
-                .Append("}").toString();
+        return new StrBuilder(64).Append("MouseEvent{").Append("X_Delta=").Append(X_Delta).Append(", Y_Delta=")
+                .Append(Y_Delta).Append(", ButtonState=0b").Append(ButtonState, 2).Append("}").toString();
     }
 }
