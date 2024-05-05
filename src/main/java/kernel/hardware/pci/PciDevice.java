@@ -81,14 +81,21 @@ public class PciDevice implements IDebug {
 
     @Override
     public String Debug() {
-        StrBuilder sb = new StrBuilder();
-        sb.Append("PCI(B=")
-                .Append(Bus, 10)
-                .Append("|D=")
-                .Append(Device, 10)
-                .Append("|F=")
-                .Append(Function, 10)
-                .Append(")");
+        StrBuilder sb = new StrBuilder(512);
+        sb.Append("PCI(").Append(Bus).Append(':').Append(Device).Append(':').Append(Function).Append("){")
+                .Append("Vendor=").Append(VendorId).Append(", ")
+                .Append("Device=").Append(DeviceId).Append(", ")
+                .Append("Command=").Append(Command).Append(", ")
+                .Append("Status=").Append(Status).Append(", ")
+                .Append("Revision=").Append(Revision).Append(", ")
+                .Append("Itf=").Append(Itf).Append(", ")
+                .Append("SubClass=").Append(SubClassCode).Append(", ")
+                .Append("BaseClass=").Append(BaseClassCode).Append(" (").Append(BaseClassName()).Append("), ")
+                .Append("Cls=").Append(Cls).Append(", ")
+                .Append("Latency=").Append(Latency).Append(", ")
+                .Append("Header=").Append(Header).Append(", ")
+                .Append("Bist=").Append(Bist)
+                .Append("}");
         return sb.toString();
     }
 }

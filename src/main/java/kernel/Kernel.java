@@ -18,6 +18,9 @@ import kernel.display.GraphicsContext;
 import kernel.hardware.PIT;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.keyboard.layout.QWERTZ;
+import kernel.hardware.mouse.MouseController;
+import kernel.hardware.pci.LazyPciDeviceReader;
+import kernel.hardware.pci.PciDevice;
 import kernel.interrupt.IDT;
 import kernel.memory.GarbageCollector;
 import kernel.memory.MemoryManager;
@@ -56,20 +59,28 @@ public class Kernel {
         MemoryManager.DisableGarbageCollection();
         Logger.Info("BOOT", "Disabled Garbage Collection");
 
-        Schedeuler.Initialize();
-        Logger.Info("BOOT", "Initialized Scheduler");
+        PrintAllPciDevices();
+
+        PIT.Initialize();
+        Logger.Info("BOOT", "Initialized PIT");
 
         PIT.SetRate(1000);
         Logger.Info("BOOT", "Set PIT Rate to 1000Hz");
 
         KeyboardController.Initialize();
-        Logger.Info("BOOT", "Initialized Keyboard Controller");
+        Logger.Info("BOOT", "Initialized PS2 Keyboard Controller");
 
         KeyboardController.SetLayout(new QWERTZ());
         Logger.Info("BOOT", "Set Keyboard Layout to QWERTZ");
 
+        MouseController.Initialize();
+        Logger.Info("BOOT", "Initialized PS2 Mouse Controller");
+
         IDT.Enable();
         Logger.Info("BOOT", "Enabled Interrupts");
+
+        Schedeuler.Initialize();
+        Logger.Info("BOOT", "Initialized Scheduler");
 
         VecVesaMode modes = VesaQuery.AvailableModes();
         VESAMode mode;
@@ -91,7 +102,7 @@ public class Kernel {
 
         WindowManager splash = new WindowManager(Display);
         splash.AddWindow(new Splashscreen(0, 0, 3, Display.Width(), Display.Height()));
-        splash.StaticDisplayFor(3000);
+        splash.StaticDisplayFor(0);
 
         Display.ClearScreen();
 
@@ -103,6 +114,17 @@ public class Kernel {
         Logger.Info("BOOT", "Built GUI Environment");
 
         Schedeuler.Run();
+    }
+
+    private static void PrintAllPciDevices() {
+        Logger.Info("BOOT", "Detecting PCI Devices..");
+        LazyPciDeviceReader reader = new LazyPciDeviceReader();
+        while (reader.HasNext()) {
+            PciDevice device = reader.Next();
+            if (device == null)
+                continue;
+            Logger.Info("BOOT", "Found Device ".append(device.Debug()));
+        }
     }
 
     private static void BuildGuiEnvironment(WindowManager windowManager) {

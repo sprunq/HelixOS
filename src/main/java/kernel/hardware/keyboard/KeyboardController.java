@@ -1,11 +1,15 @@
 package kernel.hardware.keyboard;
 
 import kernel.hardware.keyboard.layout.ALayout;
+import kernel.interrupt.IDT;
+import kernel.interrupt.PIC;
 import kernel.trace.logging.Logger;
+import rte.SClassDesc;
 import util.BitHelper;
 import util.queue.QueueByte;
 
 public class KeyboardController {
+    public static final int IRQ_KEYBOARD = 1;
     private static final int PORT_KEYCODE = 0x60;
     private static final int KEYCODE_EXTEND1 = 0xE0;
     private static final int KEYCODE_EXTEND2 = 0xE1;
@@ -27,7 +31,16 @@ public class KeyboardController {
     public static void Initialize() {
         _inputBuffer = new QueueByte(256);
         _layout = null;
-        Logger.Info("KeyC", "Initialized");
+
+        int dscAddr = MAGIC.cast2Ref((SClassDesc) MAGIC.clssDesc("KeyboardController"));
+        int handlerOffset = IDT.CodeOffset(dscAddr, MAGIC.mthdOff("KeyboardController", "KeyboardHandler"));
+        IDT.RegisterIrqHandler(IRQ_KEYBOARD, handlerOffset);
+    }
+
+    @SJC.Interrupt
+    public static void KeyboardHandler() {
+        KeyboardController.Handle();
+        PIC.Acknowledge(IRQ_KEYBOARD);
     }
 
     public static void SetLayout(ALayout layout) {

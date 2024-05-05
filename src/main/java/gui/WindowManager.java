@@ -5,6 +5,7 @@ import kernel.hardware.Timer;
 import kernel.hardware.keyboard.Key;
 import kernel.hardware.keyboard.KeyEvent;
 import kernel.hardware.keyboard.KeyboardController;
+import kernel.hardware.mouse.MouseController;
 import kernel.schedeule.Task;
 import kernel.trace.logging.Logger;
 import util.vector.VecWidget;
@@ -83,8 +84,10 @@ public class WindowManager extends Task {
     @Override
     public void Run() {
         DistributeKeyEvents();
+        DistributeMouseEvents();
         int start = Timer.Ticks();
         DrawWindows();
+        DrawCursor();
         int end = Timer.Ticks();
         int renderTime = Timer.TicksToMs(end - start);
         _drawTicksAvgSum += renderTime;
@@ -95,6 +98,16 @@ public class WindowManager extends Task {
             _drawTicksAvgCycle = 0;
         }
         _drawTicksAvgCycle++;
+    }
+
+    public void DrawCursor() {
+        if (_ctx == null) {
+            return;
+        }
+
+        if (_lastMouseX >= 0 && _lastMouseX < _ctx.Width() && _lastMouseY >= 0 && _lastMouseY < _ctx.Height()) {
+            _ctx.Rectangle(_lastMouseX, _lastMouseY, 10, 10, 0xFF);
+        }
     }
 
     @Override
@@ -127,8 +140,16 @@ public class WindowManager extends Task {
         }
     }
 
+    public void DistributeMouseEvents() {
+        Logger.Trace("WIN", MouseController.Event.Debug());
+        _lastMouseX += MouseController.Event.X_Delta;
+        _lastMouseY -= MouseController.Event.Y_Delta;
+    }
+
     private boolean _ctrlDown = false;
     private KeyEvent _keyEvent = new KeyEvent();
+    private int _lastMouseX = 400;
+    private int _lastMouseY = 400;
 
     private boolean ConsumedInternalOnKeyPressed(char keyCode) {
         switch (keyCode) {

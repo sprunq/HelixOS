@@ -1,15 +1,32 @@
 package kernel.hardware;
 
+import kernel.interrupt.IDT;
+import kernel.interrupt.PIC;
+import rte.SClassDesc;
+
 /**
  * The Programmable Interval Timer class represents a hardware timer used
  * for generating periodic interrupts.
  */
 public class PIT {
+    public static final int IRQ_PIT = 0;
     private static final int PIT_A = 0x40;
     private static final int PIT_CTRL = 0x43;
     private static final byte PIT_SET = (byte) 0x36;
     private static final double INTERNAL_CLOCK_SPEED = 1193131.666;
     private static double _rateHz = 18.2;
+
+    public static void Initialize() {
+        int dscAddr = MAGIC.cast2Ref((SClassDesc) MAGIC.clssDesc("PIT"));
+        int handlerOffset = IDT.CodeOffset(dscAddr, MAGIC.mthdOff("PIT", "TimerHandler"));
+        IDT.RegisterIrqHandler(IRQ_PIT, handlerOffset);
+    }
+
+    @SJC.Interrupt
+    public static void TimerHandler() {
+        Timer.DoTick();
+        PIC.Acknowledge(IRQ_PIT);
+    }
 
     /**
      * Sets the rate of the PIT timer.
@@ -34,4 +51,5 @@ public class PIT {
     public static double RateHz() {
         return _rateHz;
     }
+
 }
