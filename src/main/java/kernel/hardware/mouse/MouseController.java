@@ -119,7 +119,7 @@ public class MouseController {
         return true;
     }
 
-    public static void Install() {
+    private static void Install() {
         Wait(1);
         MAGIC.wIOs8(PORT_STATUS, (byte) 0xA8);
         Wait(1);
@@ -133,6 +133,27 @@ public class MouseController {
         Write(0xF6);
         Read();
         Write(0xF4);
+        Read();
+    }
+
+    private static void SetSampleRate(int rate) {
+        Write(0xF3);
+        Read();
+        Write(rate);
+        Read();
+    }
+
+    private static void SetResolution(int resolution) {
+        Write(0xE8);
+        Read();
+        Write(resolution);
+        Read();
+    }
+
+    private static void SetScaling(int scaling) {
+        Write(0xE6);
+        Read();
+        Write(scaling);
         Read();
     }
 
@@ -169,24 +190,4 @@ public class MouseController {
         }
     }
 
-    private static void SetSampleRate(int rate) {
-        Write(0xF3);
-        Read();
-        Write(rate);
-        Read();
-    }
-
-    private static void SetResolution(int resolution) {
-        Write(0xE8);
-        Read();
-        Write(resolution);
-        Read();
-    }
-
-    private static void SetScaling(int scaling) {
-        Write(0xE6);
-        Read();
-        Write(scaling);
-        Read();
-    }
 }
