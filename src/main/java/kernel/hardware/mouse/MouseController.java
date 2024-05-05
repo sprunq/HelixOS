@@ -79,9 +79,9 @@ public class MouseController {
             return false;
         }
 
-        byte packetMetaData = _packet[0];
-        byte packetXMovement = _packet[1];
-        byte packetYMovement = _packet[2];
+        int packetMetaData = _packet[0];
+        int packetXMovement = _packet[1];
+        int packetYMovement = _packet[2];
 
         _packet[0] = 0;
         _packet[1] = 0;
