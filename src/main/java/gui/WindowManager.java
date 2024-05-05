@@ -67,8 +67,6 @@ public class WindowManager extends Task {
                 window.Draw(_ctx);
             }
         }
-
-        _ctx.Swap();
     }
 
     public void StaticDisplayFor(int ms) {
@@ -86,13 +84,14 @@ public class WindowManager extends Task {
         DistributeKeyEvents();
         DistributeMouseEvents();
         int start = Timer.Ticks();
+
         DrawWindows();
+        DrawCursor();
+        _ctx.Swap();
+
         int end = Timer.Ticks();
         int renderTime = Timer.TicksToMs(end - start);
         _drawTicksAvgSum += renderTime;
-
-        DrawCursor();
-
         if (_drawTicksAvgCycle >= _drawTicksAvgN) {
             InfoAvgRenderTimeMs = _drawTicksAvgSum / _drawTicksAvgN;
             _drawTicksAvgSum = 0;
@@ -106,7 +105,7 @@ public class WindowManager extends Task {
             return;
         }
 
-        if (_lastMouseX >= 0 && _lastMouseX < _ctx.Width() && _lastMouseY >= 0 && _lastMouseY < _ctx.Height()) {
+        if (_lastMouseX >= 0 && _lastMouseX < _ctx.Width() - 5 && _lastMouseY >= 0 && _lastMouseY < _ctx.Height() - 5) {
             _ctx.Rectangle(_lastMouseX, _lastMouseY, 5, 5, 0xFFFF);
         }
     }

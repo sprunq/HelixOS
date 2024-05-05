@@ -35,6 +35,7 @@ public class MouseController {
 
     public static void Initialize() {
         Install();
+        SetSampleRate(60);
         int dscAddr = MAGIC.cast2Ref((SClassDesc) MAGIC.clssDesc("MouseController"));
         int handlerOffset = IDT.CodeOffset(dscAddr, MAGIC.mthdOff("MouseController", "MouseHandler"));
         IDT.RegisterIrqHandler(IRQ_MOUSE, handlerOffset);
@@ -42,16 +43,16 @@ public class MouseController {
 
     public static MouseEvent Event = new MouseEvent();
 
+    private static int cycle = 0;
+    private static int packetMetaData = 0;
+    private static int packetYMovement = 0;
+    private static int packetXMovement = 0;
+    private static int buttonState = 0;
+
     @SJC.Interrupt
     public static void MouseHandler() {
-        int cycle = 0;
-        int packetMetaData = 0;
-        int packetXMovement = 0;
-        int packetYMovement = 0;
-        int buttonState = 0;
-
         byte status = MAGIC.rIOs8(PORT_STATUS);
-        while (BitHelper.GetFlag(status, BIT_DATA_AVAILABLE)) {
+        if (BitHelper.GetFlag(status, BIT_DATA_AVAILABLE)) {
             byte mouse_in = MAGIC.rIOs8(PORT_DATA);
             if (BitHelper.GetFlag(status, BIT_FROM_MOUSE)) {
                 switch (cycle) {
@@ -70,21 +71,30 @@ public class MouseController {
                     cycle++;
                     break;
                 case 1:
-                    packetXMovement = mouse_in;
+                    packetXMovement = Integer.ubyte(mouse_in);
                     if (BitHelper.GetFlag(packetMetaData, BIT_X_SIGN)) packetXMovement |= 0xFFFFFF00;
                     cycle++;
                     break;
                 case 2:
-                    packetYMovement = mouse_in;
+                    packetYMovement = Integer.ubyte(mouse_in);
                     if (BitHelper.GetFlag(packetMetaData, BIT_Y_SIGN)) packetYMovement |= 0xFFFFFF00;
+
+                    if (Math.Abs(packetXMovement) < 3) packetXMovement = 0;
+                    if (Math.Abs(packetYMovement) < 3) packetYMovement = 0;
 
                     Event.X_Delta = packetXMovement;
                     Event.Y_Delta = packetYMovement;
                     Event.ButtonState = buttonState;
+
+                    cycle = 0;
+                    buttonState = 0;
+                    packetMetaData = 0;
+                    packetYMovement = 0;
+                    packetXMovement = 0;
+
                     break;
                 }
             }
-            status = MAGIC.rIOs8(PORT_STATUS);
         }
         PIC.Acknowledge(IRQ_MOUSE);
     }
@@ -142,5 +152,12 @@ public class MouseController {
             Logger.Warning("Mouse", "Mouse timeout");
             return;
         }
+    }
+
+    private static void SetSampleRate(int rate) {
+        Write(0xF3);
+        Read();
+        Write(rate);
+        Read();
     }
 }
