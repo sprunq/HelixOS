@@ -49,7 +49,7 @@ public class Logs extends Window {
                 lineSpacing,
                 fg,
                 bg,
-                false,
+                true,
                 font);
     }
 
@@ -66,6 +66,9 @@ public class Logs extends Window {
                     String time = log.TimeHMS();
                     int color = 0;
                     switch (level) {
+                        case Logger.NONE:
+                            color = 0;
+                            break;
                         case Logger.TRACE:
                             color = COL_TRACE;
                             break;
@@ -108,5 +111,11 @@ public class Logs extends Window {
             _needsRedraw = true;
         }
         return super.NeedsRedraw();
+    }
+
+    @Override
+    public void DragBy(int dragDiffX, int dragDiffY) {
+        super.DragBy(dragDiffX, dragDiffY);
+        _textField.DragBy(dragDiffX, dragDiffY);
     }
 }

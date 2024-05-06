@@ -66,6 +66,7 @@ public class MouseController {
                         _packet[0] = _workingPacket[0];
                         _packet[1] = _workingPacket[1];
                         _packet[2] = _workingPacket[2];
+                        BufferMovementEvents();
                         cycle = 0;
                         break;
                 }
@@ -74,7 +75,7 @@ public class MouseController {
         PIC.Acknowledge(IRQ_MOUSE);
     }
 
-    public static boolean ReadEvent(MouseEvent readInto) {
+    private static boolean BufferMovementEvents() {
         if (_packet[0] == 0) {
             return false;
         }
@@ -82,6 +83,33 @@ public class MouseController {
         int packetMetaData = _packet[0];
         int packetXMovement = _packet[1];
         int packetYMovement = _packet[2];
+
+        if (!BitHelper.GetFlag(packetMetaData, BIT_ALWAYS_ONE)
+                || BitHelper.GetFlag(packetMetaData, BIT_Y_OVERFLOW)
+                || BitHelper.GetFlag(packetMetaData, BIT_X_OVERFLOW)) {
+            Logger.Warning("Mouse", "Bad packet received");
+            return false;
+        }
+
+        if (BitHelper.GetFlag(packetMetaData, BIT_X_SIGN)) {
+            packetXMovement |= 0xFFFFFF00;
+        }
+
+        if (BitHelper.GetFlag(packetMetaData, BIT_Y_SIGN)) {
+            packetYMovement |= 0xFFFFFF00;
+        }
+
+        _accumulatedX += packetXMovement;
+        _accumulatedY += packetYMovement;
+        return true;
+    }
+
+    public static boolean ReadEvent(MouseEvent readInto) {
+        if (_packet[0] == 0) {
+            return false;
+        }
+
+        int packetMetaData = _packet[0];
 
         _packet[0] = 0;
         _packet[1] = 0;
@@ -105,19 +133,17 @@ public class MouseController {
             buttonState |= MouseEvent.MIDDLE_BUTTON;
         }
 
-        if (BitHelper.GetFlag(packetMetaData, BIT_X_SIGN)) {
-            packetXMovement |= 0xFFFFFF00;
-        }
-
-        if (BitHelper.GetFlag(packetMetaData, BIT_Y_SIGN)) {
-            packetYMovement |= 0xFFFFFF00;
-        }
-
-        readInto.X_Delta = packetXMovement;
-        readInto.Y_Delta = packetYMovement;
+        readInto.X_Delta = _accumulatedX;
+        readInto.Y_Delta = _accumulatedY;
         readInto.ButtonState = buttonState;
+
+        _accumulatedX = 0;
+        _accumulatedY = 0;
         return true;
     }
+
+    private static int _accumulatedX = 0;
+    private static int _accumulatedY = 0;
 
     private static void Install() {
         Wait(1);

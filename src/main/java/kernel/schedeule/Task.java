@@ -21,7 +21,9 @@ public abstract class Task {
         Schedeuler.RemoveTask(this);
     }
 
-    public abstract boolean WantsActive();
+    public boolean WantsActive() {
+        return true;
+    }
 
     public final void RunTask() {
         _active = true;
