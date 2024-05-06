@@ -15,6 +15,9 @@ public class VESAGraphics extends GraphicsContext {
         if (mode == null) {
             Kernel.panic("VESAGraphics.setMode: mode is null");
         }
+        if (mode.ColorDepth != 32) {
+            Kernel.panic("VESAGraphics.setMode: only 32 bit color depth is supported");
+        }
         int size = mode.XRes * mode.YRes * mode.BytesPerColor();
         buffer = new byte[size];
         needsRedraw = true;
@@ -42,113 +45,78 @@ public class VESAGraphics extends GraphicsContext {
     @Override
     public int Rgb(int r, int g, int b) {
         int red, green, blue;
-        switch (curMode.ColorDepth) {
-            case 8:
-                return Math.Clamp(r, 0, 255);
-            case 15:
-            case 16:
-                red = Math.Clamp(r, 0, 255) >> 3;
-                green = Math.Clamp(g, 0, 255) >> 3;
-                blue = Math.Clamp(b, 0, 255) >> 3;
-                return (blue << 0) | (green << 5) | (red << 10);
-            case 24:
-                red = Math.Clamp(r, 0, 255);
-                green = Math.Clamp(g, 0, 255);
-                blue = Math.Clamp(b, 0, 255);
-                return (blue << 0) | (green << 8) | (red << 16);
-            case 32:
-                red = Math.Clamp(r, 0, 255);
-                green = Math.Clamp(g, 0, 255);
-                blue = Math.Clamp(b, 0, 255);
-                return (blue << 0) | (green << 8) | (red << 16) | (255 << 24);
-            default:
-                return 0;
-        }
+        red = Math.Clamp(r, 0, 255);
+        green = Math.Clamp(g, 0, 255);
+        blue = Math.Clamp(b, 0, 255);
+        return (blue << 0) | (green << 8) | (red << 16) | (255 << 24);
     }
 
     @Override
     public int Argb(int a, int r, int g, int b) {
         int red, green, blue, alpha;
-        switch (curMode.ColorDepth) {
-            case 32:
-                red = Math.Clamp(r, 0, 255);
-                green = Math.Clamp(g, 0, 255);
-                blue = Math.Clamp(b, 0, 255);
-                alpha = Math.Clamp(a, 0, 255);
-                return (blue << 0) | (green << 8) | (red << 16) | (alpha << 24);
-            default:
-                Kernel.panic("VESAGraphics.Argb: unsupported color depth");
-                return 0;
-        }
+        red = Math.Clamp(r, 0, 255);
+        green = Math.Clamp(g, 0, 255);
+        blue = Math.Clamp(b, 0, 255);
+        alpha = Math.Clamp(a, 0, 255);
+        return (blue << 0) | (green << 8) | (red << 16) | (alpha << 24);
     }
 
     @Override
     public void Pixel(int x, int y, int col) {
-        if (x < 0 || y < 0 || x >= curMode.XRes || y > curMode.YRes) {
-            Kernel.panic("VESAGraphics.setPixel: invalid parameters(".append(x).append(", ").append(y).append(")"));
+        if (x < 0 || y < 0 || x >= curMode.XRes || y >= curMode.YRes) {
             return;
         }
 
-        switch (curMode.ColorDepth) {
-            case 8:
-                int addr8 = x + y * curMode.XRes;
-                int addrR8 = MAGIC.addr(buffer[addr8]);
-                MAGIC.wMem8(addrR8, (byte) col);
-                break;
-            case 15:
-            case 16:
-                int addr16 = (x + y * curMode.XRes) << 1;
-                int addrR16 = MAGIC.addr(buffer[addr16]);
-                MAGIC.wMem16(addrR16, (short) col);
-                break;
-            case 24:
-                int addr24 = (x + y * curMode.XRes) * 3;
-                int addrR24 = MAGIC.addr(buffer[addr24]);
-                MAGIC.wMem8(addrR24, (byte) col);
-                MAGIC.wMem16(addrR24 + 1, (short) (col >> 8));
-                break;
-            case 32:
-                int addr32 = (x + y * curMode.XRes) << 2;
-                int addrR32 = MAGIC.addr(buffer[addr32]);
-                MAGIC.wMem32(addrR32, col);
-                break;
-        }
+        int addr32 = (x + y * curMode.XRes) << 2;
+        int addrR32 = MAGIC.addr(buffer[addr32]);
+        MAGIC.wMem32(addrR32, col);
         needsRedraw = true;
     }
 
     @Override
     public void Rectangle(int x, int y, int width, int height, int color) {
-        if (x < 0 || y < 0 || x + width > curMode.XRes || y + height > curMode.YRes) {
-            Kernel.panic("VESAGraphics.fillrect: invalid parameters");
+        // only draw visible part
+        if (x < 0) {
+            width += x;
+            x = 0;
         }
 
-        switch (curMode.ColorDepth) {
-            case 8:
-                fillrect8(x, y, width, height, color);
-                break;
-            case 15:
-            case 16:
-                fillrect16(x, y, width, height, color);
-                break;
-            case 24:
-                fillrect24(x, y, width, height, color);
-                break;
-            case 32:
-                fillrect32(x, y, width, height, color);
-                break;
+        if (y < 0) {
+            height += y;
+            y = 0;
         }
 
+        if (x + width > curMode.XRes) {
+            width = curMode.XRes - x;
+        }
+
+        if (y + height > curMode.YRes) {
+            height = curMode.YRes - y;
+        }
+
+        // this should not happen but it does and im confused
+        // somehow returning fixes it but it makes no sense
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        int addr32 = (x + y * curMode.XRes) << 2;
+        int addrR32 = MAGIC.addr(buffer[addr32]);
+        for (int i = 0; i < height; i++) {
+            Memory.Memset32(addrR32, width, color);
+            addrR32 += curMode.XRes << 2;
+        }
     }
 
     @Override
     public void Bitmap(int x, int y, int[][] bitmap) {
-        if (curMode == null || bitmap == null || bitmap.length == 0 || bitmap[0].length == 0) {
-            Kernel.panic("VESAGraphics.setBitmap: invalid parameters");
+        if (curMode == null || bitmap == null) {
+            Kernel.panic("VESAGraphics.setBitmap: mode or bitmap is null");
             return;
         }
 
-        int height = bitmap.length;
-        int width = bitmap[0].length;
+        int height = Math.Clamp(bitmap.length, 0, curMode.YRes - 1 - y);
+        int width = Math.Clamp(bitmap[0].length, 0, curMode.XRes - 1 - x);
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -156,10 +124,35 @@ public class VESAGraphics extends GraphicsContext {
                 int alpha = (col >> 24) & 0xFF;
                 if (alpha == 0) {
                     continue;
+                } else if (alpha == 255) {
+                    int xx = x + i;
+                    int yy = y + j;
+                    int addr32 = (xx + yy * curMode.XRes) << 2;
+                    int addrR32 = MAGIC.addr(buffer[addr32]);
+                    MAGIC.wMem32(addrR32, col);
+                    continue;
+                } else {
+                    int xx = x + i;
+                    int yy = y + j;
+                    int addr32 = (xx + yy * curMode.XRes) << 2;
+                    int addrR32 = MAGIC.addr(buffer[addr32]);
+                    int oldCol = MAGIC.rMem32(addrR32);
+                    int newCol = Blend(col, oldCol);
+                    MAGIC.wMem32(addrR32, newCol);
                 }
-                Pixel(x + i, y + j, col);
             }
         }
+        needsRedraw = true;
+    }
+
+    @SJC.Inline
+    private int Blend(int a, int b) {
+        int alpha = (a >> 24) & 0xFF;
+        int beta = 255 - alpha;
+        int red = ((a >> 16) & 0xFF) * alpha + ((b >> 16) & 0xFF) * beta;
+        int green = ((a >> 8) & 0xFF) * alpha + ((b >> 8) & 0xFF) * beta;
+        int blue = (a & 0xFF) * alpha + (b & 0xFF) * beta;
+        return (blue & 0xFF) | ((green & 0xFF) << 8) | ((red & 0xFF) << 16) | 0xFF000000;
     }
 
     @Override
@@ -190,46 +183,8 @@ public class VESAGraphics extends GraphicsContext {
         }
     }
 
-    @SJC.Inline
-    private void fillrect24(int x, int y, int width, int height, int color) {
-        int addr24 = (x + y * curMode.XRes) * 3;
-        int addrR24 = MAGIC.addr(buffer[addr24]);
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                MAGIC.wMem8(addrR24 + (j * 3), (byte) color);
-                MAGIC.wMem16(addrR24 + (j * 3) + 1, (short) (color >> 8));
-            }
-            addrR24 += curMode.XRes * 3;
-        }
-    }
-
-    @SJC.Inline
-    private void fillrect16(int x, int y, int width, int height, int color) {
-        int addr16 = (x + y * curMode.XRes) << 1;
-        int addrR16 = MAGIC.addr(buffer[addr16]);
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                MAGIC.wMem16(addrR16 + (j << 1), (short) color);
-            }
-            addrR16 += curMode.XRes << 1;
-        }
-    }
-
-    @SJC.Inline
-    private void fillrect8(int x, int y, int width, int height, int color) {
-        int addr8 = x + y * curMode.XRes;
-        int addrR8 = MAGIC.addr(buffer[addr8]);
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                MAGIC.wMem8(addrR8 + j, (byte) color);
-            }
-            addrR8 += curMode.XRes;
-        }
-    }
-
     @Override
     public boolean Contains(int x, int y) {
         return x >= 0 && y >= 0 && x < curMode.XRes && y < curMode.YRes;
     }
-
 }

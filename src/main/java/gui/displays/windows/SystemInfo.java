@@ -100,4 +100,10 @@ public class SystemInfo extends Window {
         }
         return _needsRedraw;
     }
+
+    @Override
+    public void DragBy(int dragDiffX, int dragDiffY) {
+        super.DragBy(dragDiffX, dragDiffY);
+        _textField.DragBy(dragDiffX, dragDiffY);
+    }
 }

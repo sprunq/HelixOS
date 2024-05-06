@@ -133,4 +133,10 @@ public class Editor extends Window {
             _textField.SetCursor(x + 1, y);
         }
     }
+
+    @Override
+    public void DragBy(int dragDiffX, int dragDiffY) {
+        super.DragBy(dragDiffX, dragDiffY);
+        _textField.DragBy(dragDiffX, dragDiffY);
+    }
 }

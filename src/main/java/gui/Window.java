@@ -82,4 +82,12 @@ public abstract class Window extends Widget {
     public boolean IsSelectable() {
         return true;
     }
+
+    @Override
+    public void DragBy(int dragDiffX, int dragDiffY) {
+        super.DragBy(dragDiffX, dragDiffY);
+        Title.DragBy(dragDiffX, dragDiffY);
+        ContentX += dragDiffX;
+        ContentY += dragDiffY;
+    }
 }

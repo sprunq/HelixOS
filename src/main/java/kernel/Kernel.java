@@ -31,7 +31,7 @@ import kernel.trace.logging.Logger;
 import util.vector.VecVesaMode;
 
 public class Kernel {
-    public static final int RESOLUTION = 1;
+    public static final int RESOLUTION = 0;
 
     public static GraphicsContext Display;
 

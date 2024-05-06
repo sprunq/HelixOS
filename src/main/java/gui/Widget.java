@@ -57,4 +57,10 @@ public abstract class Widget {
 
     public void LeftClickAt(int _lastMouseX, int _lastMouseY) {
     }
+
+    public void DragBy(int dragDiffX, int dragDiffY) {
+        SetDirty();
+        X += dragDiffX;
+        Y += dragDiffY;
+    }
 }

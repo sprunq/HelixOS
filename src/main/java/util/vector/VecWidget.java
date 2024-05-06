@@ -25,6 +25,24 @@ public class VecWidget {
         elements[size++] = element;
     }
 
+    public void remove(Widget element) {
+        for (int i = 0; i < size; i++) {
+            if (elements[i] == element) {
+                remove(i);
+                return;
+            }
+        }
+    }
+
+    public void remove(int index) {
+        if (index < 0 || index >= size)
+            Kernel.panic("Index out of bounds for vector removal");
+        for (int i = index; i < size - 1; i++) {
+            elements[i] = elements[i + 1];
+        }
+        size--;
+    }
+
     public Widget get(int index) {
         if (index < 0 || index >= size)
             Kernel.panic("Index out of bounds for vector access");
@@ -47,36 +65,6 @@ public class VecWidget {
                 newElements[i] = elements[i];
             }
             elements = newElements;
-        }
-    }
-
-    /*
-     * Sorts the elements of the vector by the Z value of the elements
-     * in ascending order.
-     */
-    public void SortByZ() {
-        for (int i = 0; i < size; i++) {
-            for (int j = i + 1; j < size; j++) {
-                if (elements[i].Z > elements[j].Z) {
-                    Widget temp = elements[i];
-                    elements[i] = elements[j];
-                    elements[j] = temp;
-                }
-            }
-        }
-    }
-
-    public void ScaleZ() {
-        int max = size;
-        for (int i = 0; i < size; i++) {
-            Widget ei = elements[i];
-            for (int j = 0; j < size; j++) {
-                Widget ej = elements[j];
-                if (ei.Z == ej.Z) {
-                    ej.Z = max;
-                    max--;
-                }
-            }
         }
     }
 
