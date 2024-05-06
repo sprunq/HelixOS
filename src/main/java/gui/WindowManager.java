@@ -15,12 +15,15 @@ import kernel.trace.logging.Logger;
 import util.vector.VecWidget;
 
 public class WindowManager extends Task {
-    private GraphicsContext _ctx;
-    private VecWidget _widgets;
-    private Widget _selectedWindow;
+    static public int InfoAvgRenderTimeMs = 0;
     private int _drawTicksAvgN = 50;
     private int _drawTicksAvgCycle = 0;
     private int _drawTicksAvgSum = 0;
+
+    private GraphicsContext _ctx;
+    private VecWidget _widgets;
+    private Widget _selectedWindow;
+    private int _lastUpdate = 0;
 
     private Image _cursorHand;
     private Image _cursorModern;
@@ -29,8 +32,14 @@ public class WindowManager extends Task {
     private MouseEvent _mouseEvent = new MouseEvent();
     private int _lastMouseX;
     private int _lastMouseY;
+    private boolean _leftDown = false;
+    private boolean _is_dragging = false;
+    private int _dragStartX;
+    private int _dragStartY;
 
-    static public int InfoAvgRenderTimeMs = 0;
+    private KeyEvent _keyEvent = new KeyEvent();
+    @SuppressWarnings("unused")
+    private boolean _ctrlDown = false;
 
     public WindowManager(GraphicsContext ctx) {
         super("_win_window_manager");
@@ -49,24 +58,6 @@ public class WindowManager extends Task {
         if (_selectedWindow == null && window.IsSelectable()) {
             _selectedWindow = window;
             _selectedWindow.SetSelected(true);
-        }
-    }
-
-    public void DrawWindows() {
-        if (_ctx == null) {
-            return;
-        }
-
-        for (int i = 0; i < _widgets.size(); i++) {
-            Widget window = _widgets.get(i);
-
-            if (window == null) {
-                continue;
-            }
-
-            if (window.NeedsRedraw()) {
-                window.Draw(_ctx);
-            }
         }
     }
 
@@ -107,14 +98,30 @@ public class WindowManager extends Task {
         _drawTicksAvgCycle++;
     }
 
-    private int _lastUpdate = 0;
-
     private boolean IsUpdateTime() {
         int now = Timer.Ticks();
         return Timer.TicksToMs(now - _lastUpdate) >= 1000 / 60;
     }
 
-    public void DrawCursor() {
+    private void DrawWindows() {
+        if (_ctx == null) {
+            return;
+        }
+
+        for (int i = 0; i < _widgets.size(); i++) {
+            Widget window = _widgets.get(i);
+
+            if (window == null) {
+                continue;
+            }
+
+            if (window.NeedsRedraw()) {
+                window.Draw(_ctx);
+            }
+        }
+    }
+
+    private void DrawCursor() {
         if (_ctx == null) {
             return;
         }
@@ -139,23 +146,16 @@ public class WindowManager extends Task {
                     if (ConsumedInternalOnKeyPressed(_keyEvent.Key)) {
                         continue;
                     }
-
                     _selectedWindow.OnKeyPressed(_keyEvent.Key);
                 } else {
                     if (ConsumedInternalOnKeyReleased(_keyEvent.Key)) {
                         continue;
                     }
-
                     _selectedWindow.OnKeyReleased(_keyEvent.Key);
                 }
             }
         }
     }
-
-    private boolean _leftDown = false;
-    private boolean _is_dragging = false;
-    private int _dragStartX;
-    private int _dragStartY;
 
     public void DistributeMouseEvents() {
         if (!MouseController.ReadEvent(_mouseEvent)) {
@@ -168,8 +168,8 @@ public class WindowManager extends Task {
         _lastMouseX += _mouseEvent.X_Delta;
         _lastMouseY -= _mouseEvent.Y_Delta;
 
-        _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width() - 5);
-        _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height() - 5);
+        _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width() - _cursorCurrent.Width);
+        _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height() - _cursorCurrent.Height);
 
         if (_mouseEvent.LeftButtonPressed()) {
             if (_leftDown) {
@@ -256,10 +256,6 @@ public class WindowManager extends Task {
         }
     }
 
-    @SuppressWarnings("unused")
-    private boolean _ctrlDown = false;
-    private KeyEvent _keyEvent = new KeyEvent();
-
     private boolean ConsumedInternalOnKeyPressed(char keyCode) {
         switch (keyCode) {
             case Key.LCTRL:
@@ -279,5 +275,4 @@ public class WindowManager extends Task {
                 return false;
         }
     }
-
 }

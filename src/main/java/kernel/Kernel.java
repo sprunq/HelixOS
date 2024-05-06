@@ -31,7 +31,7 @@ import kernel.trace.logging.Logger;
 import util.vector.VecVesaMode;
 
 public class Kernel {
-    public static final int RESOLUTION = 0;
+    public static final int RESOLUTION = 1;
 
     public static GraphicsContext Display;
 
@@ -59,7 +59,7 @@ public class Kernel {
         MemoryManager.DisableGarbageCollection();
         Logger.Info("BOOT", "Disabled Garbage Collection");
 
-        PrintAllPciDevices();
+        // PrintAllPciDevices();
 
         PIT.Initialize();
         Logger.Info("BOOT", "Initialized PIT");
