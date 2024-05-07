@@ -62,7 +62,6 @@ public class VirtualMemory {
             Kernel.panic("PageDirectory not allocated");
         }
 
-        // PAGE DIRECTORY
         for (int i = 0; i < PAGECOUNT; i++) {
             int pageTableAddr = _pageTableAddr + i * 4096;
             MAGIC.wMem32(i * 4 + _pageDirectoryAddr, pageTableAddr | 0x03);
@@ -89,7 +88,6 @@ public class VirtualMemory {
             Kernel.panic("PageTable not allocated");
         }
 
-        // PAGE TABLE
         // First page is a null page. Crash
         MAGIC.wMem32(_pageTableAddr, 0);
 
