@@ -5,7 +5,8 @@ import util.BitHelper;
 
 public class VirtualMemory {
     private static final int FOUR_MB = 1024 * 1024 * 4;
-    private static final int PAGECOUNT = 1024;
+    private static final int PAGES = 1024;
+    private static final int PAGE_SIZE = 4096;
 
     private static Object _pageTable;
     private static Object _pageDirectory;
@@ -62,8 +63,8 @@ public class VirtualMemory {
             Kernel.panic("PageDirectory not allocated");
         }
 
-        for (int i = 0; i < PAGECOUNT; i++) {
-            int pageTableAddr = _pageTableAddr + i * 4096;
+        for (int i = 0; i < PAGES; i++) {
+            int pageTableAddr = _pageTableAddr + i * PAGE_SIZE;
             MAGIC.wMem32(i * 4 + _pageDirectoryAddr, pageTableAddr | 0x03);
         }
     }
@@ -91,11 +92,13 @@ public class VirtualMemory {
         // First page is a null page. Crash
         MAGIC.wMem32(_pageTableAddr, 0);
 
-        for (int i = 1; i < PAGECOUNT * PAGECOUNT - 1; i++) {
+        for (int i = 1; i < PAGES * PAGES - 1; i++) {
+            // The lower 12 bits are used for attribues
+            // Since the 12 bits are cut off the address is automatically aligned to 4kb
             MAGIC.wMem32(i * 4 + _pageTableAddr, (i << 12) | 0x03);
         }
 
         // Last page is a null page. Crash
-        MAGIC.wMem32(((PAGECOUNT * PAGECOUNT - 1) * 4) + _pageTableAddr, 0);
+        MAGIC.wMem32(((PAGES * PAGES - 1) * 4) + _pageTableAddr, 0);
     }
 }
