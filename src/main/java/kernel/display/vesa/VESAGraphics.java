@@ -2,6 +2,7 @@ package kernel.display.vesa;
 
 import kernel.Kernel;
 import kernel.bios.call.DisplayModes;
+import kernel.display.Bitmap;
 import kernel.display.GraphicsContext;
 import kernel.memory.Memory;
 import kernel.trace.logging.Logger;
@@ -109,33 +110,39 @@ public class VESAGraphics extends GraphicsContext {
     }
 
     @Override
-    public void Bitmap(int x, int y, int[][] bitmap) {
+    public void Bitmap(int x, int y, Bitmap bitmap) {
         if (curMode == null || bitmap == null) {
             Kernel.panic("VESAGraphics.setBitmap: mode or bitmap is null");
             return;
         }
 
-        int height = Math.Clamp(bitmap.length, 0, curMode.YRes - 1 - y);
-        int width = Math.Clamp(bitmap[0].length, 0, curMode.XRes - 1 - x);
+        int height = Math.Clamp(bitmap.Height, 0, curMode.YRes - 1 - y);
+        int width = Math.Clamp(bitmap.Width, 0, curMode.XRes - 1 - x);
 
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                int col = bitmap[i][j];
+        for (int pixel_y = 0; pixel_y < height; pixel_y++) {
+
+            if (!bitmap.IsTransparent) {
+                int startAddr = MAGIC.addr(bitmap.PixelData[bitmap.Row(pixel_y)]);
+                int toAddr = MAGIC.addr(buffer[(x + (y + pixel_y) * curMode.XRes) << 2]);
+                Memory.Memcopy32(startAddr, toAddr, width);
+                continue;
+            }
+
+            for (int pixel_x = 0; pixel_x < width; pixel_x++) {
+                int col = bitmap.GetPixel(pixel_x, pixel_y);
                 int alpha = (col >> 24) & 0xFF;
                 if (alpha == 0) {
                     continue;
-                } else if (alpha == 255) {
-                    int xx = x + i;
-                    int yy = y + j;
-                    int addr32 = (xx + yy * curMode.XRes) << 2;
-                    int addrR32 = MAGIC.addr(buffer[addr32]);
+                }
+
+                int xx = x + pixel_x;
+                int yy = y + pixel_y;
+                int addr32 = (xx + yy * curMode.XRes) << 2;
+                int addrR32 = MAGIC.addr(buffer[addr32]);
+
+                if (alpha == 255) {
                     MAGIC.wMem32(addrR32, col);
-                    continue;
                 } else {
-                    int xx = x + i;
-                    int yy = y + j;
-                    int addr32 = (xx + yy * curMode.XRes) << 2;
-                    int addrR32 = MAGIC.addr(buffer[addr32]);
                     int oldCol = MAGIC.rMem32(addrR32);
                     int newCol = Blend(col, oldCol);
                     MAGIC.wMem32(addrR32, newCol);

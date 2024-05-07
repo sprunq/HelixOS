@@ -1,6 +1,7 @@
 package gui.images;
 
 import formats.images.BinImage.BinImage;
+import kernel.display.Bitmap;
 
 public class CursorModern extends BinImage {
 
@@ -11,7 +12,8 @@ public class CursorModern extends BinImage {
     @SuppressWarnings("static-access")
     public static final byte[] DATA = binimp.ByteData.cursor_modern_binimg;
 
-    public static BinImage Load() {
-        return new CursorModern(DATA);
+    public static Bitmap Load() {
+        BinImage img = new CursorModern(DATA);
+        return new Bitmap(img.Width, img.Height, img.PixelData);
     }
 }

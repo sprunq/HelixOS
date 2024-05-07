@@ -1,8 +1,8 @@
 package gui;
 
-import formats.images.Image;
 import gui.images.CursorHand;
 import gui.images.CursorModern;
+import kernel.display.Bitmap;
 import kernel.display.GraphicsContext;
 import kernel.hardware.Timer;
 import kernel.hardware.keyboard.Key;
@@ -25,9 +25,9 @@ public class WindowManager extends Task {
     private Widget _selectedWindow;
     private int _lastUpdate = 0;
 
-    private Image _cursorHand;
-    private Image _cursorModern;
-    private Image _cursorCurrent;
+    private Bitmap _cursorHand;
+    private Bitmap _cursorModern;
+    private Bitmap _cursorCurrent;
 
     private MouseEvent _mouseEvent = new MouseEvent();
     private int _lastMouseX;
@@ -50,6 +50,18 @@ public class WindowManager extends Task {
         _cursorCurrent = _cursorModern;
         _lastMouseX = ctx.Width() / 2;
         _lastMouseY = ctx.Height() / 2;
+
+        Logger.Info("WIN", "WindowManager initialized");
+        for (int y = 0; y < _cursorHand.Height; y++) {
+            for (int x = 0; x < _cursorHand.Width; x++) {
+                int color = _cursorHand.GetPixel(x, y);
+                int alpha = (color >> 24) & 0xFF;
+                Logger.LogSerial(Integer.toString(alpha));
+                Logger.LogSerial(", ");
+            }
+            Logger.LogSerial("\n");
+        }
+
     }
 
     public void AddWindow(Widget window) {
@@ -131,7 +143,7 @@ public class WindowManager extends Task {
         if (!_ctx.Contains(_lastMouseX + _cursorCurrent.Width, _lastMouseY + _cursorCurrent.Height))
             return;
 
-        _ctx.Bitmap(_lastMouseX, _lastMouseY, _cursorCurrent.PixelData);
+        _ctx.Bitmap(_lastMouseX, _lastMouseY, _cursorCurrent);
     }
 
     private void DistributeKeyEvents() {
@@ -169,8 +181,8 @@ public class WindowManager extends Task {
             _lastMouseX += _mouseEvent.X_Delta;
             _lastMouseY -= _mouseEvent.Y_Delta;
 
-            _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width() - _cursorCurrent.Width);
-            _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height() - _cursorCurrent.Height);
+            _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width());
+            _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height());
         }
 
         if (_mouseEvent.LeftButtonPressed()) {
@@ -180,8 +192,6 @@ public class WindowManager extends Task {
                     int dragDiffY = _lastMouseY - _dragStartY;
                     _selectedWindow.DragBy(dragDiffX, dragDiffY);
                     SetAllDirty();
-                    _dragStartX = _lastMouseX;
-                    _dragStartY = _lastMouseY;
                     _is_dragging = false;
                 } else {
                     _is_dragging = true;

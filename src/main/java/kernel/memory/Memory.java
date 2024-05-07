@@ -50,7 +50,7 @@ public class Memory {
      * Cannot be inlined since it has fixed offsets to function argument pointers.
      */
     @SJC.NoInline
-    private static void Memcopy32(int from, int to, int cnt) {
+    public static void Memcopy32(int from, int to, int cnt) {
         MAGIC.inlineBlock("memcopy32");
     }
 

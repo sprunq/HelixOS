@@ -18,7 +18,7 @@ public class QOIImage extends Image {
      */
     public int ColorSpace;
 
-    public QOIImage(int width, int height, int channels, int colorSpace, int[][] pixelData) {
+    public QOIImage(int width, int height, int channels, int colorSpace, int[] pixelData) {
         this.Width = width;
         this.Height = height;
         this.PixelData = pixelData;

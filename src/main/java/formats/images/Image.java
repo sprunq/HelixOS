@@ -3,7 +3,7 @@ package formats.images;
 public abstract class Image {
     public int Width;
     public int Height;
-    public int[][] PixelData;
+    public int[] PixelData;
 
     protected Image() {
         this.Width = 0;

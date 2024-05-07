@@ -18,10 +18,10 @@ public abstract class BinImage extends Image {
         PixelData = DecodeData(data);
     }
 
-    protected static int[][] DecodeData(byte[] data) {
+    protected static int[] DecodeData(byte[] data) {
         int width = ParseWidth(data);
         int height = ParseHeight(data);
-        int[][] pixel_data = Pixels(data, width, height);
+        int[] pixel_data = Pixels(data, width, height);
         return pixel_data;
     }
 
@@ -43,9 +43,9 @@ public abstract class BinImage extends Image {
         return height;
     }
 
-    protected static int[][] Pixels(byte[] data, int width, int height) {
+    protected static int[] Pixels(byte[] data, int width, int height) {
         int pos = 8;
-        int[][] pixel_data = new int[width][height];
+        int[] pixel_data = new int[width * height];
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
@@ -54,7 +54,7 @@ public abstract class BinImage extends Image {
                 int b = Integer.ubyte(data[pos++]);
                 int a = Integer.ubyte(data[pos++]);
                 int col = Kernel.Display.Argb(a, r, g, b);
-                pixel_data[j][i] = col;
+                pixel_data[j + i * width] = col;
             }
         }
         return pixel_data;

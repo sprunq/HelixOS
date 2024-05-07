@@ -1,15 +1,15 @@
 package gui.displays;
 
-import formats.images.Image;
 import gui.Widget;
 import gui.images.Logo25;
 import kernel.Kernel;
+import kernel.display.Bitmap;
 import kernel.display.GraphicsContext;
 
 public class Homebar extends Widget {
     private final int COL_HOMEBAR;
     private static final int HOMEBAR_HEIGHT = 45;
-    private Image _logo;
+    private Bitmap _logo;
     private TextClockTime _time;
     private TextClockDate _date;
 
@@ -43,7 +43,7 @@ public class Homebar extends Widget {
     @Override
     public void Draw(GraphicsContext display) {
         display.Rectangle(X, Y, Width, Height, COL_HOMEBAR);
-        display.Bitmap(X + 10, Y + 10, _logo.PixelData);
+        display.Bitmap(X + 10, Y + 10, _logo);
         _time.Draw(display);
         _date.Draw(display);
     }
@@ -53,11 +53,11 @@ public class Homebar extends Widget {
         return _time.NeedsRedraw() || _date.NeedsRedraw() || super.NeedsRedraw();
     }
 
-    private void SetLogoBackGround(Image logo) {
+    private void SetLogoBackGround(Bitmap logo) {
         for (int i = 0; i < logo.Width; i++) {
             for (int j = 0; j < logo.Height; j++) {
-                if (logo.PixelData[i][j] == 0) {
-                    logo.PixelData[i][j] = COL_HOMEBAR;
+                if (logo.GetPixel(j, i) == 0) {
+                    logo.SetPixel(j, i, COL_HOMEBAR);
                 }
             }
         }

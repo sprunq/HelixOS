@@ -1,15 +1,15 @@
 package gui.displays;
 
-import formats.images.Image;
 import gui.Widget;
 import gui.images.LogoText;
 import gui.images.Logo;
 import kernel.Kernel;
+import kernel.display.Bitmap;
 import kernel.display.GraphicsContext;
 
 public class Splashscreen extends Widget {
-    private Image _logo;
-    private Image _logoText;
+    private Bitmap _logo;
+    private Bitmap _logoText;
     private int _spaceBetween;
     private int _combinedHeight;
     private int _backColor;
@@ -29,12 +29,12 @@ public class Splashscreen extends Widget {
 
         int x = Kernel.Display.Width() / 2 - _logo.Width / 2;
         int y = Kernel.Display.Height() / 2 - _combinedHeight / 2;
-        Kernel.Display.Bitmap(x, y, _logo.PixelData);
+        Kernel.Display.Bitmap(x, y, _logo);
 
         int x_text = Kernel.Display.Width() / 2 - _logoText.Width / 2;
         int y_text = y + _logo.Height + _spaceBetween;
 
-        Kernel.Display.Bitmap(x_text, y_text, _logoText.PixelData);
+        Kernel.Display.Bitmap(x_text, y_text, _logoText);
     }
 
     @Override

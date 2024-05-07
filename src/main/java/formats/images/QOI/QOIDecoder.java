@@ -68,19 +68,17 @@ public class QOIDecoder {
         }
 
         // Convert pixel data to 2D array
-        int[][] pixelData = new int[width][height];
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                int r = pixelDataRaw[(i * width + j) * channels] & 0xFF;
-                int g = pixelDataRaw[(i * width + j) * channels + 1] & 0xFF;
-                int b = pixelDataRaw[(i * width + j) * channels + 2] & 0xFF;
+        int[] pixelData = new int[width * height];
+        for (int i = 0; i < width * height; i++) {
+            int r = pixelDataRaw[i * channels] & 0xFF;
+            int g = pixelDataRaw[i * channels + 1] & 0xFF;
+            int b = pixelDataRaw[i * channels + 2] & 0xFF;
 
-                if (channels == 4) {
-                    int a = pixelDataRaw[(i * width + j) * channels + 3] & 0xFF;
-                    pixelData[j][i] = (r << 16) | (g << 8) | b | (a << 24);
-                } else {
-                    pixelData[j][i] = (r << 16) | (g << 8) | b | 0xFF000000;
-                }
+            if (channels == 4) {
+                int a = pixelDataRaw[i * channels + 3] & 0xFF;
+                pixelData[i] = (r << 16) | (g << 8) | b | (a << 24);
+            } else {
+                pixelData[i] = (r << 16) | (g << 8) | b | 0xFF000000;
             }
         }
 
