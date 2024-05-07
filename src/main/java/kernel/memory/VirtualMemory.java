@@ -4,7 +4,7 @@ import kernel.Kernel;
 import util.BitHelper;
 
 public class VirtualMemory {
-    private static final int MB4 = 1024 * 1024 * 4;
+    private static final int FOUR_MB = 1024 * 1024 * 4;
     private static final int PAGECOUNT = 1024;
 
     private static Object _pageTable;
@@ -43,12 +43,13 @@ public class VirtualMemory {
 
     private static void AllocatePageDirectory() {
         _pageDirectory = MemoryManager.AllocateObject(
-                MAGIC.getInstScalarSize("Object") + MB4 * 2,
+                MAGIC.getInstScalarSize("Object") + FOUR_MB * 2,
                 MAGIC.getInstRelocEntries("Object"),
                 MAGIC.clssDesc("Object"));
 
-        int freeMemPageDirectoy = MAGIC.cast2Ref(_pageDirectory) + MAGIC.getInstScalarSize("Object");
-        _pageDirectoryAddr = BitHelper.AlignUp(freeMemPageDirectoy, 4096);
+        int reservedSpaceStartPageDirectory = MAGIC.cast2Ref(_pageDirectory) + MAGIC.getInstScalarSize("Object");
+        _pageDirectoryAddr = BitHelper.AlignUp(reservedSpaceStartPageDirectory, 4096);
+
         if (_pageDirectory == null || _pageDirectoryAddr % 4096 != 0) {
             Kernel.panic("PageTable not aligned to 4k: ".append(Integer.toString(_pageDirectoryAddr % 4096)));
         }
@@ -68,12 +69,13 @@ public class VirtualMemory {
 
     private static void AllocatePageTable() {
         _pageTable = MemoryManager.AllocateObject(
-                MAGIC.getInstScalarSize("Object") + MB4 * 2,
+                MAGIC.getInstScalarSize("Object") + FOUR_MB * 2,
                 MAGIC.getInstRelocEntries("Object"),
                 MAGIC.clssDesc("Object"));
 
-        int freeMemPageTable = MAGIC.cast2Ref(_pageTable) + MAGIC.getInstScalarSize("Object");
-        _pageTableAddr = BitHelper.AlignUp(freeMemPageTable, 4096);
+        int reservedSpaceStartMemPageTable = MAGIC.cast2Ref(_pageTable) + MAGIC.getInstScalarSize("Object");
+        _pageTableAddr = BitHelper.AlignUp(reservedSpaceStartMemPageTable, 4096);
+
         if (_pageTable == null || _pageTableAddr % 4096 != 0) {
             Kernel.panic("PageTable not aligned to 4k: ".append(Integer.toString(_pageTableAddr % 4096)));
         }
@@ -95,5 +97,4 @@ public class VirtualMemory {
         // Last page is a null page. Crash
         MAGIC.wMem32(((PAGECOUNT * PAGECOUNT - 1) * 4) + _pageTableAddr, 0);
     }
-
 }
