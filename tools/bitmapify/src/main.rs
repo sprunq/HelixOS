@@ -2,7 +2,7 @@ use image::io::Reader as ImageReader;
 
 struct ImageFormat {
     header: Header,
-    data: Vec<RGB>,
+    data: Vec<RGBA>,
 }
 
 impl ImageFormat {
@@ -30,19 +30,20 @@ impl Header {
     }
 }
 
-struct RGB {
+struct RGBA {
     r: u8,
     g: u8,
     b: u8,
+    a: u8,
 }
 
-impl RGB {
-    fn new(r: u8, g: u8, b: u8) -> RGB {
-        RGB { r, g, b }
+impl RGBA {
+    fn new(r: u8, g: u8, b: u8, a: u8) -> RGBA {
+        RGBA { r, g, b, a }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
-        vec![self.r, self.g, self.b]
+        vec![self.r, self.g, self.b, self.a]
     }
 }
 
@@ -53,13 +54,12 @@ fn main() {
     let output = std::env::args().nth(2).unwrap();
 
     let img = ImageReader::open(path).unwrap().decode().unwrap();
-    let img = img.to_rgb8();
+    let img = img.to_rgba8();
     let (width, height) = img.dimensions();
     let mut data = Vec::new();
-    for y in 0..height {
-        for x in 0..width {
-            let pixel = img.get_pixel(x, y);
-            data.push(RGB::new(pixel[0], pixel[1], pixel[2]));
+    for row in img.rows() {
+        for pixel in row {
+            data.push(RGBA::new(pixel[0], pixel[1], pixel[2], pixel[3]));
         }
     }
     let header = Header {

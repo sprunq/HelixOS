@@ -153,13 +153,12 @@ public class VESAGraphics extends GraphicsContext {
     }
 
     @SJC.Inline
-    private int Blend(int a, int b) {
-        int alpha = (a >> 24) & 0xFF;
-        int beta = 255 - alpha;
-        int red = ((a >> 16) & 0xFF) * alpha + ((b >> 16) & 0xFF) * beta;
-        int green = ((a >> 8) & 0xFF) * alpha + ((b >> 8) & 0xFF) * beta;
-        int blue = (a & 0xFF) * alpha + (b & 0xFF) * beta;
-        return (blue & 0xFF) | ((green & 0xFF) << 8) | ((red & 0xFF) << 16) | 0xFF000000;
+    private int Blend(int withAlpha, int noAlpha) {
+        int alpha = (withAlpha >> 24) & 0xFF;
+        int r = (alpha * ((withAlpha >> 16) & 0xFF) + (255 - alpha) * ((noAlpha >> 16) & 0xFF)) / 255;
+        int g = (alpha * ((withAlpha >> 8) & 0xFF) + (255 - alpha) * ((noAlpha >> 8) & 0xFF)) / 255;
+        int b = (alpha * (withAlpha & 0xFF) + (255 - alpha) * (noAlpha & 0xFF)) / 255;
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 
     @Override
@@ -178,16 +177,6 @@ public class VESAGraphics extends GraphicsContext {
         int from = MAGIC.addr(buffer[0]);
         int len = buffer.length;
         Memory.Memset(from, len, (byte) 0);
-    }
-
-    @SJC.Inline
-    private void fillrect32(int x, int y, int width, int height, int color) {
-        int addr32 = (x + y * curMode.XRes) << 2;
-        int addrR32 = MAGIC.addr(buffer[addr32]);
-        for (int i = 0; i < height; i++) {
-            Memory.Memset32(addrR32, width, color);
-            addrR32 += curMode.XRes << 2;
-        }
     }
 
     @Override

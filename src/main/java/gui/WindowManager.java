@@ -2,6 +2,7 @@ package gui;
 
 import gui.images.CursorHand;
 import gui.images.CursorModern;
+import gui.images.TransparencyTest;
 import kernel.display.Bitmap;
 import kernel.display.GraphicsContext;
 import kernel.hardware.Timer;
@@ -46,7 +47,7 @@ public class WindowManager extends Task {
         _widgets = new VecWidget();
         this._ctx = ctx;
         _cursorHand = CursorHand.Load();
-        _cursorModern = CursorModern.Load();
+        _cursorModern = TransparencyTest.Load();
         _cursorCurrent = _cursorModern;
         _lastMouseX = ctx.Width() / 2;
         _lastMouseY = ctx.Height() / 2;
