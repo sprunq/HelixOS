@@ -1,7 +1,7 @@
 package gui.displays.windows;
 
 import kernel.hardware.Timer;
-import kernel.schedeule.Task;
+import kernel.schedule.Task;
 
 public class BounceTask extends Task {
     BounceWindow window;

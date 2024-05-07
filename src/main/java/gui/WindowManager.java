@@ -10,7 +10,7 @@ import kernel.hardware.keyboard.KeyEvent;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.mouse.MouseController;
 import kernel.hardware.mouse.MouseEvent;
-import kernel.schedeule.Task;
+import kernel.schedule.Task;
 import kernel.trace.logging.Logger;
 import util.vector.VecWidget;
 

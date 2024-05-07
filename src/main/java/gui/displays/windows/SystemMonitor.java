@@ -1,7 +1,7 @@
 package gui.displays.windows;
 
 import kernel.memory.GarbageCollector;
-import kernel.schedeule.Task;
+import kernel.schedule.Task;
 import util.queue.QueueInt;
 
 public class SystemMonitor extends Task {

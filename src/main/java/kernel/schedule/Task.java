@@ -1,4 +1,4 @@
-package kernel.schedeule;
+package kernel.schedule;
 
 public abstract class Task {
     public final int Id;
@@ -14,11 +14,11 @@ public abstract class Task {
     }
 
     public void Register() {
-        Schedeuler.AddTask(this);
+        Scheduler.AddTask(this);
     }
 
     public void RemoveFromExec() {
-        Schedeuler.RemoveTask(this);
+        Scheduler.RemoveTask(this);
     }
 
     public boolean WantsActive() {

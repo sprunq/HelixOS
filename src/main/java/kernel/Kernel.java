@@ -25,7 +25,7 @@ import kernel.interrupt.IDT;
 import kernel.memory.GarbageCollector;
 import kernel.memory.MemoryManager;
 import kernel.memory.VirtualMemory;
-import kernel.schedeule.Schedeuler;
+import kernel.schedule.Scheduler;
 import kernel.trace.Bluescreen;
 import kernel.trace.SymbolResolution;
 import kernel.trace.logging.Logger;
@@ -83,7 +83,7 @@ public class Kernel {
         IDT.Enable();
         Logger.Info("BOOT", "Enabled Interrupts");
 
-        Schedeuler.Initialize();
+        Scheduler.Initialize();
         Logger.Info("BOOT", "Initialized Scheduler");
 
         VecVesaMode modes = VesaQuery.AvailableModes();
@@ -117,7 +117,7 @@ public class Kernel {
         BuildGuiEnvironment(windowManager);
         Logger.Info("BOOT", "Built GUI Environment");
 
-        Schedeuler.Run();
+        Scheduler.Run();
     }
 
     @SuppressWarnings("unused")

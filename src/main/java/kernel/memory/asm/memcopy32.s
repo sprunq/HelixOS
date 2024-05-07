@@ -1,4 +1,5 @@
 ; File needs to be copied to include folder!
+; yasm file.s -o file.bim -a x86
 
 section .text
 bits 32

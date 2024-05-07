@@ -1,10 +1,10 @@
-package kernel.schedeule;
+package kernel.schedule;
 
 import kernel.Kernel;
 import kernel.memory.MemoryManager;
 import kernel.trace.logging.Logger;
 
-public class Schedeuler {
+public class Scheduler {
     public static final int MAX_TASKS = 20;
     private static Task[] _tasks;
     private static int _taskCount;
