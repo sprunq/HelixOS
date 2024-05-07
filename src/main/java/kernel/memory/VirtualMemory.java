@@ -42,6 +42,8 @@ public class VirtualMemory {
     }
 
     private static void AllocatePageDirectory() {
+        // This is the worst possible way to align the table to 4096b but apparently I'm
+        // too stupid to do it properly. Now we need 8MB but who cares tbh ¯\_(ツ)_/¯
         _pageDirectory = MemoryManager.AllocateObject(
                 MAGIC.getInstScalarSize("Object") + FOUR_MB * 2,
                 MAGIC.getInstRelocEntries("Object"),
@@ -68,6 +70,7 @@ public class VirtualMemory {
     }
 
     private static void AllocatePageTable() {
+        // Bad code. See above.
         _pageTable = MemoryManager.AllocateObject(
                 MAGIC.getInstScalarSize("Object") + FOUR_MB * 2,
                 MAGIC.getInstRelocEntries("Object"),
