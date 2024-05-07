@@ -60,6 +60,9 @@ public class Kernel {
         MemoryManager.DisableGarbageCollection();
         Logger.Info("BOOT", "Disabled Garbage Collection");
 
+        VirtualMemory.EnableVirtualMemory();
+        Logger.Info("BOOT", "Enabled Virtual Memory");
+
         // PrintAllPciDevices();
 
         PIT.Initialize();
@@ -82,9 +85,6 @@ public class Kernel {
 
         Schedeuler.Initialize();
         Logger.Info("BOOT", "Initialized Scheduler");
-
-        VirtualMemory.enableVirtualMemory();
-        Logger.Info("BOOT", "Enabled Virtual Memory");
 
         VecVesaMode modes = VesaQuery.AvailableModes();
         VESAMode mode;
