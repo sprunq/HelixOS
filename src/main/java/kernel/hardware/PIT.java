@@ -2,7 +2,6 @@ package kernel.hardware;
 
 import kernel.interrupt.IDT;
 import kernel.interrupt.PIC;
-import rte.SClassDesc;
 
 /**
  * The Programmable Interval Timer class represents a hardware timer used
@@ -17,7 +16,7 @@ public class PIT {
     private static double _rateHz = 18.2;
 
     public static void Initialize() {
-        int dscAddr = MAGIC.cast2Ref((SClassDesc) MAGIC.clssDesc("PIT"));
+        int dscAddr = MAGIC.cast2Ref(MAGIC.clssDesc("PIT"));
         int handlerOffset = IDT.CodeOffset(dscAddr, MAGIC.mthdOff("PIT", "TimerHandler"));
         IDT.RegisterIrqHandler(IRQ_PIT, handlerOffset);
     }

@@ -44,7 +44,7 @@ public class MemoryManager {
         _dynamicAllocRoot = (DynamicAllocRoot) AllocateObject(
                 MAGIC.getInstScalarSize("DynamicAllocRoot"),
                 MAGIC.getInstRelocEntries("DynamicAllocRoot"),
-                (SClassDesc) MAGIC.clssDesc("DynamicAllocRoot"));
+                MAGIC.clssDesc("DynamicAllocRoot"));
 
         _gc_allocationSizeSinceLastGC = 0;
     }

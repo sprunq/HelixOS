@@ -39,7 +39,7 @@ public class DynamicRuntime {
         else
             scS += length * entrySize; // Array mit skalaren Elementen
 
-        SArray obj = (SArray) MemoryManager.AllocateObject(scS, rlE, (SClassDesc) MAGIC.clssDesc("SArray"));
+        SArray obj = (SArray) MemoryManager.AllocateObject(scS, rlE, MAGIC.clssDesc("SArray"));
         MAGIC.assign(obj.length, length);
         MAGIC.assign(obj._r_dim, arrDim);
         MAGIC.assign(obj._r_stdType, stdType);

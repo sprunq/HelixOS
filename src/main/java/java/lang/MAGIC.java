@@ -1,5 +1,8 @@
 package java.lang;
 
+import rte.SClassDesc;
+import rte.SIntfDesc;
+
 @SJC.IgnoreUnit
 public class MAGIC {
     public static int ptrSize;
@@ -170,11 +173,11 @@ public class MAGIC {
         return 0;
     }
 
-    public static Object clssDesc(String clssName) {
+    public static SClassDesc clssDesc(String clssName) {
         return null;
     } // return SClassDesc
 
-    public static Object intfDesc(String clssName) {
+    public static SIntfDesc intfDesc(String clssName) {
         return null;
     } // returns SIntfDesc
 

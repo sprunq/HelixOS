@@ -162,14 +162,16 @@ public class WindowManager extends Task {
             return;
         }
 
-        SetDirtyAt(_lastMouseX, _lastMouseY);
-        SetDirtyAt(_lastMouseX + _cursorCurrent.Width, _drawTicksAvgCycle + _cursorCurrent.Height);
+        if (_mouseEvent.X_Delta != 0 || _mouseEvent.Y_Delta != 0) {
+            SetDirtyAt(_lastMouseX, _lastMouseY);
+            SetDirtyAt(_lastMouseX + _cursorCurrent.Width, _drawTicksAvgCycle + _cursorCurrent.Height);
 
-        _lastMouseX += _mouseEvent.X_Delta;
-        _lastMouseY -= _mouseEvent.Y_Delta;
+            _lastMouseX += _mouseEvent.X_Delta;
+            _lastMouseY -= _mouseEvent.Y_Delta;
 
-        _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width() - _cursorCurrent.Width);
-        _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height() - _cursorCurrent.Height);
+            _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width() - _cursorCurrent.Width);
+            _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height() - _cursorCurrent.Height);
+        }
 
         if (_mouseEvent.LeftButtonPressed()) {
             if (_leftDown) {

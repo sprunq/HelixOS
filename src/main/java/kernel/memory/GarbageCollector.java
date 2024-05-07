@@ -117,6 +117,7 @@ public class GarbageCollector {
         o.IsUsed = true;
 
         // Skip _r_type and _r_next
+        // we do not mark r_next and r_type is in static objects
         for (int relocIndex = 2; relocIndex < o._r_relocEntries; relocIndex++) {
             Object entry = o.ReadRelocEntry(relocIndex);
             if (entry != null) {
@@ -127,7 +128,7 @@ public class GarbageCollector {
 
     private static int Sweep() {
         int sweepedBytes = 0;
-        Object toRemove = MemoryManager.GetStaticAllocRoot();
+        Object toRemove = MemoryManager.GetDynamicAllocRoot();
         Object nextObject = null;
         while (toRemove != null) {
             nextObject = toRemove._r_next;

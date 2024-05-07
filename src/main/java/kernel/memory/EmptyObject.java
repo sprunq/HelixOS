@@ -35,7 +35,7 @@ public class EmptyObject extends Object {
 
     @SJC.Inline
     public static SClassDesc Type() {
-        return (SClassDesc) MAGIC.clssDesc("EmptyObject");
+        return MAGIC.clssDesc("EmptyObject");
     }
 
     @SJC.Inline

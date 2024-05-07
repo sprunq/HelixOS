@@ -4,7 +4,6 @@ import kernel.hardware.keyboard.layout.ALayout;
 import kernel.interrupt.IDT;
 import kernel.interrupt.PIC;
 import kernel.trace.logging.Logger;
-import rte.SClassDesc;
 import util.BitHelper;
 import util.queue.QueueByte;
 
@@ -32,7 +31,7 @@ public class KeyboardController {
         _inputBuffer = new QueueByte(256);
         _layout = null;
 
-        int dscAddr = MAGIC.cast2Ref((SClassDesc) MAGIC.clssDesc("KeyboardController"));
+        int dscAddr = MAGIC.cast2Ref(MAGIC.clssDesc("KeyboardController"));
         int handlerOffset = IDT.CodeOffset(dscAddr, MAGIC.mthdOff("KeyboardController", "KeyboardHandler"));
         IDT.RegisterIrqHandler(IRQ_KEYBOARD, handlerOffset);
     }

@@ -116,6 +116,7 @@ public class Kernel {
         Schedeuler.Run();
     }
 
+    @SuppressWarnings("unused")
     private static void PrintAllPciDevices() {
         Logger.Info("BOOT", "Detecting PCI Devices..");
         LazyPciDeviceReader reader = new LazyPciDeviceReader();

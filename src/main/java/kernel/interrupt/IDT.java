@@ -4,7 +4,6 @@ import arch.x86;
 import kernel.Kernel;
 import kernel.MemoryLayout;
 import kernel.trace.logging.Logger;
-import rte.SClassDesc;
 import util.BitHelper;
 import util.StrBuilder;
 
@@ -25,7 +24,7 @@ public class IDT {
     public static void Initialize() {
         PIC.Initialize();
 
-        int dscAddr = MAGIC.cast2Ref((SClassDesc) MAGIC.clssDesc("SystemInterrupts"));
+        int dscAddr = MAGIC.cast2Ref(MAGIC.clssDesc("SystemInterrupts"));
         WriteTableEntry(0, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "DivByZeroHandler")));
         WriteTableEntry(1, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "DebugHandler")));
         WriteTableEntry(2, CodeOffset(dscAddr, MAGIC.mthdOff("SystemInterrupts", "NmiHandler")));

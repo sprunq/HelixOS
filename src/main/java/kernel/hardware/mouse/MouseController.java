@@ -3,7 +3,6 @@ package kernel.hardware.mouse;
 import kernel.interrupt.IDT;
 import kernel.interrupt.PIC;
 import kernel.trace.logging.Logger;
-import rte.SClassDesc;
 import util.BitHelper;
 
 public class MouseController {
@@ -37,7 +36,7 @@ public class MouseController {
         SetScaling(1);
         _packet = new byte[3];
         _workingPacket = new byte[3];
-        int dscAddr = MAGIC.cast2Ref((SClassDesc) MAGIC.clssDesc("MouseController"));
+        int dscAddr = MAGIC.cast2Ref(MAGIC.clssDesc("MouseController"));
         int handlerOffset = IDT.CodeOffset(dscAddr, MAGIC.mthdOff("MouseController", "MouseHandler"));
         IDT.RegisterIrqHandler(IRQ_MOUSE, handlerOffset);
     }
