@@ -24,6 +24,7 @@ import kernel.hardware.pci.PciDevice;
 import kernel.interrupt.IDT;
 import kernel.memory.GarbageCollector;
 import kernel.memory.MemoryManager;
+import kernel.memory.VirtualMemory;
 import kernel.schedeule.Schedeuler;
 import kernel.trace.Bluescreen;
 import kernel.trace.SymbolResolution;
@@ -81,6 +82,9 @@ public class Kernel {
 
         Schedeuler.Initialize();
         Logger.Info("BOOT", "Initialized Scheduler");
+
+        VirtualMemory.enableVirtualMemory();
+        Logger.Info("BOOT", "Enabled Virtual Memory");
 
         VecVesaMode modes = VesaQuery.AvailableModes();
         VESAMode mode;

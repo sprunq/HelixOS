@@ -19,10 +19,6 @@ public class DynamicRuntime {
         Kernel.panic("Stack Overflow");
     }
 
-    static void nullException() {
-        Kernel.panic("Null Pointer Exception");
-    }
-
     public static Object newInstance(int scalarSize, int relocEntries, SClassDesc type) {
         return MemoryManager.AllocateObject(scalarSize, relocEntries, type);
     }

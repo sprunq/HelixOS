@@ -12,21 +12,24 @@ public class Object {
     public final Object _r_next = null;
     public final int _r_relocEntries = 0;
     public final int _r_scalarSize = 0;
-    public boolean IsUsed = false;
+    private int _flags = 0;
+
+    public static final int FLAG_USED = 1;
+    public static final int FLAG_OTHER = 1 << 2;
 
     @SJC.Inline
     public void MarkUnused() {
-        IsUsed = false;
+        _flags &= ~FLAG_USED;
     }
 
     @SJC.Inline
     public void MarkUsed() {
-        IsUsed = true;
+        _flags |= FLAG_USED;
     }
 
     @SJC.Inline
     public boolean IsMarked() {
-        return IsUsed;
+        return (_flags & FLAG_USED) == 1;
     }
 
     @SJC.Inline

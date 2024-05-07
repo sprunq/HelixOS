@@ -1,6 +1,8 @@
 package kernel.interrupt;
 
 import arch.x86;
+import kernel.Kernel;
+import kernel.memory.VirtualMemory;
 import kernel.trace.Bluescreen;
 
 public class SystemInterrupts {
@@ -119,10 +121,8 @@ public class SystemInterrupts {
 
     @SJC.Interrupt
     public static void PageFaultHandler() {
-        int ebp = 0;
-        MAGIC.inline(0x89, 0x6D);
-        MAGIC.inlineOffset(1, ebp);
-        Bluescreen.Show("PANIC", "Interrupt pageFaultHandler", ebp, x86.eipForInterrupt(ebp, 1));
+        int cr2 = VirtualMemory.getCR2();
+        Kernel.panic("Page fault at address");
         while (true) {
         }
     }

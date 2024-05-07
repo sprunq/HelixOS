@@ -58,7 +58,7 @@ public class GarbageCollector {
         int objects = 0;
         Object o = MemoryManager.GetStaticAllocRoot();
         while (o != null) {
-            o.IsUsed = false;
+            o.MarkUnused();
             o = o._r_next;
             objects++;
         }
@@ -106,7 +106,7 @@ public class GarbageCollector {
     }
 
     private static void MarkRecursive(Object o) {
-        if (o == null || o.IsUsed == true) {
+        if (o == null || o.IsMarked()) {
             return;
         }
 
@@ -114,7 +114,7 @@ public class GarbageCollector {
             return;
         }
 
-        o.IsUsed = true;
+        o.MarkUsed();
 
         // Skip _r_type and _r_next
         // we do not mark r_next and r_type is in static objects
@@ -133,7 +133,7 @@ public class GarbageCollector {
         while (toRemove != null) {
             nextObject = toRemove._r_next;
 
-            if (toRemove.IsUsed == false) {
+            if (!toRemove.IsMarked()) {
                 sweepedBytes += MemoryManager.ObjectSize(toRemove);
                 MemoryManager.RemoveFromNextChain(toRemove);
                 EmptyObject replacedWithEO = MemoryManager.ReplaceWithEmptyObject(toRemove);
