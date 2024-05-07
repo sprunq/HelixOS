@@ -7,14 +7,14 @@ import kernel.Kernel;
 import kernel.display.Bitmap;
 import kernel.display.GraphicsContext;
 
-public class Splashscreen extends Widget {
+public class Wallpaper extends Widget {
     private Bitmap _logo;
     private Bitmap _logoText;
     private int _spaceBetween;
     private int _combinedHeight;
     private int _backColor;
 
-    public Splashscreen(int x, int y, int z, int width, int height) {
+    public Wallpaper(int x, int y, int z, int width, int height) {
         super("splashscreen", x, y, z, width, height);
         _logo = Logo.Load();
         _logoText = LogoText.Load();
@@ -35,10 +35,6 @@ public class Splashscreen extends Widget {
         int y_text = y + _logo.Height + _spaceBetween;
 
         Kernel.Display.Bitmap(x_text, y_text, _logoText);
-    }
-
-    @Override
-    public boolean NeedsRedraw() {
-        return true;
+        _needsRedraw = false;
     }
 }

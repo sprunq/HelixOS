@@ -5,8 +5,7 @@ import formats.fonts.Font7x8;
 import formats.fonts.Font9x16;
 import gui.WindowManager;
 import gui.displays.Homebar;
-import gui.displays.Splashscreen;
-import gui.displays.windows.BounceTask;
+import gui.displays.Wallpaper;
 import gui.displays.windows.BounceWindow;
 import gui.displays.windows.Editor;
 import gui.displays.windows.Logs;
@@ -105,7 +104,7 @@ public class Kernel {
         Logger.Info("BOOT", "Initialized Display");
 
         WindowManager splash = new WindowManager(Display);
-        splash.AddWindow(new Splashscreen(0, 0, 3, Display.Width(), Display.Height()));
+        splash.AddWindow(new Wallpaper(0, 0, 3, Display.Width(), Display.Height()));
         splash.StaticDisplayFor(0);
 
         Display.ClearScreen();
@@ -175,21 +174,10 @@ public class Kernel {
                 2,
                 Font7x8.Instance);
 
-        BounceWindow bounce = new BounceWindow(
-                0,
-                0,
-                9,
-                300,
-                300,
-                "Bouncy");
-
         windowManager.AddWindow(homebar);
         windowManager.AddWindow(editor);
         windowManager.AddWindow(logTextField);
         windowManager.AddWindow(sysinfo);
-
-        // new BounceTask(bounce).Register();
-        // windowManager.AddWindow(bounce);
     }
 
     public static void panic(String msg) {

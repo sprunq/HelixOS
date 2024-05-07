@@ -1,8 +1,8 @@
 package gui;
 
+import gui.displays.Wallpaper;
 import gui.images.CursorHand;
 import gui.images.CursorModern;
-import gui.images.TransparencyTest;
 import kernel.display.Bitmap;
 import kernel.display.GraphicsContext;
 import kernel.hardware.Timer;
@@ -33,7 +33,7 @@ public class WindowManager extends Task {
     private MouseEvent _mouseEvent = new MouseEvent();
     private int _lastMouseX;
     private int _lastMouseY;
-    private boolean _leftDown = false;
+    private boolean _leftAlreadyDown = false;
     private boolean _is_dragging = false;
     private int _dragStartX;
     private int _dragStartY;
@@ -47,10 +47,12 @@ public class WindowManager extends Task {
         _widgets = new VecWidget();
         this._ctx = ctx;
         _cursorHand = CursorHand.Load();
-        _cursorModern = TransparencyTest.Load();
+        _cursorModern = CursorModern.Load();
         _cursorCurrent = _cursorModern;
         _lastMouseX = ctx.Width() / 2;
         _lastMouseY = ctx.Height() / 2;
+
+        AddWindow(new Wallpaper(0, 0, 0, ctx.Width(), ctx.Height()));
 
         Logger.Info("WIN", "WindowManager initialized");
         for (int y = 0; y < _cursorHand.Height; y++) {
@@ -69,8 +71,7 @@ public class WindowManager extends Task {
         _widgets.add(window);
 
         if (_selectedWindow == null && window.IsSelectable()) {
-            _selectedWindow = window;
-            _selectedWindow.SetSelected(true);
+            SetSelectedTo(window);
         }
     }
 
@@ -94,7 +95,12 @@ public class WindowManager extends Task {
             return;
         }
 
-        _ctx.ClearScreen();
+        if (_cursorCurrent.IsTransparent) {
+            SetDirtyAt(_lastMouseX, _lastMouseY);
+            SetDirtyAt(_lastMouseX + _cursorCurrent.Width / 2, _lastMouseY + _cursorCurrent.Height / 2);
+            SetDirtyAt(_lastMouseX + _cursorCurrent.Width, _lastMouseY + _cursorCurrent.Height);
+        }
+
         DrawWindows();
         DrawCursor();
         _ctx.Swap();
@@ -187,7 +193,7 @@ public class WindowManager extends Task {
         }
 
         if (_mouseEvent.LeftButtonPressed()) {
-            if (_leftDown) {
+            if (_leftAlreadyDown) {
                 if (_is_dragging) {
                     int dragDiffX = _lastMouseX - _dragStartX;
                     int dragDiffY = _lastMouseY - _dragStartY;
@@ -202,16 +208,16 @@ public class WindowManager extends Task {
                 }
             } else {
                 Logger.Trace("WIN", "Mouse Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
-                _leftDown = true;
+                _leftAlreadyDown = true;
                 _cursorCurrent = _cursorHand;
                 SetSelectedAt(_lastMouseX, _lastMouseY);
             }
         } else {
-            if (_leftDown) {
+            if (_leftAlreadyDown) {
                 _cursorCurrent = _cursorModern;
             }
             _is_dragging = false;
-            _leftDown = false;
+            _leftAlreadyDown = false;
         }
         if (_mouseEvent.RightButtonPressed()) {
             Logger.Trace("WIN", "Mouse Right Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
@@ -221,7 +227,21 @@ public class WindowManager extends Task {
         }
     }
 
+    private void SetSelectedAt(int x, int y) {
+        for (int i = 0; i < _widgets.size(); i++) {
+            Widget window = _widgets.get(i);
+            if (window == null || !window.IsSelectable()) {
+                continue;
+            }
+            if (window.Contains(x, y)) {
+                SetSelectedTo(window);
+                break;
+            }
+        }
+    }
+
     private void SetSelectedTo(Widget window) {
+        Logger.Trace("WIN", "Selected ".append(window.Name));
         if (_selectedWindow != null) {
             _selectedWindow.SetSelected(false);
         }
@@ -233,15 +253,14 @@ public class WindowManager extends Task {
         _widgets.add(window);
     }
 
-    private void SetSelectedAt(int x, int y) {
+    private void SetDirtyAt(int x, int y) {
         for (int i = 0; i < _widgets.size(); i++) {
             Widget window = _widgets.get(i);
             if (window == null) {
                 continue;
             }
             if (window.Contains(x, y)) {
-                SetSelectedTo(window);
-                break;
+                window.SetDirty();
             }
         }
     }
@@ -253,19 +272,6 @@ public class WindowManager extends Task {
                 continue;
             }
             window.SetDirty();
-        }
-    }
-
-    private void SetDirtyAt(int x, int y) {
-        for (int i = 0; i < _widgets.size(); i++) {
-            Widget window = _widgets.get(i);
-            if (window == null) {
-                continue;
-            }
-            if (window.Contains(x, y)) {
-                window.SetDirty();
-                break;
-            }
         }
     }
 

@@ -63,4 +63,8 @@ public abstract class Widget {
         X += dragDiffX;
         Y += dragDiffY;
     }
+
+    public boolean IsDraggable() {
+        return false;
+    }
 }

@@ -84,10 +84,16 @@ public abstract class Window extends Widget {
     }
 
     @Override
+    public boolean IsDraggable() {
+        return true;
+    }
+
+    @Override
     public void DragBy(int dragDiffX, int dragDiffY) {
         super.DragBy(dragDiffX, dragDiffY);
         Title.DragBy(dragDiffX, dragDiffY);
         ContentX += dragDiffX;
         ContentY += dragDiffY;
     }
+
 }
