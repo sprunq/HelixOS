@@ -15,7 +15,7 @@ public class Wallpaper extends Widget {
     private int _backColor;
 
     public Wallpaper(int x, int y, int z, int width, int height) {
-        super("splashscreen", x, y, z, width, height);
+        super("splashscreen", width, height);
         _logo = Logo.Load();
         _logoText = LogoText.Load();
         _spaceBetween = 20;

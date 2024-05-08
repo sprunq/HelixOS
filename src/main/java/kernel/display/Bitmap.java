@@ -1,5 +1,7 @@
 package kernel.display;
 
+import kernel.memory.Memory;
+
 public class Bitmap {
     public int Width;
     public int Height;
@@ -11,6 +13,13 @@ public class Bitmap {
         Height = height;
         PixelData = pixelData;
         IsTransparent = AnyTransparency();
+    }
+
+    public Bitmap(int width, int height, boolean isTransparent) {
+        Width = width;
+        Height = height;
+        IsTransparent = isTransparent;
+        PixelData = new int[Width * Height];
     }
 
     @SJC.Inline
@@ -29,6 +38,40 @@ public class Bitmap {
         }
 
         PixelData[x + y * Width] = color;
+    }
+
+    public void Rectangle(int x, int y, int width, int height, int color) {
+        // only draw visible part
+        if (x < 0) {
+            width += x;
+            x = 0;
+        }
+
+        if (y < 0) {
+            height += y;
+            y = 0;
+        }
+
+        if (x + width > Width) {
+            width = Height - x;
+        }
+
+        if (y + height > Height) {
+            height = Height - y;
+        }
+
+        // this should not happen but it does and im confused
+        // somehow returning fixes it but it makes no sense
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        int addr32 = x + y * Width;
+        int addrR32 = MAGIC.addr(PixelData[addr32]);
+        for (int i = 0; i < height; i++) {
+            Memory.Memset32(addrR32, width, color);
+            addrR32 += Width << 2;
+        }
     }
 
     @SJC.Inline

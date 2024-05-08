@@ -29,13 +29,10 @@ public class SystemInfo extends Window {
             int charSpacing,
             int lineSpacing,
             AFont font) {
-        super(x, y, z, width, height, title);
+        super(title, x, y, z, width, height);
         int bg = Kernel.Display.Rgb(100, 100, 100);
         int fg = Kernel.Display.Rgb(255, 255, 255);
         _textField = new TextField(
-                ContentX,
-                ContentY,
-                z,
                 ContentWidth,
                 ContentHeight,
                 border,
@@ -46,17 +43,17 @@ public class SystemInfo extends Window {
                 false,
                 font);
         _sb = new StrBuilder(500);
-        _text = UpdateText();
     }
 
     public void DrawContent(GraphicsContext ctx) {
-        _text = UpdateText();
-        _textField.ClearText();
-        _textField.Write(_text);
-        _textField.Draw(ctx);
+        UpdateText();
+        if (_textField.NeedsRedraw()) {
+            _textField.Draw();
+        }
+        ctx.Bitmap(ContentX, ContentY, _textField.RenderTarget);
     }
 
-    private String UpdateText() {
+    private void UpdateText() {
         int consumedMemory = MemoryManager.GetUsedSpace();
         int freeMemory = MemoryManager.GetFreeSpace();
         int objectCount = MemoryManager.GetObjectCount();
@@ -86,7 +83,9 @@ public class SystemInfo extends Window {
                 .Append("  ").Append("Last Run Compacted: ")
                 .Append(GarbageCollector.InfoLastRunCompactedEmptyObjects).AppendLine();
 
-        return _sb.toString();
+        _text = _sb.toString();
+        _textField.ClearText();
+        _textField.Write(_text);
     }
 
     @Override
@@ -104,6 +103,6 @@ public class SystemInfo extends Window {
     @Override
     public void DragBy(int dragDiffX, int dragDiffY) {
         super.DragBy(dragDiffX, dragDiffY);
-        _textField.DragBy(dragDiffX, dragDiffY);
+        // _textField.DragBy(dragDiffX, dragDiffY);
     }
 }

@@ -1,70 +1,34 @@
 package gui;
 
-import kernel.display.GraphicsContext;
+import kernel.display.Bitmap;
 
 public abstract class Widget {
-    public int X;
-    public int Y;
-    public int Z;
     public int Width;
     public int Height;
     public boolean IsSelected;
     public String Name;
-    protected boolean _needsRedraw;
+    public Bitmap RenderTarget;
+    private boolean _needsRedraw;
 
-    public Widget(String name, int x, int y, int z, int width, int height) {
-        X = x;
-        Y = y;
-        Z = z;
+    public Widget(String name, int width, int height) {
         Width = width;
         Height = height;
         Name = name;
         _needsRedraw = true;
+        RenderTarget = new Bitmap(width, height, false);
     }
 
-    public abstract void Draw(GraphicsContext ctx);
-
-    public boolean NeedsRedraw() {
-        return _needsRedraw;
-    }
+    public abstract void Draw();
 
     public void SetDirty() {
         _needsRedraw = true;
     }
 
-    public boolean Contains(int x, int y) {
-        return x >= X && x < X + Width && y >= Y && y < Y + Height;
+    public void ClearDirty() {
+        _needsRedraw = false;
     }
 
-    public void SetSelected(boolean selected) {
-        IsSelected = selected;
-    }
-
-    public boolean IsSelected() {
-        return IsSelected;
-    }
-
-    public boolean IsSelectable() {
-        return false;
-    }
-
-    public void OnKeyPressed(char keyCode) {
-
-    }
-
-    public void OnKeyReleased(char keyCode) {
-    }
-
-    public void LeftClickAt(int _lastMouseX, int _lastMouseY) {
-    }
-
-    public void DragBy(int dragDiffX, int dragDiffY) {
-        SetDirty();
-        X += dragDiffX;
-        Y += dragDiffY;
-    }
-
-    public boolean IsDraggable() {
-        return false;
+    public boolean NeedsRedraw() {
+        return _needsRedraw;
     }
 }

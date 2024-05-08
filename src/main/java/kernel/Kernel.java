@@ -4,11 +4,7 @@ import arch.x86;
 import formats.fonts.Font7x8;
 import formats.fonts.Font9x16;
 import gui.WindowManager;
-import gui.displays.Homebar;
-import gui.displays.Wallpaper;
-import gui.displays.windows.BounceWindow;
 import gui.displays.windows.Editor;
-import gui.displays.windows.Logs;
 import gui.displays.windows.SystemInfo;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
@@ -103,10 +99,6 @@ public class Kernel {
         Display.Activate();
         Logger.Info("BOOT", "Initialized Display");
 
-        WindowManager splash = new WindowManager(Display);
-        splash.AddWindow(new Wallpaper(0, 0, 3, Display.Width(), Display.Height()));
-        splash.StaticDisplayFor(0);
-
         Display.ClearScreen();
 
         WindowManager windowManager = new WindowManager(Display);
@@ -132,11 +124,8 @@ public class Kernel {
     }
 
     private static void BuildGuiEnvironment(WindowManager windowManager) {
-        Homebar homebar = new Homebar(
-                Kernel.Display.Width(),
-                Kernel.Display.Height());
 
-        int heightMinusHomebar = Display.Height() - homebar.Height - 1;
+        int heightMinusHomebar = Display.Height() - 30 - 1;
 
         Editor editor = new Editor(
                 "Editor",
@@ -162,21 +151,7 @@ public class Kernel {
                 2,
                 Font7x8.Instance);
 
-        Logs logTextField = new Logs(
-                "Log Entries",
-                editor.X + editor.Width,
-                editor.Y + sysinfo.Height,
-                3,
-                Display.Width() - editor.Width,
-                heightMinusHomebar - sysinfo.Height,
-                8,
-                0,
-                2,
-                Font7x8.Instance);
-
-        windowManager.AddWindow(homebar);
         windowManager.AddWindow(editor);
-        windowManager.AddWindow(logTextField);
         windowManager.AddWindow(sysinfo);
     }
 
