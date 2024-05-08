@@ -18,5 +18,5 @@ This project was created as part of my operating systems course and is written i
 ### Build Script
 
 ```
-python3 build.py --sjc path_to_sjc_jar
+make run
 ```
