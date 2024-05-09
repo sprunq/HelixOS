@@ -2,6 +2,10 @@
 /build_os/
 .idea/**
 .vscode/**
+/sjc/
+/build/
+cdimage.iso
+raw_out.bin
 
 
 
