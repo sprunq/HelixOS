@@ -1,5 +1,6 @@
 package gui;
 
+import arch.x86;
 import gui.images.CursorHand;
 import gui.images.CursorModern;
 import kernel.display.Bitmap;
@@ -30,7 +31,6 @@ public class WindowManager extends Task {
     private Bitmap _cursorModern;
     private Bitmap _cursorCurrent;
 
-    private MouseEvent _mouseEvent = new MouseEvent();
     private int _lastMouseX;
     private int _lastMouseY;
     private boolean _leftAlreadyDown = false;
@@ -82,10 +82,11 @@ public class WindowManager extends Task {
             return;
         }
 
+        _lastUpdate = Timer.Ticks();
+
         DrawWindows();
         DrawCursor();
         _ctx.Swap();
-        _lastUpdate = Timer.Ticks();
 
         int end = Timer.Ticks();
         int renderTime = Timer.TicksToMs(end - start);
@@ -158,23 +159,28 @@ public class WindowManager extends Task {
     }
 
     public void DistributeMouseEvents() {
-        if (!MouseController.ReadEvent(_mouseEvent)) {
-            return;
+        MouseEvent read = MouseController.ReadEvent();
+        while (read != null) {
+            ProcessMouseEvent(read);
+            read = MouseController.ReadEvent();
         }
+    }
 
-        if (_mouseEvent.X_Delta != 0 || _mouseEvent.Y_Delta != 0) {
+    private void ProcessMouseEvent(MouseEvent event) {
+        Logger.Trace("Mouse - Handle", event.Debug());
+        if (event.X_Delta != 0 || event.Y_Delta != 0) {
             SetDirtyAt(_lastMouseX, _lastMouseY);
             SetDirtyAt(_lastMouseX + _cursorCurrent.Width / 2, _lastMouseY + _cursorCurrent.Height / 2);
             SetDirtyAt(_lastMouseX + _cursorCurrent.Width, _drawTicksAvgCycle + _cursorCurrent.Height);
 
-            _lastMouseX += _mouseEvent.X_Delta;
-            _lastMouseY -= _mouseEvent.Y_Delta;
+            _lastMouseX += event.X_Delta;
+            _lastMouseY -= event.Y_Delta;
 
             _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width());
             _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height());
         }
 
-        if (_mouseEvent.LeftButtonPressed()) {
+        if (event.LeftButtonPressed()) {
             if (_leftAlreadyDown) {
                 if (_is_dragging) {
                     int dragDiffX = _lastMouseX - _dragStartX;
@@ -202,10 +208,10 @@ public class WindowManager extends Task {
             _is_dragging = false;
             _leftAlreadyDown = false;
         }
-        if (_mouseEvent.RightButtonPressed()) {
+        if (event.RightButtonPressed()) {
             Logger.Trace("WIN", "Mouse Right Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
         }
-        if (_mouseEvent.MiddleButtonPressed()) {
+        if (event.MiddleButtonPressed()) {
             Logger.Trace("WIN", "Mouse Middle Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
         }
     }

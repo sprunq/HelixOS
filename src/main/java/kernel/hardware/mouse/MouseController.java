@@ -4,6 +4,7 @@ import kernel.interrupt.IDT;
 import kernel.interrupt.PIC;
 import kernel.trace.logging.Logger;
 import util.BitHelper;
+import util.queue.QueueMouseEvent;
 
 public class MouseController {
     public static final int IRQ_MOUSE = 12;
@@ -29,21 +30,26 @@ public class MouseController {
     // Commands
     private static final int CMD_WRITE = 0xD4;
 
+    private static QueueMouseEvent _eventQueue;
+    private static byte[] _packet;
+    private static byte[] _workingPacket;
+    private static int _cycle;
+
     public static void Initialize() {
         Install();
         SetSampleRate(100);
         SetResolution(4);
         SetScaling(1);
+
+        _cycle = 0;
         _packet = new byte[3];
         _workingPacket = new byte[3];
+        _eventQueue = new QueueMouseEvent(1024);
+
         int dscAddr = MAGIC.cast2Ref(MAGIC.clssDesc("MouseController"));
         int handlerOffset = IDT.CodeOffset(dscAddr, MAGIC.mthdOff("MouseController", "MouseHandler"));
         IDT.RegisterIrqHandler(IRQ_MOUSE, handlerOffset);
     }
-
-    private static byte[] _workingPacket;
-    private static byte[] _packet;
-    private static int cycle = 0;
 
     @SJC.Interrupt
     public static void MouseHandler() {
@@ -51,22 +57,22 @@ public class MouseController {
         if (BitHelper.GetFlag(status, BIT_DATA_AVAILABLE)) {
             byte mouse_in = MAGIC.rIOs8(PORT_DATA);
             if (BitHelper.GetFlag(status, BIT_FROM_MOUSE)) {
-                switch (cycle) {
+                switch (_cycle) {
                     case 0:
                         _workingPacket[0] = mouse_in;
-                        cycle++;
+                        _cycle++;
                         break;
                     case 1:
                         _workingPacket[1] = mouse_in;
-                        cycle++;
+                        _cycle++;
                         break;
                     case 2:
                         _workingPacket[2] = mouse_in;
                         _packet[0] = _workingPacket[0];
                         _packet[1] = _workingPacket[1];
                         _packet[2] = _workingPacket[2];
-                        BufferMovementEvents();
-                        cycle = 0;
+                        ProcessPacket();
+                        _cycle = 0;
                         break;
                 }
             }
@@ -74,11 +80,7 @@ public class MouseController {
         PIC.Acknowledge(IRQ_MOUSE);
     }
 
-    private static boolean BufferMovementEvents() {
-        if (_packet[0] == 0) {
-            return false;
-        }
-
+    private static boolean ProcessPacket() {
         int packetMetaData = _packet[0];
         int packetXMovement = _packet[1];
         int packetYMovement = _packet[2];
@@ -98,29 +100,6 @@ public class MouseController {
             packetYMovement |= 0xFFFFFF00;
         }
 
-        _accumulatedX += packetXMovement;
-        _accumulatedY += packetYMovement;
-        return true;
-    }
-
-    public static boolean ReadEvent(MouseEvent readInto) {
-        if (_packet[0] == 0) {
-            return false;
-        }
-
-        int packetMetaData = _packet[0];
-
-        _packet[0] = 0;
-        _packet[1] = 0;
-        _packet[2] = 0;
-
-        if (!BitHelper.GetFlag(packetMetaData, BIT_ALWAYS_ONE)
-                || BitHelper.GetFlag(packetMetaData, BIT_Y_OVERFLOW)
-                || BitHelper.GetFlag(packetMetaData, BIT_X_OVERFLOW)) {
-            Logger.Warning("Mouse", "Bad packet received");
-            return false;
-        }
-
         int buttonState = 0;
         if (BitHelper.GetFlag(packetMetaData, BIT_LEFT_BTN)) {
             buttonState |= MouseEvent.LEFT_BUTTON;
@@ -132,17 +111,21 @@ public class MouseController {
             buttonState |= MouseEvent.MIDDLE_BUTTON;
         }
 
-        readInto.X_Delta = _accumulatedX;
-        readInto.Y_Delta = _accumulatedY;
-        readInto.ButtonState = buttonState;
+        MouseEvent event = _eventQueue.Peek();
+        event.X_Delta = packetXMovement;
+        event.Y_Delta = packetYMovement;
+        event.ButtonState = buttonState;
+        _eventQueue.Put(event);
 
-        _accumulatedX = 0;
-        _accumulatedY = 0;
         return true;
     }
 
-    private static int _accumulatedX = 0;
-    private static int _accumulatedY = 0;
+    public static MouseEvent ReadEvent() {
+        if (_eventQueue.IsEmpty()) {
+            return null;
+        }
+        return _eventQueue.Get();
+    }
 
     private static void Install() {
         Wait(1);

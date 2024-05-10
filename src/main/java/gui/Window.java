@@ -127,7 +127,6 @@ public abstract class Window extends Task {
     }
 
     public void SetDirty() {
-        Logger.LogSerial("diry\n");
         _needsRedraw = true;
     }
 
