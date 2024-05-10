@@ -1,6 +1,5 @@
 package gui;
 
-import arch.x86;
 import gui.images.CursorHand;
 import gui.images.CursorModern;
 import kernel.display.Bitmap;
@@ -158,11 +157,11 @@ public class WindowManager extends Task {
         }
     }
 
+    private MouseEvent _mouseEvent = new MouseEvent();
+
     public void DistributeMouseEvents() {
-        MouseEvent read = MouseController.ReadEvent();
-        while (read != null) {
-            ProcessMouseEvent(read);
-            read = MouseController.ReadEvent();
+        if (MouseController.ReadEvent(_mouseEvent)) {
+            ProcessMouseEvent(_mouseEvent);
         }
     }
 

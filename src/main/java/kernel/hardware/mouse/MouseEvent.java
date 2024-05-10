@@ -21,6 +21,10 @@ public class MouseEvent implements IDebug {
         ButtonState = buttonState;
     }
 
+    public MouseEvent() {
+        this(0, 0, 0);
+    }
+
     public boolean LeftButtonPressed() {
         return (ButtonState & LEFT_BUTTON) != 0;
     }

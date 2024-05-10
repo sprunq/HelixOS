@@ -6,7 +6,6 @@ import gui.components.TextField;
 import kernel.Kernel;
 import kernel.display.Bitmap;
 import kernel.schedule.Task;
-import kernel.trace.logging.Logger;
 
 public abstract class Window extends Task {
     public final int FrameSize;
