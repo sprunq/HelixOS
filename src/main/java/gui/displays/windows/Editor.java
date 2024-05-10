@@ -4,26 +4,23 @@ import formats.fonts.AFont;
 import gui.Window;
 import gui.components.TextField;
 import kernel.Kernel;
-import kernel.display.GraphicsContext;
 import kernel.hardware.keyboard.Key;
 import kernel.trace.logging.Logger;
 
 public class Editor extends Window {
-
     private TextField _textField;
 
     public Editor(
             String title,
             int x,
             int y,
-            int z,
             int width,
             int height,
             int border,
             int charSpacing,
             int lineSpacing,
             AFont font) {
-        super(title, x, y, z, width, height);
+        super(title, x, y, width, height);
 
         int bg = Kernel.Display.Rgb(20, 20, 20);
         int fg = Kernel.Display.Rgb(255, 255, 255);
@@ -39,11 +36,11 @@ public class Editor extends Window {
                 font);
     }
 
-    public void DrawContent(GraphicsContext ctx) {
+    public void DrawContent() {
         if (_textField.NeedsRedraw()) {
             _textField.Draw();
         }
-        ctx.Bitmap(ContentX, ContentY, _textField.RenderTarget);
+        RenderTarget.Blit(ContentRelativeX, ContentRelativeY, _textField.RenderTarget, false);
         ClearDirty();
     }
 
@@ -92,13 +89,13 @@ public class Editor extends Window {
     private int ScreenXToCursorX(int x) {
         int ll = _textField.LineLength;
         int lperCell = _textField.Font.Width() + _textField.SpacingW;
-        int cell = (x - 0) / lperCell;
+        int cell = (x - X) / lperCell;
         return Math.Clamp(cell, 0, ll - 1);
     }
 
     private int ScreenYToCursorY(int y) {
         int lperCell = _textField.Font.Height() + _textField.SpacingH;
-        int cell = (y - 0) / lperCell;
+        int cell = (y - Y) / lperCell;
         return Math.Clamp(cell, 0, _textField.LineCount - 1);
     }
 
@@ -138,5 +135,9 @@ public class Editor extends Window {
     public void DragBy(int dragDiffX, int dragDiffY) {
         super.DragBy(dragDiffX, dragDiffY);
         // _textField.DragBy(dragDiffX, dragDiffY);
+    }
+
+    @Override
+    public void Update() {
     }
 }

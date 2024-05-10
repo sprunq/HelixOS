@@ -1,5 +1,6 @@
 package kernel.schedule;
 
+import arch.x86;
 import kernel.Kernel;
 import kernel.memory.MemoryManager;
 import kernel.trace.logging.Logger;
@@ -44,14 +45,14 @@ public class Scheduler {
 
         while (true) {
             for (int i = 0; i < _taskCount; i++) {
-                if (_tasks[i].WantsActive()) {
-                    _tasks[i].Run();
-                }
+                _tasks[i].Run();
             }
 
             if (MemoryManager.ShouldCollectGarbage()) {
                 MemoryManager.TriggerGarbageCollection();
             }
+
+            x86.hlt();
         }
     }
 

@@ -91,7 +91,7 @@ public class Logger {
 
         for (int i = 0; i < str.length(); i++) {
             byte c = (byte) str.get(i);
-            MAGIC.wIOs8(0x3F8, c);
+            MAGIC.wIOs8(0xe9, c);
         }
     }
 

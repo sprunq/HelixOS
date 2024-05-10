@@ -10,6 +10,7 @@ import kernel.hardware.keyboard.KeyEvent;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.mouse.MouseController;
 import kernel.hardware.mouse.MouseEvent;
+import kernel.schedule.Scheduler;
 import kernel.schedule.Task;
 import kernel.trace.logging.Logger;
 import util.vector.VecWindow;
@@ -54,6 +55,7 @@ public class WindowManager extends Task {
 
     public void AddWindow(Window window) {
         _widgets.add(window);
+        Scheduler.AddTask(window);
 
         if (_selectedWindow == null && window.IsSelectable()) {
             SetSelectedTo(window);
@@ -108,13 +110,13 @@ public class WindowManager extends Task {
 
         for (int i = 0; i < _widgets.size(); i++) {
             Window window = _widgets.get(i);
-
             if (window == null) {
                 continue;
             }
 
             if (window.NeedsRedraw()) {
-                window.Draw(_ctx);
+                window.Draw();
+                _ctx.Bitmap(window.X, window.Y, window.RenderTarget, false);
             }
         }
     }
@@ -129,7 +131,7 @@ public class WindowManager extends Task {
         if (!_ctx.Contains(_lastMouseX + _cursorCurrent.Width, _lastMouseY + _cursorCurrent.Height))
             return;
 
-        _ctx.Bitmap(_lastMouseX, _lastMouseY, _cursorCurrent);
+        _ctx.Bitmap(_lastMouseX, _lastMouseY, _cursorCurrent, true);
     }
 
     private void DistributeKeyEvents() {

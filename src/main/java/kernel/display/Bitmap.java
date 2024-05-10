@@ -1,5 +1,6 @@
 package kernel.display;
 
+import kernel.Kernel;
 import kernel.memory.Memory;
 
 public class Bitmap {
@@ -22,13 +23,25 @@ public class Bitmap {
         PixelData = new int[Width * Height];
     }
 
-    @SJC.Inline
+    public void Clear() {
+        int from = MAGIC.addr(PixelData[0]);
+        int len = PixelData.length;
+        Memory.Memset(from, len, (byte) 0);
+    }
+
     public int GetPixel(int x, int y) {
         if (x < 0 || y < 0 || x >= Width || y >= Height) {
+            Kernel.panic("Bitmap.GetPixel: out of bounds (".append(x).append(", ").append(y).append(")"));
+        }
+
+        int index = Index(x, y);
+
+        if (index < 0 || index >= PixelData.length) {
+            Kernel.panic("Bitmap.GetPixel: index out of bounds");
             return 0;
         }
 
-        return PixelData[x + y * Width];
+        return PixelData[index];
     }
 
     @SJC.Inline
@@ -41,19 +54,29 @@ public class Bitmap {
     }
 
     public void Rectangle(int x, int y, int width, int height, int color) {
+        if (PixelData == null) {
+            Kernel.panic("Bitmap.Rectangle: PixelData is null");
+            return;
+        }
+
+        if (PixelData.length == 0) {
+            Kernel.panic("Bitmap.Rectangle: PixelData is len 0");
+            return;
+        }
+
         // only draw visible part
         if (x < 0) {
             width += x;
             x = 0;
         }
 
+        if (x + width > Width) {
+            width = Width - x;
+        }
+
         if (y < 0) {
             height += y;
             y = 0;
-        }
-
-        if (x + width > Width) {
-            width = Height - x;
         }
 
         if (y + height > Height) {
@@ -66,12 +89,75 @@ public class Bitmap {
             return;
         }
 
-        int addr32 = x + y * Width;
-        int addrR32 = MAGIC.addr(PixelData[addr32]);
         for (int i = 0; i < height; i++) {
-            Memory.Memset32(addrR32, width, color);
-            addrR32 += Width << 2;
+            int index = Index(x, y + i);
+            int addr = MAGIC.addr(PixelData[index]);
+            Memory.Memset32(addr, width, color);
         }
+    }
+
+    public void Blit(int x, int y, Bitmap bitmap, boolean transparent) {
+        if (bitmap == null) {
+            Kernel.panic("VESAGraphics.setBitmap: mode or bitmap is null");
+            return;
+        }
+
+        int off_bitmap_x = 0;
+        int off_bitmap_y = 0;
+        int up_to_x = bitmap.Width;
+        int up_to_y = bitmap.Height;
+
+        if (x < 0) {
+            off_bitmap_x = -x;
+            up_to_x += x;
+            x = 0;
+        }
+
+        if (y < 0) {
+            off_bitmap_y = -y;
+            up_to_y += y;
+            y = 0;
+        }
+
+        if (x + up_to_x > Width) {
+            up_to_x = Width - x;
+        }
+
+        if (y + up_to_y > Height) {
+            up_to_y = Height - y;
+        }
+
+        if (up_to_x <= 0 || up_to_y <= 0) {
+            Kernel.panic("Bitmap.blit: up_to_x <= 0 || up_to_y <= 0");
+        }
+
+        if (transparent) {
+            for (int cur_y = 0; cur_y < up_to_y; cur_y++) {
+                for (int cur_x = 0; cur_x < up_to_x; cur_x++) {
+                    int self_index = Index(x + cur_x, y + cur_y);
+                    int bitmap_index = bitmap.Index(off_bitmap_x + cur_x, off_bitmap_y + cur_y);
+                    PixelData[self_index] = Blend(bitmap.PixelData[bitmap_index], PixelData[self_index]);
+                }
+            }
+        } else {
+            for (int cur_y = 0; cur_y < up_to_y; cur_y++) {
+                int index = Index(x, y + cur_y);
+                int addr = MAGIC.addr(PixelData[index]);
+                int bitmap_index = bitmap.Index(off_bitmap_x, off_bitmap_y + cur_y);
+                int bitmap_addr = MAGIC.addr(bitmap.PixelData[bitmap_index]);
+                Memory.Memcopy32(bitmap_addr, addr, up_to_x);
+            }
+        }
+
+    }
+
+    @SJC.Inline
+    private int Blend(int withAlpha, int noAlpha) {
+        int alpha = (withAlpha >> 24) & 0xFF;
+        int r = (alpha * ((withAlpha >> 16) & 0xFF) + (255 - alpha) * ((noAlpha >> 16) & 0xFF)) / 255;
+        int g = (alpha * ((withAlpha >> 8) & 0xFF) + (255 - alpha) * ((noAlpha >> 8) & 0xFF)) / 255;
+        int b = (alpha * (withAlpha & 0xFF) + (255 - alpha) * (noAlpha & 0xFF)) / 255;
+        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 
     @SJC.Inline

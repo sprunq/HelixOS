@@ -5,11 +5,11 @@ import gui.Window;
 import gui.WindowManager;
 import gui.components.TextField;
 import kernel.Kernel;
-import kernel.display.GraphicsContext;
 import kernel.memory.GarbageCollector;
 import kernel.memory.Memory;
 import kernel.memory.MemoryManager;
 import util.StrBuilder;
+import util.queue.QueueInt;
 
 public class SystemInfo extends Window {
     private TextField _textField;
@@ -18,18 +18,23 @@ public class SystemInfo extends Window {
     private int _drawCounter = 0;
     private StrBuilder _sb;
 
+    private QueueInt _gcExecTimes;
+    private QueueInt _gcObjectsCollected;
+    private QueueInt _gcBytesCollected;
+    private QueueInt _gcEmptyObjectsCompacted;
+    private int _averageOver;
+
     public SystemInfo(
             String title,
             int x,
             int y,
-            int z,
             int width,
             int height,
             int border,
             int charSpacing,
             int lineSpacing,
             AFont font) {
-        super(title, x, y, z, width, height);
+        super(title, x, y, width, height);
         int bg = Kernel.Display.Rgb(100, 100, 100);
         int fg = Kernel.Display.Rgb(255, 255, 255);
         _textField = new TextField(
@@ -42,18 +47,52 @@ public class SystemInfo extends Window {
                 bg,
                 false,
                 font);
+
+        _averageOver = 10;
+        _gcExecTimes = new QueueInt(_averageOver);
+        _gcObjectsCollected = new QueueInt(_averageOver);
+        _gcBytesCollected = new QueueInt(_averageOver);
+        _gcEmptyObjectsCompacted = new QueueInt(_averageOver);
+
         _sb = new StrBuilder(500);
     }
 
-    public void DrawContent(GraphicsContext ctx) {
-        UpdateText();
+    public void DrawContent() {
         if (_textField.NeedsRedraw()) {
             _textField.Draw();
         }
-        ctx.Bitmap(ContentX, ContentY, _textField.RenderTarget);
+        RenderTarget.Blit(ContentRelativeX, ContentRelativeY, _textField.RenderTarget, false);
     }
 
-    private void UpdateText() {
+    @Override
+    public boolean NeedsRedraw() {
+        _drawCounter++;
+        if (_drawCounter >= _drawEveryNth) {
+            _drawCounter = 0;
+            _needsRedraw = true;
+        } else {
+            _needsRedraw = false;
+        }
+        return _needsRedraw;
+    }
+
+    @Override
+    public void DragBy(int dragDiffX, int dragDiffY) {
+        super.DragBy(dragDiffX, dragDiffY);
+    }
+
+    @Override
+    public void Update() {
+        int gcExecTime = GarbageCollector.InfoLastRunTimeMs;
+        int gcObjectsCollected = GarbageCollector.InfoLastRunCollectedObjects;
+        int gcBytesCollected = GarbageCollector.InfoLastRunCollectedBytes;
+        int gcEmptyObjectsCompacted = GarbageCollector.InfoLastRunCompactedEmptyObjects;
+
+        _gcExecTimes.Put(gcExecTime);
+        _gcObjectsCollected.Put(gcObjectsCollected);
+        _gcBytesCollected.Put(gcBytesCollected);
+        _gcEmptyObjectsCompacted.Put(gcEmptyObjectsCompacted);
+
         int consumedMemory = MemoryManager.GetUsedSpace();
         int freeMemory = MemoryManager.GetFreeSpace();
         int objectCount = MemoryManager.GetObjectCount();
@@ -86,23 +125,5 @@ public class SystemInfo extends Window {
         _text = _sb.toString();
         _textField.ClearText();
         _textField.Write(_text);
-    }
-
-    @Override
-    public boolean NeedsRedraw() {
-        _drawCounter++;
-        if (_drawCounter >= _drawEveryNth) {
-            _drawCounter = 0;
-            _needsRedraw = true;
-        } else {
-            _needsRedraw = false;
-        }
-        return _needsRedraw;
-    }
-
-    @Override
-    public void DragBy(int dragDiffX, int dragDiffY) {
-        super.DragBy(dragDiffX, dragDiffY);
-        // _textField.DragBy(dragDiffX, dragDiffY);
     }
 }

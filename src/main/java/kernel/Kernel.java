@@ -19,7 +19,6 @@ import kernel.hardware.pci.PciDevice;
 import kernel.interrupt.IDT;
 import kernel.memory.GarbageCollector;
 import kernel.memory.MemoryManager;
-import kernel.memory.VirtualMemory;
 import kernel.schedule.Scheduler;
 import kernel.trace.Bluescreen;
 import kernel.trace.SymbolResolution;
@@ -37,7 +36,7 @@ public class Kernel {
         MemoryManager.Initialize();
         Logger.LogSerial("Initialized Memory Manager\n");
 
-        Logger.Initialize(Logger.TRACE, 100, true);
+        Logger.Initialize(Logger.TRACE, 100, false);
         Logger.Info("BOOT", "Initialized Logger");
 
         SymbolResolution.Initialize();
@@ -55,8 +54,8 @@ public class Kernel {
         MemoryManager.DisableGarbageCollection();
         Logger.Info("BOOT", "Disabled Garbage Collection");
 
-        VirtualMemory.EnableVirtualMemory();
-        Logger.Info("BOOT", "Enabled Virtual Memory");
+        //VirtualMemory.EnableVirtualMemory();
+        //Logger.Info("BOOT", "Enabled Virtual Memory");
 
         // PrintAllPciDevices();
 
@@ -131,7 +130,6 @@ public class Kernel {
                 "Editor",
                 0,
                 0,
-                2,
                 (int) (Display.Width() * 0.6),
                 heightMinusHomebar,
                 8,
@@ -143,7 +141,6 @@ public class Kernel {
                 "System Info",
                 editor.X + editor.Width,
                 0,
-                5,
                 Display.Width() - editor.Width,
                 200,
                 8,

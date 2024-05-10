@@ -18,9 +18,7 @@ public abstract class GraphicsContext {
 
     public abstract void Pixel(int x, int y, int col);
 
-    public abstract void Rectangle(int x, int y, int width, int height, int color);
-
-    public abstract void Bitmap(int x, int y, Bitmap bitmap);
+    public abstract void Bitmap(int x, int y, Bitmap bitmap, boolean transparent);
 
     public abstract boolean Contains(int x, int y);
 
