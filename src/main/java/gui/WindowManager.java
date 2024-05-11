@@ -32,7 +32,7 @@ public class WindowManager extends Task {
 
     private int _lastMouseX;
     private int _lastMouseY;
-    private boolean _leftAlreadyDown = false;
+    private boolean _leftButtonAlreadyDown = false;
     private boolean _is_dragging = false;
 
     private KeyEvent _keyEvent = new KeyEvent();
@@ -181,21 +181,20 @@ public class WindowManager extends Task {
         }
 
         if (event.LeftButtonPressed()) {
-            if (_leftAlreadyDown) {
+            if (_leftButtonAlreadyDown) {
                 if (!_is_dragging) {
                     StartDrag();
                 }
 
             } else {
                 Logger.Trace("WIN", "Mouse Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
-                _leftAlreadyDown = true;
-                _cursorCurrent = _cursorHand;
                 SetSelectedAt(_lastMouseX, _lastMouseY);
                 _selectedWindow.LeftClickAt(_lastMouseX, _lastMouseY);
+                _leftButtonAlreadyDown = true;
             }
         } else {
             StopDrag();
-            _leftAlreadyDown = false;
+            _leftButtonAlreadyDown = false;
         }
 
         if (event.RightButtonPressed()) {
@@ -224,7 +223,8 @@ public class WindowManager extends Task {
                 continue;
             }
             if (window.Contains(x, y)) {
-                break;
+                SetSelectedTo(window);
+                return;
             }
         }
     }
