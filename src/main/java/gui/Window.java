@@ -111,7 +111,7 @@ public abstract class Window extends Task {
         return true;
     }
 
-    public void DragBy(int dragDiffX, int dragDiffY) {
+    public void MoveBy(int dragDiffX, int dragDiffY) {
         X += dragDiffX;
         Y += dragDiffY;
         SetDirty();

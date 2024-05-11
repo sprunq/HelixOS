@@ -132,8 +132,8 @@ public class Editor extends Window {
     }
 
     @Override
-    public void DragBy(int dragDiffX, int dragDiffY) {
-        super.DragBy(dragDiffX, dragDiffY);
+    public void MoveBy(int dragDiffX, int dragDiffY) {
+        super.MoveBy(dragDiffX, dragDiffY);
         // _textField.DragBy(dragDiffX, dragDiffY);
     }
 

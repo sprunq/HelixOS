@@ -34,8 +34,6 @@ public class WindowManager extends Task {
     private int _lastMouseY;
     private boolean _leftAlreadyDown = false;
     private boolean _is_dragging = false;
-    private int _dragStartX;
-    private int _dragStartY;
 
     private KeyEvent _keyEvent = new KeyEvent();
     @SuppressWarnings("unused")
@@ -166,7 +164,6 @@ public class WindowManager extends Task {
     }
 
     private void ProcessMouseEvent(MouseEvent event) {
-        Logger.Trace("Mouse - Handle", event.Debug());
         if (event.X_Delta != 0 || event.Y_Delta != 0) {
             SetDirtyAt(_lastMouseX, _lastMouseY);
             SetDirtyAt(_lastMouseX + _cursorCurrent.Width / 2, _lastMouseY + _cursorCurrent.Height / 2);
@@ -177,22 +174,18 @@ public class WindowManager extends Task {
 
             _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width());
             _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height());
+
+            if (_is_dragging && _selectedWindow != null && _selectedWindow.IsDraggable()) {
+                _selectedWindow.MoveBy(event.X_Delta, -event.Y_Delta);
+            }
         }
 
         if (event.LeftButtonPressed()) {
             if (_leftAlreadyDown) {
-                if (_is_dragging) {
-                    int dragDiffX = _lastMouseX - _dragStartX;
-                    int dragDiffY = _lastMouseY - _dragStartY;
-                    _selectedWindow.DragBy(dragDiffX, dragDiffY);
-                    SetAllDirty();
-                    _is_dragging = false;
-                } else {
-                    _is_dragging = true;
-                    _cursorCurrent = _cursorHand;
-                    _dragStartX = _lastMouseX;
-                    _dragStartY = _lastMouseY;
+                if (!_is_dragging) {
+                    StartDrag();
                 }
+
             } else {
                 Logger.Trace("WIN", "Mouse Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
                 _leftAlreadyDown = true;
@@ -201,18 +194,27 @@ public class WindowManager extends Task {
                 _selectedWindow.LeftClickAt(_lastMouseX, _lastMouseY);
             }
         } else {
-            if (_leftAlreadyDown) {
-                _cursorCurrent = _cursorModern;
-            }
-            _is_dragging = false;
+            StopDrag();
             _leftAlreadyDown = false;
         }
+
         if (event.RightButtonPressed()) {
             Logger.Trace("WIN", "Mouse Right Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
         }
+
         if (event.MiddleButtonPressed()) {
             Logger.Trace("WIN", "Mouse Middle Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
         }
+    }
+
+    private void StartDrag() {
+        _cursorCurrent = _cursorHand;
+        _is_dragging = true;
+    }
+
+    private void StopDrag() {
+        _cursorCurrent = _cursorModern;
+        _is_dragging = false;
     }
 
     private void SetSelectedAt(int x, int y) {

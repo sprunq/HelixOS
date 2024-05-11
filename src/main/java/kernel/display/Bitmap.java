@@ -154,8 +154,16 @@ public class Bitmap {
     @SJC.Inline
     private int Blend(int withAlpha, int noAlpha) {
         int alpha = (withAlpha >> 24) & 0xFF;
-        int alpha_rem = 255 - alpha;
 
+        if (alpha == 0) {
+            return noAlpha;
+        }
+
+        if (alpha == 255) {
+            return withAlpha;
+        }
+
+        int alpha_rem = 255 - alpha;
         int r = (alpha * ((withAlpha >> 16) & 0xFF) + alpha_rem * ((noAlpha >> 16) & 0xFF)) >> 8;
         int g = (alpha * ((withAlpha >> 8) & 0xFF) + alpha_rem * ((noAlpha >> 8) & 0xFF)) >> 8;
         int b = (alpha * (withAlpha & 0xFF) + alpha_rem * (noAlpha & 0xFF)) >> 8;

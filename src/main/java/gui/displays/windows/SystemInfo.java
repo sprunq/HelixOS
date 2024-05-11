@@ -77,8 +77,8 @@ public class SystemInfo extends Window {
     }
 
     @Override
-    public void DragBy(int dragDiffX, int dragDiffY) {
-        super.DragBy(dragDiffX, dragDiffY);
+    public void MoveBy(int dragDiffX, int dragDiffY) {
+        super.MoveBy(dragDiffX, dragDiffY);
     }
 
     @Override
