@@ -10,6 +10,7 @@ import kernel.hardware.keyboard.KeyEvent;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.mouse.MouseController;
 import kernel.hardware.mouse.MouseEvent;
+import kernel.schedule.EndlessTask;
 import kernel.schedule.Scheduler;
 import kernel.schedule.Task;
 import kernel.trace.logging.Logger;
@@ -35,7 +36,6 @@ public class WindowManager extends Task {
     private boolean _leftButtonAlreadyDown = false;
     private boolean _is_dragging = false;
 
-    private KeyEvent _keyEvent = new KeyEvent();
     @SuppressWarnings("unused")
     private boolean _ctrlDown = false;
 
@@ -138,18 +138,19 @@ public class WindowManager extends Task {
         }
 
         while (KeyboardController.HasNewEvent()) {
-            if (KeyboardController.ReadEvent(_keyEvent)) {
-                Logger.Trace("WIN", "Handling ".append(_keyEvent.Debug()));
-                if (_keyEvent.IsDown) {
-                    if (ConsumedInternalOnKeyPressed(_keyEvent.Key)) {
+            KeyEvent keyEvent = KeyboardController.ReadEvent();
+            if (keyEvent != null) {
+                Logger.Trace("WIN", "Handling ".append(keyEvent.Debug()));
+                if (keyEvent.IsDown) {
+                    if (ConsumedInternalOnKeyPressed(keyEvent.Key)) {
                         continue;
                     }
-                    _selectedWindow.OnKeyPressed(_keyEvent.Key);
+                    _selectedWindow.OnKeyPressed(keyEvent.Key);
                 } else {
-                    if (ConsumedInternalOnKeyReleased(_keyEvent.Key)) {
+                    if (ConsumedInternalOnKeyReleased(keyEvent.Key)) {
                         continue;
                     }
-                    _selectedWindow.OnKeyReleased(_keyEvent.Key);
+                    _selectedWindow.OnKeyReleased(keyEvent.Key);
                 }
             }
         }
@@ -266,6 +267,9 @@ public class WindowManager extends Task {
 
     private boolean ConsumedInternalOnKeyPressed(char keyCode) {
         switch (keyCode) {
+            case Key.F9:
+                new EndlessTask().Register();
+                return true;
             case Key.LCTRL:
                 _ctrlDown = true;
                 return true;

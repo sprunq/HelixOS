@@ -22,4 +22,6 @@ public abstract class GraphicsContext {
 
     public abstract boolean Contains(int x, int y);
 
+    public abstract void Rectangle(int x, int y, int width, int height, int color);
+
 }

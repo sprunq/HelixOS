@@ -101,4 +101,10 @@ public class VESAGraphics extends GraphicsContext {
     public boolean Contains(int x, int y) {
         return x >= 0 && y >= 0 && x < curMode.XRes && y < curMode.YRes;
     }
+
+    @Override
+    public void Rectangle(int x, int y, int width, int height, int color) {
+        buffer.Rectangle(x, y, width, height, color);
+        needsRedraw = true;
+    }
 }

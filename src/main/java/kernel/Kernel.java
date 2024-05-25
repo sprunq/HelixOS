@@ -19,6 +19,7 @@ import kernel.hardware.pci.PciDevice;
 import kernel.interrupt.IDT;
 import kernel.memory.GarbageCollector;
 import kernel.memory.MemoryManager;
+import kernel.memory.VirtualMemory;
 import kernel.schedule.Scheduler;
 import kernel.trace.Bluescreen;
 import kernel.trace.SymbolResolution;
@@ -54,8 +55,8 @@ public class Kernel {
         MemoryManager.DisableGarbageCollection();
         Logger.Info("BOOT", "Disabled Garbage Collection");
 
-        //VirtualMemory.EnableVirtualMemory();
-        //Logger.Info("BOOT", "Enabled Virtual Memory");
+        VirtualMemory.EnableVirtualMemory();
+        Logger.Info("BOOT", "Enabled Virtual Memory");
 
         // PrintAllPciDevices();
 

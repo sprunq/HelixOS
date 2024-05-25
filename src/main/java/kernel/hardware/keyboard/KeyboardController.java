@@ -3,9 +3,10 @@ package kernel.hardware.keyboard;
 import kernel.hardware.keyboard.layout.ALayout;
 import kernel.interrupt.IDT;
 import kernel.interrupt.PIC;
+import kernel.schedule.Scheduler;
 import kernel.trace.logging.Logger;
 import util.BitHelper;
-import util.queue.QueueByte;
+import util.queue.QueueKeyEvent;
 
 public class KeyboardController {
     public static final int IRQ_KEYBOARD = 1;
@@ -18,7 +19,7 @@ public class KeyboardController {
     private static final int MASK_1000000010000000 = (1 << 7) | (1 << 15);
     private static final int MASK_0111111101111111 = ~MASK_1000000010000000;
 
-    private static QueueByte _inputBuffer;
+    private static QueueKeyEvent _eventBuffer;
     private static ALayout _layout;
 
     private static boolean _shiftPressed;
@@ -28,8 +29,12 @@ public class KeyboardController {
     private static boolean _capsLocked;
 
     public static void Initialize() {
-        _inputBuffer = new QueueByte(256);
         _layout = null;
+        packet = new int[3];
+        _eventBuffer = new QueueKeyEvent(32);
+        for (int i = 0; i < _eventBuffer.Capacity(); i++) {
+            _eventBuffer.Put(new KeyEvent());
+        }
 
         int dscAddr = MAGIC.cast2Ref(MAGIC.clssDesc("KeyboardController"));
         int handlerOffset = IDT.CodeOffset(dscAddr, MAGIC.mthdOff("KeyboardController", "KeyboardHandler"));
@@ -48,8 +53,12 @@ public class KeyboardController {
 
     @SJC.Inline
     public static boolean HasNewEvent() {
-        return _inputBuffer.ContainsNewElements();
+        return _eventBuffer.ContainsNewElements();
     }
+
+    static int expectedLength = -1;
+    private static int[] packet;
+    private static int cycle = 0;
 
     public static void Handle() {
         byte code = MAGIC.rIOs8(PORT_KEYCODE);
@@ -57,13 +66,42 @@ public class KeyboardController {
             Logger.Warning("KeyC", "Ignoring ScanCode >0xE2");
             return;
         }
-        _inputBuffer.Put(code);
+
+        if (cycle == 0) {
+            if (code == KEYCODE_EXTEND1) {
+                expectedLength = 2;
+            } else if (code == KEYCODE_EXTEND2) {
+                expectedLength = 3;
+            } else {
+                expectedLength = 1;
+            }
+        }
+
+        packet[cycle++] = code;
+
+        if (cycle == expectedLength) {
+            cycle = 0;
+            expectedLength = 0;
+            KeyEvent event = _eventBuffer.Peek();
+            ReadPacket(event);
+            _eventBuffer.IncHead();
+
+            packet[0] = 0;
+            packet[1] = 0;
+            packet[2] = 0;
+
+            if (event.Key == Key.F10 && event.IsDown) {
+                PIC.Acknowledge(IRQ_KEYBOARD);
+                Scheduler.TaskBreak();
+            }
+        }
     }
 
-    public static boolean ReadEvent(KeyEvent readInto) {
-        if (!_inputBuffer.ContainsNewElements() || _layout == null)
-            return false;
+    public static KeyEvent ReadEvent() {
+        return _eventBuffer.Get();
+    }
 
+    private static void ReadPacket(KeyEvent readInto) {
         int keyCode = ReadKeyCode();
         boolean isBreak = IsBreakCode(keyCode);
         if (isBreak) {
@@ -72,9 +110,8 @@ public class KeyboardController {
 
         char logicalKey = _layout.LogicalKey(keyCode, IsUpper(), _altPressed);
         UpdateKeyboardState(logicalKey, isBreak);
-        readInto.Key = (char) logicalKey;
+        readInto.Key = logicalKey;
         readInto.IsDown = !isBreak;
-        return true;
     }
 
     private static void UpdateKeyboardState(char logicalKey, boolean isBreak) {
@@ -114,17 +151,17 @@ public class KeyboardController {
     }
 
     private static int ReadKeyCode() {
-        int c0 = Integer.ubyte(_inputBuffer.Get());
+        int c0 = Integer.ubyte(packet[0]);
         int keyCode = 0;
         if (c0 == KEYCODE_EXTEND1) {
-            int c1 = Integer.ubyte(_inputBuffer.Get());
+            int c1 = Integer.ubyte(packet[1]);
 
             // 0xE0_2A
             keyCode = BitHelper.SetRange(keyCode, 8, 8, c0);
             keyCode = BitHelper.SetRange(keyCode, 0, 8, c1);
         } else if (c0 == KEYCODE_EXTEND2) {
-            int c1 = Integer.ubyte(_inputBuffer.Get());
-            int c2 = Integer.ubyte(_inputBuffer.Get());
+            int c1 = Integer.ubyte(packet[1]);
+            int c2 = Integer.ubyte(packet[2]);
 
             // 0xE1_2A_2A
             keyCode = BitHelper.SetRange(keyCode, 16, 8, c0);
