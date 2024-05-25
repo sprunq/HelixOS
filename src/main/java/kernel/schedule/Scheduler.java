@@ -6,7 +6,7 @@ import kernel.memory.MemoryManager;
 import kernel.trace.logging.Logger;
 
 public class Scheduler {
-    public static final int MAX_TASKS = 20;
+    public static final int MAX_TASKS = 32;
     private static Task[] _tasks;
     private static int _taskCount;
     private static Task _currentTask;
@@ -40,14 +40,28 @@ public class Scheduler {
         }
     }
 
+    public static int GetTaskId(String name) {
+        for (int i = 0; i < _taskCount; i++) {
+            if (_tasks[i].Name == name) {
+                return _tasks[i].Id;
+            }
+        }
+        return -1;
+    }
+
     public static void Run() {
         Logger.Info("SCHED", "Starting Schedeuler");
 
         MemoryManager.EnableGarbageCollection();
         Logger.Info("SCHED", "Enabled Garbage Collection");
 
+        // Ablage der Registerwerte in Variablen
+        MAGIC.inline(0x89, 0x2D);
+        MAGIC.inlineOffset(4, _v1); // mov [addr(v1)],ebp
+        MAGIC.inline(0x89, 0x25);
+        MAGIC.inlineOffset(4, _v2); // mov [addr(v1)],esp
+
         while (true) {
-            SaveStack();
             for (int i = 0; i < _taskCount; i++) {
                 _currentTask = _tasks[i];
                 _currentTask.Run();
@@ -61,34 +75,7 @@ public class Scheduler {
         }
     }
 
-    public static int GetTaskId(String name) {
-        for (int i = 0; i < _taskCount; i++) {
-            if (_tasks[i].Name == name) {
-                return _tasks[i].Id;
-            }
-        }
-        return -1;
-    }
-
-    static int v1, v2; // Variante mit Hilfe von Variablen
-
-    @SJC.Inline
-    private static void SaveStack() {
-        // Ablage der Registerwerte in Variablen
-        MAGIC.inline(0x89, 0x2D);
-        MAGIC.inlineOffset(4, v1); // mov [addr(v1)],ebp
-        MAGIC.inline(0x89, 0x25);
-        MAGIC.inlineOffset(4, v2); // mov [addr(v1)],esp
-    }
-
-    @SJC.Inline
-    private static void RestoreStack() {
-        // Beschreiben der Register aus gespeicherten Variablenwerten
-        MAGIC.inline(0x8B, 0x2D);
-        MAGIC.inlineOffset(4, v1); // mov ebp,[addr(v1)]
-        MAGIC.inline(0x8B, 0x25);
-        MAGIC.inlineOffset(4, v2); // mov esp,[addr(v1)]
-    }
+    private static int _v1, _v2; // Variante mit Hilfe von Variablen
 
     public static void TaskBreak() {
         if (_currentTask == null) {
@@ -100,6 +87,10 @@ public class Scheduler {
 
         x86.sti();
 
-        RestoreStack();
+        // Beschreiben der Register aus gespeicherten Variablenwerten
+        MAGIC.inline(0x8B, 0x2D);
+        MAGIC.inlineOffset(4, _v1); // mov ebp,[addr(v1)]
+        MAGIC.inline(0x8B, 0x25);
+        MAGIC.inlineOffset(4, _v2); // mov esp,[addr(v1)]
     }
 }
