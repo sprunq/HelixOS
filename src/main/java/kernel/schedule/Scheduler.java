@@ -10,6 +10,7 @@ public class Scheduler {
     private static Task[] _tasks;
     private static int _taskCount;
     private static Task _currentTask;
+    private static int _storeEbp, _storeEsp;
 
     public static void Initialize() {
         _tasks = new Task[MAX_TASKS];
@@ -55,12 +56,15 @@ public class Scheduler {
         MemoryManager.EnableGarbageCollection();
         Logger.Info("SCHED", "Enabled Garbage Collection");
 
-        // Ablage der Registerwerte in Variablen
         MAGIC.inline(0x89, 0x2D);
-        MAGIC.inlineOffset(4, _v1); // mov [addr(v1)],ebp
+        MAGIC.inlineOffset(4, _storeEbp); // mov [addr(v1)],ebp
         MAGIC.inline(0x89, 0x25);
-        MAGIC.inlineOffset(4, _v2); // mov [addr(v1)],esp
+        MAGIC.inlineOffset(4, _storeEsp); // mov [addr(v1)],esp
 
+        Loop();
+    }
+
+    private static void Loop() {
         while (true) {
             for (int i = 0; i < _taskCount; i++) {
                 _currentTask = _tasks[i];
@@ -75,8 +79,6 @@ public class Scheduler {
         }
     }
 
-    private static int _v1, _v2; // Variante mit Hilfe von Variablen
-
     public static void TaskBreak() {
         if (_currentTask == null) {
             return;
@@ -85,12 +87,13 @@ public class Scheduler {
         RemoveTask(_currentTask);
         _currentTask = null;
 
+        MAGIC.inline(0x8B, 0x2D);
+        MAGIC.inlineOffset(4, _storeEbp); // mov ebp,[addr(v1)]
+        MAGIC.inline(0x8B, 0x25);
+        MAGIC.inlineOffset(4, _storeEsp); // mov esp,[addr(v1)]
+
         x86.sti();
 
-        // Beschreiben der Register aus gespeicherten Variablenwerten
-        MAGIC.inline(0x8B, 0x2D);
-        MAGIC.inlineOffset(4, _v1); // mov ebp,[addr(v1)]
-        MAGIC.inline(0x8B, 0x25);
-        MAGIC.inlineOffset(4, _v2); // mov esp,[addr(v1)]
+        Loop();
     }
 }
