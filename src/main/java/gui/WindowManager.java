@@ -1,6 +1,5 @@
 package gui;
 
-import gui.displays.Wallpaper;
 import gui.images.CursorHand;
 import gui.images.CursorModern;
 import kernel.display.Bitmap;
@@ -11,9 +10,11 @@ import kernel.hardware.keyboard.KeyEvent;
 import kernel.hardware.keyboard.KeyboardController;
 import kernel.hardware.mouse.MouseController;
 import kernel.hardware.mouse.MouseEvent;
+import kernel.schedule.EndlessTask;
+import kernel.schedule.Scheduler;
 import kernel.schedule.Task;
 import kernel.trace.logging.Logger;
-import util.vector.VecWidget;
+import util.vector.VecWindow;
 
 public class WindowManager extends Task {
     static public int InfoAvgRenderTimeMs = 0;
@@ -22,53 +23,36 @@ public class WindowManager extends Task {
     private int _drawTicksAvgSum = 0;
 
     private GraphicsContext _ctx;
-    private VecWidget _widgets;
-    private Widget _selectedWindow;
+    private VecWindow _widgets;
+    private Window _selectedWindow;
     private int _lastUpdate = 0;
 
     private Bitmap _cursorHand;
     private Bitmap _cursorModern;
     private Bitmap _cursorCurrent;
 
-    private MouseEvent _mouseEvent = new MouseEvent();
     private int _lastMouseX;
     private int _lastMouseY;
-    private boolean _leftAlreadyDown = false;
+    private boolean _leftButtonAlreadyDown = false;
     private boolean _is_dragging = false;
-    private int _dragStartX;
-    private int _dragStartY;
 
-    private KeyEvent _keyEvent = new KeyEvent();
     @SuppressWarnings("unused")
     private boolean _ctrlDown = false;
 
     public WindowManager(GraphicsContext ctx) {
         super("_win_window_manager");
-        _widgets = new VecWidget();
+        _widgets = new VecWindow();
         this._ctx = ctx;
-        _cursorHand = CursorHand.Load();
         _cursorModern = CursorModern.Load();
+        _cursorHand = CursorHand.Load();
         _cursorCurrent = _cursorModern;
         _lastMouseX = ctx.Width() / 2;
         _lastMouseY = ctx.Height() / 2;
-
-        AddWindow(new Wallpaper(0, 0, 0, ctx.Width(), ctx.Height()));
-
-        Logger.Info("WIN", "WindowManager initialized");
-        for (int y = 0; y < _cursorHand.Height; y++) {
-            for (int x = 0; x < _cursorHand.Width; x++) {
-                int color = _cursorHand.GetPixel(x, y);
-                int alpha = (color >> 24) & 0xFF;
-                Logger.LogSerial(Integer.toString(alpha));
-                Logger.LogSerial(", ");
-            }
-            Logger.LogSerial("\n");
-        }
-
     }
 
-    public void AddWindow(Widget window) {
+    public void AddWindow(Window window) {
         _widgets.add(window);
+        Scheduler.AddTask(window);
 
         if (_selectedWindow == null && window.IsSelectable()) {
             SetSelectedTo(window);
@@ -95,16 +79,11 @@ public class WindowManager extends Task {
             return;
         }
 
-        if (_cursorCurrent.IsTransparent) {
-            SetDirtyAt(_lastMouseX, _lastMouseY);
-            SetDirtyAt(_lastMouseX + _cursorCurrent.Width / 2, _lastMouseY + _cursorCurrent.Height / 2);
-            SetDirtyAt(_lastMouseX + _cursorCurrent.Width, _lastMouseY + _cursorCurrent.Height);
-        }
+        _lastUpdate = Timer.Ticks();
 
         DrawWindows();
         DrawCursor();
         _ctx.Swap();
-        _lastUpdate = Timer.Ticks();
 
         int end = Timer.Ticks();
         int renderTime = Timer.TicksToMs(end - start);
@@ -128,14 +107,14 @@ public class WindowManager extends Task {
         }
 
         for (int i = 0; i < _widgets.size(); i++) {
-            Widget window = _widgets.get(i);
-
+            Window window = _widgets.get(i);
             if (window == null) {
                 continue;
             }
 
             if (window.NeedsRedraw()) {
-                window.Draw(_ctx);
+                window.Draw();
+                _ctx.Bitmap(window.X, window.Y, window.RenderTarget, false);
             }
         }
     }
@@ -150,7 +129,7 @@ public class WindowManager extends Task {
         if (!_ctx.Contains(_lastMouseX + _cursorCurrent.Width, _lastMouseY + _cursorCurrent.Height))
             return;
 
-        _ctx.Bitmap(_lastMouseX, _lastMouseY, _cursorCurrent);
+        _ctx.Bitmap(_lastMouseX, _lastMouseY, _cursorCurrent, true);
     }
 
     private void DistributeKeyEvents() {
@@ -159,88 +138,99 @@ public class WindowManager extends Task {
         }
 
         while (KeyboardController.HasNewEvent()) {
-            if (KeyboardController.ReadEvent(_keyEvent)) {
-                Logger.Trace("WIN", "Handling ".append(_keyEvent.Debug()));
-                if (_keyEvent.IsDown) {
-                    if (ConsumedInternalOnKeyPressed(_keyEvent.Key)) {
+            KeyEvent keyEvent = KeyboardController.ReadEvent();
+            if (keyEvent != null) {
+                Logger.Trace("WIN", "Handling ".append(keyEvent.Debug()));
+                if (keyEvent.IsDown) {
+                    if (ConsumedInternalOnKeyPressed(keyEvent.Key)) {
                         continue;
                     }
-                    _selectedWindow.OnKeyPressed(_keyEvent.Key);
+                    _selectedWindow.OnKeyPressed(keyEvent.Key);
                 } else {
-                    if (ConsumedInternalOnKeyReleased(_keyEvent.Key)) {
+                    if (ConsumedInternalOnKeyReleased(keyEvent.Key)) {
                         continue;
                     }
-                    _selectedWindow.OnKeyReleased(_keyEvent.Key);
+                    _selectedWindow.OnKeyReleased(keyEvent.Key);
                 }
             }
         }
     }
 
-    public void DistributeMouseEvents() {
-        if (!MouseController.ReadEvent(_mouseEvent)) {
-            return;
-        }
+    private MouseEvent _mouseEvent = new MouseEvent();
 
-        if (_mouseEvent.X_Delta != 0 || _mouseEvent.Y_Delta != 0) {
+    public void DistributeMouseEvents() {
+        if (MouseController.ReadEvent(_mouseEvent)) {
+            ProcessMouseEvent(_mouseEvent);
+        }
+    }
+
+    private void ProcessMouseEvent(MouseEvent event) {
+        if (event.X_Delta != 0 || event.Y_Delta != 0) {
             SetDirtyAt(_lastMouseX, _lastMouseY);
+            SetDirtyAt(_lastMouseX + _cursorCurrent.Width / 2, _lastMouseY + _cursorCurrent.Height / 2);
             SetDirtyAt(_lastMouseX + _cursorCurrent.Width, _drawTicksAvgCycle + _cursorCurrent.Height);
 
-            _lastMouseX += _mouseEvent.X_Delta;
-            _lastMouseY -= _mouseEvent.Y_Delta;
+            _lastMouseX += event.X_Delta;
+            _lastMouseY -= event.Y_Delta;
 
             _lastMouseX = Math.Clamp(_lastMouseX, 0, _ctx.Width());
             _lastMouseY = Math.Clamp(_lastMouseY, 0, _ctx.Height());
+
+            if (_is_dragging && _selectedWindow != null && _selectedWindow.IsDraggable()) {
+                _selectedWindow.MoveBy(event.X_Delta, -event.Y_Delta);
+            }
         }
 
-        if (_mouseEvent.LeftButtonPressed()) {
-            if (_leftAlreadyDown) {
-                if (_is_dragging) {
-                    int dragDiffX = _lastMouseX - _dragStartX;
-                    int dragDiffY = _lastMouseY - _dragStartY;
-                    _selectedWindow.DragBy(dragDiffX, dragDiffY);
-                    SetAllDirty();
-                    _is_dragging = false;
-                } else {
-                    _is_dragging = true;
-                    _cursorCurrent = _cursorHand;
-                    _dragStartX = _lastMouseX;
-                    _dragStartY = _lastMouseY;
+        if (event.LeftButtonPressed()) {
+            if (_leftButtonAlreadyDown) {
+                if (!_is_dragging) {
+                    StartDrag();
                 }
+
             } else {
                 Logger.Trace("WIN", "Mouse Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
-                _leftAlreadyDown = true;
-                _cursorCurrent = _cursorHand;
                 SetSelectedAt(_lastMouseX, _lastMouseY);
+                _selectedWindow.LeftClickAt(_lastMouseX, _lastMouseY);
+                _leftButtonAlreadyDown = true;
             }
         } else {
-            if (_leftAlreadyDown) {
-                _cursorCurrent = _cursorModern;
-            }
-            _is_dragging = false;
-            _leftAlreadyDown = false;
+            StopDrag();
+            _leftButtonAlreadyDown = false;
         }
-        if (_mouseEvent.RightButtonPressed()) {
+
+        if (event.RightButtonPressed()) {
             Logger.Trace("WIN", "Mouse Right Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
         }
-        if (_mouseEvent.MiddleButtonPressed()) {
+
+        if (event.MiddleButtonPressed()) {
             Logger.Trace("WIN", "Mouse Middle Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
         }
     }
 
+    private void StartDrag() {
+        _cursorCurrent = _cursorHand;
+        _is_dragging = true;
+    }
+
+    private void StopDrag() {
+        _cursorCurrent = _cursorModern;
+        _is_dragging = false;
+    }
+
     private void SetSelectedAt(int x, int y) {
         for (int i = 0; i < _widgets.size(); i++) {
-            Widget window = _widgets.get(i);
+            Window window = _widgets.get(i);
             if (window == null || !window.IsSelectable()) {
                 continue;
             }
             if (window.Contains(x, y)) {
                 SetSelectedTo(window);
-                break;
+                return;
             }
         }
     }
 
-    private void SetSelectedTo(Widget window) {
+    private void SetSelectedTo(Window window) {
         Logger.Trace("WIN", "Selected ".append(window.Name));
         if (_selectedWindow != null) {
             _selectedWindow.SetSelected(false);
@@ -255,7 +245,7 @@ public class WindowManager extends Task {
 
     private void SetDirtyAt(int x, int y) {
         for (int i = 0; i < _widgets.size(); i++) {
-            Widget window = _widgets.get(i);
+            Window window = _widgets.get(i);
             if (window == null) {
                 continue;
             }
@@ -267,7 +257,7 @@ public class WindowManager extends Task {
 
     private void SetAllDirty() {
         for (int i = 0; i < _widgets.size(); i++) {
-            Widget window = _widgets.get(i);
+            Window window = _widgets.get(i);
             if (window == null) {
                 continue;
             }
@@ -277,6 +267,9 @@ public class WindowManager extends Task {
 
     private boolean ConsumedInternalOnKeyPressed(char keyCode) {
         switch (keyCode) {
+            case Key.F9:
+                new EndlessTask().Register();
+                return true;
             case Key.LCTRL:
                 _ctrlDown = true;
                 return true;

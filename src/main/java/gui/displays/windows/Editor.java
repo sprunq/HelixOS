@@ -4,32 +4,27 @@ import formats.fonts.AFont;
 import gui.Window;
 import gui.components.TextField;
 import kernel.Kernel;
-import kernel.display.GraphicsContext;
 import kernel.hardware.keyboard.Key;
+import kernel.trace.logging.Logger;
 
 public class Editor extends Window {
-
     private TextField _textField;
 
     public Editor(
             String title,
             int x,
             int y,
-            int z,
             int width,
             int height,
             int border,
             int charSpacing,
             int lineSpacing,
             AFont font) {
-        super(x, y, z, width, height, title);
+        super(title, x, y, width, height);
 
         int bg = Kernel.Display.Rgb(20, 20, 20);
         int fg = Kernel.Display.Rgb(255, 255, 255);
         _textField = new TextField(
-                ContentX,
-                ContentY,
-                z,
                 ContentWidth,
                 ContentHeight,
                 border,
@@ -41,8 +36,12 @@ public class Editor extends Window {
                 font);
     }
 
-    public void DrawContent(GraphicsContext ctx) {
-        _textField.Draw(ctx);
+    public void DrawContent() {
+        if (_textField.NeedsRedraw()) {
+            _textField.Draw();
+        }
+        RenderTarget.Blit(ContentRelativeX, ContentRelativeY, _textField.RenderTarget, false);
+        ClearDirty();
     }
 
     @Override
@@ -80,25 +79,23 @@ public class Editor extends Window {
     }
 
     @Override
-    public void OnKeyReleased(char key) {
-        _textField.OnKeyReleased(key);
-    }
-
-    @Override
     public void LeftClickAt(int x, int y) {
-        _textField.SetCursor(ScreenXToCursorX(x), ScreenYToCursorY(y));
+        int cx = ScreenXToCursorX(x);
+        int cy = ScreenYToCursorY(y);
+        _textField.SetCursor(cx, cy);
+        Logger.Info("Cursor", "set to".append(cx).append(" ").append(cy));
     }
 
     private int ScreenXToCursorX(int x) {
         int ll = _textField.LineLength;
         int lperCell = _textField.Font.Width() + _textField.SpacingW;
-        int cell = (x - _textField.X) / lperCell;
+        int cell = (x - X) / lperCell;
         return Math.Clamp(cell, 0, ll - 1);
     }
 
     private int ScreenYToCursorY(int y) {
         int lperCell = _textField.Font.Height() + _textField.SpacingH;
-        int cell = (y - _textField.Y) / lperCell;
+        int cell = (y - Y) / lperCell;
         return Math.Clamp(cell, 0, _textField.LineCount - 1);
     }
 
@@ -135,8 +132,12 @@ public class Editor extends Window {
     }
 
     @Override
-    public void DragBy(int dragDiffX, int dragDiffY) {
-        super.DragBy(dragDiffX, dragDiffY);
-        _textField.DragBy(dragDiffX, dragDiffY);
+    public void MoveBy(int dragDiffX, int dragDiffY) {
+        super.MoveBy(dragDiffX, dragDiffY);
+        // _textField.DragBy(dragDiffX, dragDiffY);
+    }
+
+    @Override
+    public void Update() {
     }
 }

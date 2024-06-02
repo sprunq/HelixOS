@@ -15,6 +15,10 @@ public class Math {
         return n < 0 ? -n : n;
     }
 
+    public static double Abs(double n) {
+        return n < 0 ? -n : n;
+    }
+
     public static long Abs(long n) {
         return n < 0 ? -n : n;
     }
@@ -60,5 +64,53 @@ public class Math {
             Kernel.panic("integer overflow");
         }
         return (int) r;
+    }
+
+    public static double Sin(double n) {
+        final double my_pi = 3.14159265358979323;
+        n = Fmod(n, 2 * my_pi);
+        if (n < 0) {
+            n = 2 * my_pi - n;
+        }
+        int sign = 1;
+        if (n > my_pi) {
+            n -= my_pi;
+            sign = -1;
+        }
+        double result = n;
+        double coefficent = 3;
+        for (int i = 0; i < 10; i++) {
+            double pow = power(n, coefficent);
+            double frac = factorial(coefficent);
+            if (i % 2 == 0) {
+                result = result - (pow / frac);
+            } else {
+                result = result + (pow / frac);
+            }
+            coefficent = coefficent + 2;
+        }
+
+        return sign * n;
+    }
+
+    public static double Fmod(double a, double b) {
+        double frac = a / b;
+        int floor = frac > 0 ? (int) frac : (int) (frac - 0.9999999999999);
+        return (a - b * floor);
+    }
+
+    public static double factorial(double n) {
+        if (n == 0) {
+            return 1.0;
+        }
+        return n * (factorial(n - 1));
+    }
+
+    public static double power(double n, double power) {
+        double result = n;
+        for (int i = 1; i < power; i++) {
+            result = n * result;
+        }
+        return result;
     }
 }

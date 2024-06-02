@@ -9,7 +9,7 @@ import kernel.trace.logging.Logger;
 
 public class VESAGraphics extends GraphicsContext {
     public VESAMode curMode;
-    private byte[] buffer;
+    private Bitmap buffer;
     private boolean needsRedraw;
 
     public VESAGraphics(VESAMode mode) {
@@ -19,8 +19,7 @@ public class VESAGraphics extends GraphicsContext {
         if (mode.ColorDepth != 32) {
             Kernel.panic("VESAGraphics.setMode: only 32 bit color depth is supported");
         }
-        int size = mode.XRes * mode.YRes * mode.BytesPerColor();
-        buffer = new byte[size];
+        buffer = new Bitmap(mode.XRes, mode.YRes, false);
         needsRedraw = true;
         curMode = mode;
 
@@ -67,120 +66,45 @@ public class VESAGraphics extends GraphicsContext {
         if (x < 0 || y < 0 || x >= curMode.XRes || y >= curMode.YRes) {
             return;
         }
-
-        int addr32 = (x + y * curMode.XRes) << 2;
-        int addrR32 = MAGIC.addr(buffer[addr32]);
-        MAGIC.wMem32(addrR32, col);
+        buffer.SetPixel(x, y, col);
         needsRedraw = true;
     }
 
     @Override
-    public void Rectangle(int x, int y, int width, int height, int color) {
-        // only draw visible part
-        if (x < 0) {
-            width += x;
-            x = 0;
-        }
-
-        if (y < 0) {
-            height += y;
-            y = 0;
-        }
-
-        if (x + width > curMode.XRes) {
-            width = curMode.XRes - x;
-        }
-
-        if (y + height > curMode.YRes) {
-            height = curMode.YRes - y;
-        }
-
-        // this should not happen but it does and im confused
-        // somehow returning fixes it but it makes no sense
-        if (width <= 0 || height <= 0) {
-            return;
-        }
-
-        int addr32 = (x + y * curMode.XRes) << 2;
-        int addrR32 = MAGIC.addr(buffer[addr32]);
-        for (int i = 0; i < height; i++) {
-            Memory.Memset32(addrR32, width, color);
-            addrR32 += curMode.XRes << 2;
-        }
-    }
-
-    @Override
-    public void Bitmap(int x, int y, Bitmap bitmap) {
+    public void Bitmap(int x, int y, Bitmap bitmap, boolean transparent) {
         if (curMode == null || bitmap == null) {
             Kernel.panic("VESAGraphics.setBitmap: mode or bitmap is null");
             return;
         }
-
-        int height = Math.Clamp(bitmap.Height, 0, curMode.YRes - 1 - y);
-        int width = Math.Clamp(bitmap.Width, 0, curMode.XRes - 1 - x);
-
-        for (int pixel_y = 0; pixel_y < height; pixel_y++) {
-
-            if (!bitmap.IsTransparent) {
-                int startAddr = MAGIC.addr(bitmap.PixelData[bitmap.Row(pixel_y)]);
-                int toAddr = MAGIC.addr(buffer[(x + (y + pixel_y) * curMode.XRes) << 2]);
-                Memory.Memcopy32(startAddr, toAddr, width);
-                continue;
-            }
-
-            for (int pixel_x = 0; pixel_x < width; pixel_x++) {
-                int col = bitmap.GetPixel(pixel_x, pixel_y);
-                int alpha = (col >> 24) & 0xFF;
-                if (alpha == 0) {
-                    continue;
-                }
-
-                int xx = x + pixel_x;
-                int yy = y + pixel_y;
-                int addr32 = (xx + yy * curMode.XRes) << 2;
-                int addrR32 = MAGIC.addr(buffer[addr32]);
-
-                if (alpha == 255) {
-                    MAGIC.wMem32(addrR32, col);
-                } else {
-                    int oldCol = MAGIC.rMem32(addrR32);
-                    int newCol = Blend(col, oldCol);
-                    MAGIC.wMem32(addrR32, newCol);
-                }
-            }
-        }
+        buffer.Blit(x, y, bitmap, transparent);
         needsRedraw = true;
-    }
-
-    @SJC.Inline
-    private int Blend(int withAlpha, int noAlpha) {
-        int alpha = (withAlpha >> 24) & 0xFF;
-        int r = (alpha * ((withAlpha >> 16) & 0xFF) + (255 - alpha) * ((noAlpha >> 16) & 0xFF)) / 255;
-        int g = (alpha * ((withAlpha >> 8) & 0xFF) + (255 - alpha) * ((noAlpha >> 8) & 0xFF)) / 255;
-        int b = (alpha * (withAlpha & 0xFF) + (255 - alpha) * (noAlpha & 0xFF)) / 255;
-        return 0xFF000000 | (r << 16) | (g << 8) | b;
     }
 
     @Override
     public void Swap() {
         if (needsRedraw) {
-            int from = MAGIC.addr(buffer[0]);
+            int from = MAGIC.addr(buffer.PixelData[0]);
             int to = curMode.LfbAddress;
-            int len = buffer.length;
-            Memory.Memcopy(from, to, len);
+            int len = buffer.PixelData.length;
+            Memory.Memcopy32(from, to, len);
         }
         needsRedraw = false;
     }
 
     @Override
     public void ClearScreen() {
-        int from = MAGIC.addr(buffer[0]);
-        int len = buffer.length;
-        Memory.Memset(from, len, (byte) 0);
+        buffer.Clear();
+        needsRedraw = true;
     }
 
     @Override
     public boolean Contains(int x, int y) {
         return x >= 0 && y >= 0 && x < curMode.XRes && y < curMode.YRes;
+    }
+
+    @Override
+    public void Rectangle(int x, int y, int width, int height, int color) {
+        buffer.Rectangle(x, y, width, height, color);
+        needsRedraw = true;
     }
 }

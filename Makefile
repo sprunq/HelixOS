@@ -60,5 +60,6 @@ run: \
 	qemu-system-x86_64 \
 		-m 1024 \
 		-rtc base=localtime \
-		-serial file:$(builddir)/serial.log \
+		-no-reboot \
+		-debugcon file:$(builddir)/serial.log \
 		-boot d -cdrom $(builddir)/$(cd_img_name) 

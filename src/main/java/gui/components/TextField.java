@@ -2,8 +2,6 @@ package gui.components;
 
 import formats.fonts.AFont;
 import gui.Widget;
-import kernel.Kernel;
-import kernel.display.GraphicsContext;
 import kernel.hardware.keyboard.Key;
 import util.StrBuilder;
 
@@ -27,9 +25,6 @@ public class TextField extends Widget {
     protected boolean _enableCursor;
 
     public TextField(
-            int x,
-            int y,
-            int z,
             int width,
             int height,
             int borderSpacing,
@@ -39,7 +34,7 @@ public class TextField extends Widget {
             int bg,
             boolean enableCursor,
             AFont font) {
-        super("component_textfield", x, y, z, width, height);
+        super("component_textfield", width, height);
 
         _cursorX = 0;
         _cursorY = 0;
@@ -173,23 +168,23 @@ public class TextField extends Widget {
     public void DrawCursor() {
         int xFactor = Font.Width() + SpacingW;
         int yFactor = Font.Height() + SpacingH;
-        int xOffset = X + SpacingBorder;
-        int yOffset = Y + SpacingBorder;
+        int xOffset = SpacingBorder;
+        int yOffset = SpacingBorder;
 
         int x = xOffset + _cursorX * xFactor;
         int y = yOffset + _cursorY * yFactor;
 
-        Kernel.Display.Rectangle(x, y, 2, Font.Height(), _fg);
+        RenderTarget.Rectangle(x, y, 2, Font.Height(), _fg);
     }
 
     @Override
-    public void Draw(GraphicsContext display) {
-        Kernel.Display.Rectangle(X, Y, Width, Height, _bg);
+    public void Draw() {
+        RenderTarget.Rectangle(0, 0, Width, Height, _bg);
 
         int xFactor = Font.Width() + SpacingW;
         int yFactor = Font.Height() + SpacingH;
-        int xOffset = X + SpacingBorder;
-        int yOffset = Y + SpacingBorder;
+        int xOffset = SpacingBorder;
+        int yOffset = SpacingBorder;
 
         for (int i = 0; i < LineCount; i++) {
             for (int j = 0; j < LineLength; j++) {
@@ -203,12 +198,12 @@ public class TextField extends Widget {
                 int x = xOffset + j * xFactor;
                 int y = yOffset + i * yFactor;
 
-                Font.RenderToDisplay(display, x, y, character, characterColor);
+                Font.RenderToBitmap(RenderTarget, x, y, character, characterColor);
             }
         }
         if (_enableCursor) {
             DrawCursor();
         }
-        _needsRedraw = false;
+        ClearDirty();
     }
 }

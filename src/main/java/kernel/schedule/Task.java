@@ -21,10 +21,6 @@ public abstract class Task {
         Scheduler.RemoveTask(this);
     }
 
-    public boolean WantsActive() {
-        return true;
-    }
-
     public final void RunTask() {
         _active = true;
         Run();
