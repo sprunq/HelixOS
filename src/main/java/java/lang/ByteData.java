@@ -13,4 +13,5 @@ public class ByteData {
     public static final byte[] editor_binimg = {};
     public static final byte[] arrow_left_binimg = {};
     public static final byte[] arrow_right_binimg = {};
+    public static final byte[] flowfield_binimg = {};
 }

@@ -7,6 +7,7 @@ import gui.components.button.ButtonClickedEventArgs;
 import gui.components.button.BitmapButton;
 import gui.images.BackgroundBarn;
 import gui.images.EditorIcon;
+import gui.images.FlowFieldIcon;
 import gui.images.InfoIcon;
 import kernel.Kernel;
 import kernel.display.Bitmap;
@@ -46,7 +47,7 @@ public class Desktop extends Window {
                 10,
                 190,
                 60,
-                InfoIcon.Load(),
+                FlowFieldIcon.Load(),
                 this));
 
     }
