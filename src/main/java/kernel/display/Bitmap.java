@@ -151,6 +151,22 @@ public class Bitmap {
 
     }
 
+    public Bitmap Scale(int newWidth, int newHeight) {
+        int[] newPixelData = new int[newWidth * newHeight];
+        int x_ratio = (Width << 16) / newWidth + 1;
+        int y_ratio = (Height << 16) / newHeight + 1;
+
+        for (int i = 0; i < newHeight; i++) {
+            for (int j = 0; j < newWidth; j++) {
+                int x = (j * x_ratio) >> 16;
+                int y = (i * y_ratio) >> 16;
+                newPixelData[j + i * newWidth] = PixelData[x + y * Width];
+            }
+        }
+
+        return new Bitmap(newWidth, newHeight, newPixelData);
+    }
+
     @SJC.Inline
     private int Blend(int withAlpha, int noAlpha) {
         int alpha = (withAlpha >> 24) & 0xFF;

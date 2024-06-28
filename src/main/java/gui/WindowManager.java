@@ -1,5 +1,6 @@
 package gui;
 
+import gui.displays.windows.Desktop;
 import gui.images.CursorHand;
 import gui.images.CursorModern;
 import kernel.display.Bitmap;
@@ -39,6 +40,8 @@ public class WindowManager extends Task {
     @SuppressWarnings("unused")
     private boolean _ctrlDown = false;
 
+    private Desktop _desktop;
+
     public WindowManager(GraphicsContext ctx) {
         super("_win_window_manager");
         _widgets = new VecWindow();
@@ -48,6 +51,8 @@ public class WindowManager extends Task {
         _cursorCurrent = _cursorModern;
         _lastMouseX = ctx.Width() / 2;
         _lastMouseY = ctx.Height() / 2;
+        _desktop = new Desktop("Desktop");
+        _desktop.Draw();
     }
 
     public void AddWindow(Window window) {
@@ -57,6 +62,11 @@ public class WindowManager extends Task {
         if (_selectedWindow == null && window.IsSelectable()) {
             SetSelectedTo(window);
         }
+    }
+
+    public void RemoveWindow(Window window) {
+        _widgets.remove(window);
+        Scheduler.RemoveTask(window);
     }
 
     public void StaticDisplayFor(int ms) {
@@ -106,16 +116,20 @@ public class WindowManager extends Task {
             return;
         }
 
+        _ctx.ClearScreen();
+        _ctx.Bitmap(0, 0, _desktop.RenderTarget, false);
         for (int i = 0; i < _widgets.size(); i++) {
             Window window = _widgets.get(i);
             if (window == null) {
                 continue;
             }
 
+            // redraw window content only if needed
             if (window.NeedsRedraw()) {
                 window.Draw();
-                _ctx.Bitmap(window.X, window.Y, window.RenderTarget, false);
             }
+            // but always blit the window
+            _ctx.Bitmap(window.X, window.Y, window.RenderTarget, false);
         }
     }
 
@@ -190,7 +204,15 @@ public class WindowManager extends Task {
             } else {
                 Logger.Trace("WIN", "Mouse Click at ".append(_lastMouseX).append(", ").append(_lastMouseY));
                 SetSelectedAt(_lastMouseX, _lastMouseY);
-                _selectedWindow.LeftClickAt(_lastMouseX, _lastMouseY);
+                boolean consumedBySelected = false;
+                if (_selectedWindow != null) {
+                    if (_selectedWindow.Contains(_lastMouseX, _lastMouseY)) {
+                        consumedBySelected = _selectedWindow.AbsoluteLeftClickAt(_lastMouseX, _lastMouseY);
+                    }
+                }
+                if (!consumedBySelected) {
+                    _desktop.AbsoluteLeftClickAt(_lastMouseX, _lastMouseY);
+                }
                 _leftButtonAlreadyDown = true;
             }
         } else {
@@ -218,7 +240,7 @@ public class WindowManager extends Task {
     }
 
     private void SetSelectedAt(int x, int y) {
-        for (int i = 0; i < _widgets.size(); i++) {
+        for (int i = _widgets.size() - 1; i >= 0; i--) {
             Window window = _widgets.get(i);
             if (window == null || !window.IsSelectable()) {
                 continue;
@@ -244,7 +266,7 @@ public class WindowManager extends Task {
     }
 
     private void SetDirtyAt(int x, int y) {
-        for (int i = 0; i < _widgets.size(); i++) {
+        for (int i = _widgets.size() - 1; i >= 0; i--) {
             Window window = _widgets.get(i);
             if (window == null) {
                 continue;
@@ -252,16 +274,6 @@ public class WindowManager extends Task {
             if (window.Contains(x, y)) {
                 window.SetDirty();
             }
-        }
-    }
-
-    private void SetAllDirty() {
-        for (int i = 0; i < _widgets.size(); i++) {
-            Window window = _widgets.get(i);
-            if (window == null) {
-                continue;
-            }
-            window.SetDirty();
         }
     }
 

@@ -91,6 +91,7 @@ public class Bluescreen {
         pos = TM3.sPrintln("  EBP        |  EIP       | Method", pos, COL_HEADLINE);
         pos = TM3.sPrintln(" ------------|------------|----------------------------------------------------", pos,
                 COL_HEADLINE);
+
         do {
             pos = TM3.sPrint("  ", pos, COL_MESSAGE);
             pos = TM3.sPrint("0x", pos, COL_MESSAGE);
