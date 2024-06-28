@@ -70,9 +70,10 @@ public class Scheduler {
                 _currentTask = _tasks[i];
                 _currentTask.Run();
 
-                if (MemoryManager.ShouldCollectGarbage()) {
-                    MemoryManager.TriggerGarbageCollection();
-                }
+            }
+
+            if (MemoryManager.ShouldCollectGarbage()) {
+                MemoryManager.TriggerGarbageCollection();
             }
 
             // x86.hlt();

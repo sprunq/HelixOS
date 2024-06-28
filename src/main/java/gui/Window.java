@@ -30,7 +30,6 @@ public abstract class Window extends Task implements IButtonListener {
     public int Width;
     public int Height;
     public boolean IsSelected;
-    public String Name;
     protected boolean _needsRedraw;
 
     public final int COL_BORDER;
@@ -53,7 +52,6 @@ public abstract class Window extends Task implements IButtonListener {
         Y = y;
         Width = width;
         Height = height;
-        Name = title;
         _needsRedraw = true;
         _widgets = new Vec();
         _withFrame = withFrame;
@@ -116,6 +114,7 @@ public abstract class Window extends Task implements IButtonListener {
             DrawTitleBar();
         }
         DrawContent();
+        DrawWidgets();
         ClearDirty();
     }
 

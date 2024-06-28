@@ -17,6 +17,7 @@ public class Desktop extends Window {
 
     private static String _btnLaunchEditor = "Btn_Launch_Editor";
     private static String _btnLaunchSystemInfo = "Btn_Launch_SystemInfo";
+    private static String _btnLaunchFlowField = "Btn_Launch_FlowField";
 
     public Desktop(
             String title) {
@@ -39,6 +40,15 @@ public class Desktop extends Window {
                 60,
                 InfoIcon.Load(),
                 this));
+
+        AddWidget(new BitmapButton(
+                _btnLaunchFlowField,
+                10,
+                190,
+                60,
+                InfoIcon.Load(),
+                this));
+
     }
 
     public void DrawContent() {
@@ -82,6 +92,15 @@ public class Desktop extends Window {
                     2,
                     Font9x16.Instance);
             Kernel.WindowManager.AddWindow(editor);
+            return true;
+        } else if (event.ButtonName == _btnLaunchFlowField) {
+            FlowField flowField = new FlowField(
+                    "Flow Field",
+                    40,
+                    40,
+                    800,
+                    600);
+            Kernel.WindowManager.AddWindow(flowField);
             return true;
         }
         return false;
