@@ -6,7 +6,7 @@ import kernel.memory.MemoryManager;
 import kernel.trace.logging.Logger;
 
 public class Scheduler {
-    public static final int MAX_TASKS = 32;
+    public static final int MAX_TASKS = 4096;
     private static Task[] _tasks;
     private static int _taskCount;
     private static Task _currentTask;
@@ -70,9 +70,10 @@ public class Scheduler {
                 _currentTask = _tasks[i];
                 _currentTask.Run();
 
-                if (MemoryManager.ShouldCollectGarbage()) {
-                    MemoryManager.TriggerGarbageCollection();
-                }
+            }
+
+            if (MemoryManager.ShouldCollectGarbage()) {
+                MemoryManager.TriggerGarbageCollection();
             }
 
             // x86.hlt();
@@ -95,5 +96,9 @@ public class Scheduler {
         x86.sti();
 
         Loop();
+    }
+
+    public static int GetTaskCount() {
+        return _taskCount;
     }
 }

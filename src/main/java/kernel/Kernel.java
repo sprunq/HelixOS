@@ -1,11 +1,7 @@
 package kernel;
 
 import arch.x86;
-import formats.fonts.Font7x8;
-import formats.fonts.Font9x16;
 import gui.WindowManager;
-import gui.displays.windows.Editor;
-import gui.displays.windows.SystemInfo;
 import kernel.display.vesa.VESAGraphics;
 import kernel.display.vesa.VESAMode;
 import kernel.display.vesa.VesaQuery;
@@ -19,7 +15,6 @@ import kernel.hardware.pci.PciDevice;
 import kernel.interrupt.IDT;
 import kernel.memory.GarbageCollector;
 import kernel.memory.MemoryManager;
-import kernel.memory.VirtualMemory;
 import kernel.schedule.Scheduler;
 import kernel.trace.Bluescreen;
 import kernel.trace.SymbolResolution;
@@ -27,9 +22,10 @@ import kernel.trace.logging.Logger;
 import util.vector.VecVesaMode;
 
 public class Kernel {
-    public static final int RESOLUTION = 1;
+    public static final int RESOLUTION = 0;
 
     public static GraphicsContext Display;
+    public static WindowManager WindowManager;
 
     public static void main() {
         Logger.LogSerial("Initializing Kernel..\n");
@@ -55,10 +51,10 @@ public class Kernel {
         MemoryManager.DisableGarbageCollection();
         Logger.Info("BOOT", "Disabled Garbage Collection");
 
-        VirtualMemory.EnableVirtualMemory();
-        Logger.Info("BOOT", "Enabled Virtual Memory");
+        // VirtualMemory.EnableVirtualMemory();
+        // Logger.Info("BOOT", "Enabled Virtual Memory");
 
-        // PrintAllPciDevices();
+        PrintAllPciDevices();
 
         PIT.Initialize();
         Logger.Info("BOOT", "Initialized PIT");
@@ -82,10 +78,11 @@ public class Kernel {
         Logger.Info("BOOT", "Initialized Scheduler");
 
         VecVesaMode modes = VesaQuery.AvailableModes();
+        PrintAllVesaModes(modes);
         VESAMode mode;
         switch (RESOLUTION) {
             case 0:
-                mode = VesaQuery.GetMode(modes, 1024, 768, 32, true);
+                mode = VesaQuery.GetMode(modes, 1280, 800, 32, true);
                 break;
             case 1:
                 mode = VesaQuery.GetMode(modes, 1440, 900, 32, true);
@@ -101,17 +98,13 @@ public class Kernel {
 
         Display.ClearScreen();
 
-        WindowManager windowManager = new WindowManager(Display);
-        windowManager.Register();
+        WindowManager = new WindowManager(Display);
+        WindowManager.Register();
         Logger.Info("BOOT", "Initialized WindowManager");
-
-        BuildGuiEnvironment(windowManager);
-        Logger.Info("BOOT", "Built GUI Environment");
 
         Scheduler.Run();
     }
 
-    @SuppressWarnings("unused")
     private static void PrintAllPciDevices() {
         Logger.Info("BOOT", "Detecting PCI Devices..");
         LazyPciDeviceReader reader = new LazyPciDeviceReader();
@@ -123,34 +116,11 @@ public class Kernel {
         }
     }
 
-    private static void BuildGuiEnvironment(WindowManager windowManager) {
-
-        int heightMinusHomebar = Display.Height() - 30 - 1;
-
-        Editor editor = new Editor(
-                "Editor",
-                0,
-                0,
-                (int) (Display.Width() * 0.6),
-                heightMinusHomebar,
-                8,
-                0,
-                2,
-                Font9x16.Instance);
-
-        SystemInfo sysinfo = new SystemInfo(
-                "System Info",
-                editor.X + editor.Width,
-                0,
-                Display.Width() - editor.Width,
-                200,
-                8,
-                0,
-                2,
-                Font7x8.Instance);
-
-        windowManager.AddWindow(editor);
-        windowManager.AddWindow(sysinfo);
+    private static void PrintAllVesaModes(VecVesaMode modes) {
+        for (int i = 0; i < modes.Size(); i++) {
+            VESAMode mode = modes.Get(i);
+            Logger.Info("BOOT", "Mode ".append(i).append(": ").append(mode.Debug()));
+        }
     }
 
     public static void panic(String msg) {

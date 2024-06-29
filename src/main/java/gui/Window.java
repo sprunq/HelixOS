@@ -3,11 +3,18 @@ package gui;
 import formats.fonts.AFont;
 import formats.fonts.Font9x16;
 import gui.components.TextField;
+import gui.components.button.Button;
+import gui.components.button.ButtonClickedEventArgs;
+import gui.components.button.IButtonListener;
+import gui.components.button.BitmapButton;
+import gui.images.CloseIcon;
 import kernel.Kernel;
 import kernel.display.Bitmap;
 import kernel.schedule.Task;
+import kernel.trace.logging.Logger;
+import util.vector.Vec;
 
-public abstract class Window extends Task {
+public abstract class Window extends Task implements IButtonListener {
     public final int FrameSize;
     public final int TitleBarSize;
     public int X;
@@ -18,10 +25,11 @@ public abstract class Window extends Task {
     public int ContentHeight;
     public TextField Title;
 
+    private Button _btnClose;
+
     public int Width;
     public int Height;
     public boolean IsSelected;
-    public String Name;
     protected boolean _needsRedraw;
 
     public final int COL_BORDER;
@@ -31,14 +39,22 @@ public abstract class Window extends Task {
 
     public Bitmap RenderTarget;
 
-    public Window(String title, int x, int y, int width, int height) {
+    protected Vec _widgets;
+    protected boolean _isSelectable = true;
+    protected boolean _isDraggable = true;
+    private boolean _withFrame;
+
+    private static final String BTN_WINDOW_CLOSE = "Btn_Window_Close";
+
+    public Window(String title, int x, int y, int width, int height, boolean withFrame) {
         super(title);
         X = x;
         Y = y;
         Width = width;
         Height = height;
-        Name = title;
         _needsRedraw = true;
+        _widgets = new Vec();
+        _withFrame = withFrame;
 
         RenderTarget = new Bitmap(width, height, false);
 
@@ -49,6 +65,12 @@ public abstract class Window extends Task {
         FrameSize = 4;
         TitleBarSize = 20;
 
+        if (_withFrame) {
+            _btnClose = new BitmapButton(BTN_WINDOW_CLOSE, width - TitleBarSize, 2, TitleBarSize - 4, CloseIcon.Load(),
+                    this);
+            AddWidget(_btnClose);
+        }
+
         ContentRelativeX = FrameSize;
         ContentRelativeY = FrameSize + TitleBarSize;
         ContentWidth = Width - FrameSize * 2;
@@ -56,6 +78,8 @@ public abstract class Window extends Task {
         AFont font = Font9x16.Instance;
         int shiftRight = 5;
         Title = new TextField(
+                2,
+                (TitleBarSize - font.Height()) / 2,
                 Width - shiftRight,
                 font.Height(),
                 0,
@@ -73,12 +97,24 @@ public abstract class Window extends Task {
         Update();
     }
 
+    public boolean OnButtonClicked(ButtonClickedEventArgs button) {
+        Logger.Info("Window", "Button event: ".append(button.Debug()));
+        if (button.ButtonName == BTN_WINDOW_CLOSE) {
+            Kernel.WindowManager.RemoveWindow(this);
+            return true;
+        }
+        return false;
+    }
+
     public abstract void Update();
 
     public void Draw() {
-        DrawFrame();
-        DrawTitleBar();
+        if (_withFrame) {
+            DrawFrame();
+            DrawTitleBar();
+        }
         DrawContent();
+        DrawWidgets();
         ClearDirty();
     }
 
@@ -94,9 +130,10 @@ public abstract class Window extends Task {
 
     public void DrawTitleBar() {
         RenderTarget.Rectangle(0, 0, Width - 1, TitleBarSize, COL_TITLEBAR);
-        int centerFontH = (TitleBarSize - Title.Font.Height()) / 2;
+
         Title.Draw();
-        RenderTarget.Blit(2, centerFontH, Title.RenderTarget, false);
+        RenderTarget.Blit(Title.X, Title.Y, Title.RenderTarget, false);
+        RenderTarget.Blit(_btnClose.X, _btnClose.Y, _btnClose.RenderTarget, false);
     }
 
     public boolean ContainsTitlebar(int x, int y) {
@@ -104,11 +141,11 @@ public abstract class Window extends Task {
     }
 
     public boolean IsSelectable() {
-        return true;
+        return _isSelectable;
     }
 
     public boolean IsDraggable() {
-        return true;
+        return _isDraggable;
     }
 
     public void MoveBy(int dragDiffX, int dragDiffY) {
@@ -149,6 +186,45 @@ public abstract class Window extends Task {
     public void OnKeyReleased(char keyCode) {
     }
 
-    public void LeftClickAt(int _lastMouseX, int _lastMouseY) {
+    public boolean AbsoluteLeftClickAt(int absX, int absY) {
+        int relX = absX - X;
+        int relY = absY - Y;
+        return RelativeLeftClickAt(relX, relY);
+    }
+
+    public boolean RelativeLeftClickAt(int relX, int relY) {
+        return HandleWidgetClicks(relX, relY);
+    }
+
+    protected boolean HandleWidgetClicks(int relX, int relY) {
+        for (int i = 0; i < _widgets.Size(); i++) {
+            Widget widget = (Widget) _widgets.Get(i);
+            if (widget.Contains(relX, relY)) {
+                Logger.Info("WM", "Clicked at ".append(widget.Name));
+                if (widget instanceof Button) {
+                    Logger.Info("WM", "Button clicked");
+                    Button button = (Button) widget;
+                    button.Click();
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected void AddWidget(Widget widget) {
+        _widgets.Add(widget);
+    }
+
+    protected void RemoveWidget(Widget widget) {
+        _widgets.Remove(widget);
+    }
+
+    protected void DrawWidgets() {
+        for (int i = 0; i < _widgets.Size(); i++) {
+            Widget widget = (Widget) _widgets.Get(i);
+            widget.Draw();
+            RenderTarget.Blit(widget.X, widget.Y, widget.RenderTarget, false);
+        }
     }
 }

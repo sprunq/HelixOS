@@ -36,13 +36,13 @@ compile: \
 		-O $(builddir)/$(raw_out) \
 		-p $(builddir) \
 		-y \
-		-s 500M \
+		-s 10000M \
 		-t ia32 -T nsop \
-		-x \
 		-u rte \
 		-g \
 		-G \
 		-D sym $(builddir)/symbols.txt
+		-n
 
 run: \
 	compile

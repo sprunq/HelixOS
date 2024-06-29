@@ -26,7 +26,7 @@ public class Bitmap {
     public void Clear() {
         int from = MAGIC.addr(PixelData[0]);
         int len = PixelData.length;
-        Memory.Memset(from, len, (byte) 0);
+        Memory.Memset(from, len * 4, (byte) 0);
     }
 
     public int GetPixel(int x, int y) {
@@ -51,6 +51,21 @@ public class Bitmap {
         }
 
         PixelData[x + y * Width] = color;
+    }
+
+    @SJC.Inline
+    public void Darken(int amount) {
+        for (int i = 0; i < PixelData.length; i++) {
+            int color = PixelData[i];
+            int r = (color >> 16) & 0xFF;
+            int g = (color >> 8) & 0xFF;
+            int b = color & 0xFF;
+
+            r = (r - amount) & ~((r - amount) >> 31);
+            g = (g - amount) & ~((g - amount) >> 31);
+            b = (b - amount) & ~((b - amount) >> 31);
+            PixelData[i] = 0xFF000000 | (r << 16) | (g << 8) | b;
+        }
     }
 
     public void Rectangle(int x, int y, int width, int height, int color) {
@@ -149,6 +164,22 @@ public class Bitmap {
             }
         }
 
+    }
+
+    public Bitmap Scale(int newWidth, int newHeight) {
+        int[] newPixelData = new int[newWidth * newHeight];
+        int x_ratio = (Width << 16) / newWidth + 1;
+        int y_ratio = (Height << 16) / newHeight + 1;
+
+        for (int i = 0; i < newHeight; i++) {
+            for (int j = 0; j < newWidth; j++) {
+                int x = (j * x_ratio) >> 16;
+                int y = (i * y_ratio) >> 16;
+                newPixelData[j + i * newWidth] = PixelData[x + y * Width];
+            }
+        }
+
+        return new Bitmap(newWidth, newHeight, newPixelData);
     }
 
     @SJC.Inline

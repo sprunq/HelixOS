@@ -8,6 +8,7 @@ import kernel.Kernel;
 import kernel.memory.GarbageCollector;
 import kernel.memory.Memory;
 import kernel.memory.MemoryManager;
+import kernel.schedule.Scheduler;
 import util.StrBuilder;
 import util.queue.QueueInt;
 
@@ -34,10 +35,12 @@ public class SystemInfo extends Window {
             int charSpacing,
             int lineSpacing,
             AFont font) {
-        super(title, x, y, width, height);
+        super(title, x, y, width, height, true);
         int bg = Kernel.Display.Rgb(100, 100, 100);
         int fg = Kernel.Display.Rgb(255, 255, 255);
         _textField = new TextField(
+                0,
+                0,
                 ContentWidth,
                 ContentHeight,
                 border,
@@ -98,6 +101,8 @@ public class SystemInfo extends Window {
         int objectCount = MemoryManager.GetObjectCount();
         int emptyObjectCount = MemoryManager.GetEmptyObjectCount();
 
+        int taskCount = Scheduler.GetTaskCount();
+
         _sb.ClearKeepCapacity();
 
         _sb.AppendLine("Window Manger:")
@@ -121,6 +126,10 @@ public class SystemInfo extends Window {
                 .Append(Memory.FormatBytes(GarbageCollector.InfoLastRunCollectedBytes)).AppendLine()
                 .Append("  ").Append("Last Run Compacted: ")
                 .Append(GarbageCollector.InfoLastRunCompactedEmptyObjects).AppendLine();
+
+        _sb.AppendLine();
+        _sb.AppendLine("Tasks:")
+                .Append("  ").Append("Count: ").Append(taskCount).AppendLine();
 
         _text = _sb.toString();
         _textField.ClearText();

@@ -53,7 +53,7 @@ public class MemoryManager {
         if (_gcEnabled == false) {
             return false;
         }
-        return _gc_allocationSizeSinceLastGC > 4 * 1024;
+        return _gc_allocationSizeSinceLastGC > 12 * 1024;
     }
 
     public static void EnableGarbageCollection() {

@@ -25,6 +25,8 @@ public class TextField extends Widget {
     protected boolean _enableCursor;
 
     public TextField(
+            int x,
+            int y,
             int width,
             int height,
             int borderSpacing,
@@ -34,7 +36,7 @@ public class TextField extends Widget {
             int bg,
             boolean enableCursor,
             AFont font) {
-        super("component_textfield", width, height);
+        super("component_textfield", x, y, width, height);
 
         _cursorX = 0;
         _cursorY = 0;

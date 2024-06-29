@@ -20,11 +20,13 @@ public class Editor extends Window {
             int charSpacing,
             int lineSpacing,
             AFont font) {
-        super(title, x, y, width, height);
+        super(title, x, y, width, height, true);
 
         int bg = Kernel.Display.Rgb(20, 20, 20);
         int fg = Kernel.Display.Rgb(255, 255, 255);
         _textField = new TextField(
+                0,
+                0,
                 ContentWidth,
                 ContentHeight,
                 border,
@@ -79,24 +81,20 @@ public class Editor extends Window {
     }
 
     @Override
-    public void LeftClickAt(int x, int y) {
-        int cx = ScreenXToCursorX(x);
-        int cy = ScreenYToCursorY(y);
+    public boolean RelativeLeftClickAt(int relX, int relY) {
+        if (super.RelativeLeftClickAt(relX, relY)) {
+            return true;
+        }
+
+        int cellW = relX / (_textField.Font.Width() + _textField.SpacingW);
+        int cx = Math.Clamp(cellW, 0, _textField.LineLength - 1);
+
+        int cellH = relY / (_textField.Font.Height() + _textField.SpacingH);
+        int cy = Math.Clamp(cellH, 0, _textField.LineCount - 1);
+
         _textField.SetCursor(cx, cy);
         Logger.Info("Cursor", "set to".append(cx).append(" ").append(cy));
-    }
-
-    private int ScreenXToCursorX(int x) {
-        int ll = _textField.LineLength;
-        int lperCell = _textField.Font.Width() + _textField.SpacingW;
-        int cell = (x - X) / lperCell;
-        return Math.Clamp(cell, 0, ll - 1);
-    }
-
-    private int ScreenYToCursorY(int y) {
-        int lperCell = _textField.Font.Height() + _textField.SpacingH;
-        int cell = (y - Y) / lperCell;
-        return Math.Clamp(cell, 0, _textField.LineCount - 1);
+        return true;
     }
 
     private void MoveCursorUp() {
