@@ -14,6 +14,7 @@ This project was created as part of my operating systems course and is written i
 - Java (`java` in path)
 - [SJC](https://fam-frenz.de/stefan/compiler.html)
 - QEMU (`qemu-system-x86_64` in path)
+- mkisofs
 
 ### Build Script
 
